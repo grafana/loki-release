@@ -7,8 +7,15 @@ This doc contains diagrams illustrating the old workflow the Loki team followed 
 graph TD;
     A([Decide to release]) --> B([Create release branch from weekly branch]);
     B --> C([Make changes to release branch]);
-    C --> D([Tag release]);
-    D --> |Push tag| E[/Trigger Drone Pipeline/];
+    C --> D([Check Changelog])
+    E --> |Push changelog| F([PR changelog into release branch])
+    C --> G([Curate Release Notes])
+    G --> |Push release notes| H([PR release notes into release branch])
+    F --> G([Tag release]);
+    H --> G([Tag release]);
+    G --> |Push tag| I[/Trigger Drone Pipeline/];
+    I --> |Wait for Drone Pipeline| J([Copy release notes into release])
+    J --> K([Publish release])
 ```
 
 Drone pipeline:
