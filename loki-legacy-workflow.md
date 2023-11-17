@@ -4,11 +4,14 @@
 
 This doc contains diagrams illustrating the old workflow the Loki team followed to release new versions.
 
-In the following diagrams, stadium-shaped nodes indicate manual actions, while parallelagrams indicate automated actions.
+In the following diagrams, stadium-shaped nodes indicate manual actions, parallelagrams indicate automated actions, and a rhombus indicates a conditional flow.
 
 ```mermaid
 graph TD;
     A([manual action]) --> B[/automated action/];
+    A --> C{Conditional Flow}
+    C --> |yes| D([condition satisfied])
+    C --> |no| E([condition not satisfied])
 ```
 
 ## Workflow Overview
@@ -19,36 +22,50 @@ Here is a general overflow of the workflow required to release a new version of 
 graph TD;
     start([Decide to release]) --> branch([Create release branch from weekly branch]);
     start --> announce([Announce release in #loki-releases]);
-    start --> issue([Create GitHub issue announcing release]);
+    announce --> issue([Create GitHub issue announcing release]);
     branch --> changes([Make changes to release branch]);
+
     changes --> checkChangelog([Check Changelog]);
     checkChangelog --> changelogHeader([Update the Unrealeased changelog header]);
     changelogHeader --> changelogMain([PR updated changelog headers into main]);
     changelogHeader --> prChangelog([PR changelog into release branch]);
+    prChangelog --> mergePRs([Merge outstanding PRs into release branch]);
+    changelogMain --> mergeMainPRs([Merge outstanding PRs into main]);
+
     changes --> releaseNotes([Curate Release Notes]);
     releaseNotes --> prReleaseNotes([PR release notes into release branch]);
-    prChangelog --> mergePRs([Merge outstanding PRs]);
+    releaseNotes --> prReleaseNotesMain([PR release notes into main branch]);
+    prReleaseNotesMain --> mergeMainPRs;
     prReleaseNotes --> mergePRs;
+
     mergePRs --> tag([Tag release]);
+
     changes --> binaryVersions([Update references to binary/image versions]);
     binaryVersions --> prVersions([PR updated versions references into release branch]);
-    binaryVersions --> isLatestVersion([Is release for latest version?])
+    binaryVersions --> isLatestVersion{Is release for latest version?};
     isLatestVersion --> |yes| prVersionsMain([PR updated versions references into main branch]);
-    prVersionsMain --> waitForPublish([Wait for release to be published])
-    changes --> checkConfigs([check if we made any config changes])
-    checkConfigs --> |yes| updateUpgradingDoc([update upgrading doc with changed configs])
-    checkConfigs --> |no| --> tag
-    updateUpgradingDoc --> |push doc changes| prUpgradingDoc([PR upgrading doc changes into release branch])
-    updateUpgradingDoc --> |push doc changes| prUpgradingDocMain([PR upgrading doc changes into main branch])
+    prVersionsMain --> waitForPublish([Wait for release to be published]);
+    prVersions --> mergePRs;
+
+    changes --> checkConfigs{did we make any config changes?};
+    checkConfigs --> |yes| updateUpgradingDoc([update upgrading doc with changed configs and/or metrics]);
+    checkConfigs --> |no| tag;
+    updateUpgradingDoc --> prUpgradingDoc([PR upgrading doc changes into release branch]);
+    updateUpgradingDoc --> prUpgradingDocMain([PR upgrading doc changes into main branch]);
+    prUpgradingDocMain --> mergeMainPRs;
     prUpgradingDoc --> tag;
-    announce --> tag;
+
+    changes --> checkMetrics{did we change any metric names?};
+    checkMetrics --> |yes| updateUpgradingDoc;
+    checkMetrics --> |no| tag;
+
     issue --> tag;
-    binaryVersions --> tag;
+
     tag --> |Push tag| drone[/Trigger Drone Pipeline/];
-    drone --> |Wait for Drone Pipeline| copyReleaseNotes([Copypublishrelease notes into release])
-    copyReleaseNotes --> publish([Publish release])
-    publish --> waitForPublish
-    waitForPublish --> |published| mergeVersionRefs([Merge updated version refs PR into main])
+    drone --> |Wait for Drone Pipeline| copyReleaseNotes([Copy release notes into release]);
+    copyReleaseNotes --> publish([Publish release]);
+    publish --> waitForPublish{Is release published?};
+    waitForPublish --> |published| mergeVersionRefs([Merge updated version refs PR into main]);
 ```
 
 ## Detailed Drone Pipeline
