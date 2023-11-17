@@ -1,9 +1,11 @@
 ---
+
 # Legacy Workflow
 
 This doc contains diagrams illustrating the old workflow the Loki team followed to release new versions.
 
 In the following diagrams, stadium-shaped nodes indicate manual actions, while parallelagrams indicate automated actions.
+
 ```mermaid
 graph TD;
     A([manual action]) --> B[/automated action/];
@@ -12,20 +14,41 @@ graph TD;
 ## Workflow Overview
 
 Here is a general overflow of the workflow required to release a new version of Loki. I have collapsed the drone pipeline into a single node, see below for a detailed version of the drone pipeline.
+
 ```mermaid
 graph TD;
-    A([Decide to release]) --> B([Create release branch from weekly branch]);
-    B --> C([Make changes to release branch]);
-    C --> D([Check Changelog])
-    D --> |Push changelog| E([PR changelog into release branch])
-    C --> F([Curate Release Notes])
-    F --> |Push release notes| G([PR release notes into release branch])
-    E --> H([Merge outstanding PRs]);
-    G --> H;
-    H --> I([Tag release])
-    I --> |Push tag| J[/Trigger Drone Pipeline/];
-    J --> |Wait for Drone Pipeline| K([Copy release notes into release])
-    K --> L([Publish release])
+    start([Decide to release]) --> branch([Create release branch from weekly branch]);
+    start --> announce([Announce release in #loki-releases]);
+    start --> issue([Create GitHub issue announcing release]);
+    branch --> changes([Make changes to release branch]);
+    changes --> checkChangelog([Check Changelog]);
+    checkChangelog --> changelogHeader([Update the Unrealeased changelog header]);
+    changelogHeader --> changelogMain([PR updated changelog headers into main]);
+    changelogHeader --> prChangelog([PR changelog into release branch]);
+    changes --> releaseNotes([Curate Release Notes]);
+    releaseNotes --> prReleaseNotes([PR release notes into release branch]);
+    prChangelog --> mergePRs([Merge outstanding PRs]);
+    prReleaseNotes --> mergePRs;
+    mergePRs --> tag([Tag release]);
+    changes --> binaryVersions([Update references to binary/image versions]);
+    binaryVersions --> prVersions([PR updated versions references into release branch]);
+    binaryVersions --> isLatestVersion([Is release for latest version?])
+    isLatestVersion --> |yes| prVersionsMain([PR updated versions references into main branch]);
+    prVersionsMain --> waitForPublish([Wait for release to be published])
+    changes --> checkConfigs([check if we made any config changes])
+    checkConfigs --> |yes| updateUpgradingDoc([update upgrading doc with changed configs])
+    checkConfigs --> |no| --> tag
+    updateUpgradingDoc --> |push doc changes| prUpgradingDoc([PR upgrading doc changes into release branch])
+    updateUpgradingDoc --> |push doc changes| prUpgradingDocMain([PR upgrading doc changes into main branch])
+    prUpgradingDoc --> tag;
+    announce --> tag;
+    issue --> tag;
+    binaryVersions --> tag;
+    tag --> |Push tag| drone[/Trigger Drone Pipeline/];
+    drone --> |Wait for Drone Pipeline| copyReleaseNotes([Copypublishrelease notes into release])
+    copyReleaseNotes --> publish([Publish release])
+    publish --> waitForPublish
+    waitForPublish --> |published| mergeVersionRefs([Merge updated version refs PR into main])
 ```
 
 ## Detailed Drone Pipeline
