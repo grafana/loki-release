@@ -1,24 +1,35 @@
-#Legacy Workflow
+---
+# Legacy Workflow
 
 This doc contains diagrams illustrating the old workflow the Loki team followed to release new versions.
 
----
+In the following diagrams, stadium-shaped nodes indicate manual actions, while parallelagrams indicate automated actions.
+```mermaid
+graph TD;
+    A([manual action]) --> B[/automated action/];
+```
+
+## Workflow Overview
+
+Here is a general overflow of the workflow required to release a new version of Loki. I have collapsed the drone pipeline into a single node, see below for a detailed version of the drone pipeline.
 ```mermaid
 graph TD;
     A([Decide to release]) --> B([Create release branch from weekly branch]);
     B --> C([Make changes to release branch]);
     C --> D([Check Changelog])
-    E --> |Push changelog| F([PR changelog into release branch])
-    C --> G([Curate Release Notes])
-    G --> |Push release notes| H([PR release notes into release branch])
-    F --> G([Tag release]);
-    H --> G([Tag release]);
-    G --> |Push tag| I[/Trigger Drone Pipeline/];
-    I --> |Wait for Drone Pipeline| J([Copy release notes into release])
-    J --> K([Publish release])
+    D --> |Push changelog| E([PR changelog into release branch])
+    C --> F([Curate Release Notes])
+    F --> |Push release notes| G([PR release notes into release branch])
+    E --> H([Merge outstanding PRs]);
+    G --> H;
+    H --> I([Tag release])
+    I --> |Push tag| J[/Trigger Drone Pipeline/];
+    J --> |Wait for Drone Pipeline| K([Copy release notes into release])
+    K --> L([Publish release])
 ```
 
-Drone pipeline:
+## Detailed Drone Pipeline
+
 ```mermaid
 graph TD;
     E[/Trigger Drone Pipeline/] --> F[/build loki build image/];
@@ -95,11 +106,4 @@ graph TD;
     E --> af[/build and publish lambda-promtail amd64 image to dockerhub/];
 
     E --> ag[/build and publish lambda-promtail arm64 image to dockerhub/];
-
-
-
-
-
-
-
 ```
