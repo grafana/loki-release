@@ -1,11 +1,20 @@
+#Legacy Workflow
+
+This doc contains diagrams illustrating the old workflow the Loki team followed to release new versions.
+
 ---
 ```mermaid
-flowchart TD;
+graph TD;
     A([Decide to release]) --> B([Create release branch from weekly branch]);
     B --> C([Make changes to release branch]);
     C --> D([Tag release]);
     D --> |Push tag| E[/Trigger Drone Pipeline/];
-    E --> F[/build loki build image/];
+```
+
+Drone pipeline:
+```mermaid
+graph TD;
+    E[/Trigger Drone Pipeline/] --> F[/build loki build image/];
     E --> G[/build helm test image/];
 
     E --> H[/check drone drift/];
@@ -70,15 +79,15 @@ flowchart TD;
 
     E --> z[/setup linux packaging/];
     z --> aa[/test linux packaging/];
-    aa --> ab [/test debian packaging/];
-    ab --> ac [/test rpm packaging/];
-    ac --> ad [/create github draft release/];
+    aa --> ab[/test debian packaging/];
+    ab --> ac[/test rpm packaging/];
+    ac --> ad[/create github draft release/];
 
-    E -> ae[/build and publish docker driver to dockerhub/];
+    E --> ae[/build and publish docker driver to dockerhub/];
 
-    E -> af[/build and publish lambda-promtail amd64 image to dockerhub/];
+    E --> af[/build and publish lambda-promtail amd64 image to dockerhub/];
 
-    E -> ag[/build and publish lambda-promtail arm64 image to dockerhub/];
+    E --> ag[/build and publish lambda-promtail arm64 image to dockerhub/];
 
 
 
