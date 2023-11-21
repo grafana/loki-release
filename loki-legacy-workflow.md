@@ -44,8 +44,20 @@ graph TD;
     binaryVersions --> prVersions([PR updated versions references into release branch]);
     binaryVersions --> isLatestVersion{Is release for latest version?};
     isLatestVersion --> |yes| prVersionsMain([PR updated versions references into main branch]);
-    prVersionsMain --> waitForPublish([Wait for release to be published]);
-    prVersions --> mergePRs;
+    prVersionsMain --> backportVersion([Backport versions references into release branch]);
+    isLatestVersion --> |no| prVersions([PR updated versions references into release branch]);
+    prVersions --> tag;
+    backportVersion --> tag;
+
+
+    changes --> helmKsonnetVersions([run `./tools/release_prepare.sh` to update helm/ksonnet versions]);
+    helmKsonnetVersions --> isLatestVersion;
+    isLatestVersion --> |yes| prHelmKsonnetMain([PR updated helm/ksonnet versions into main]);
+    prHelmKsonnetMain --> backportHelmKsonnet([Backport helm/ksonnet versions into release branch]);
+    backportHelmKsonnet --> tag;
+    isLatestVersion --> |no| prHelmKsonnet([PR updated helm/ksonnet versions into release branch]);
+    prHelmKsonnet --> tag;
+    backportHelmKsonnet --> tag;
 
     changes --> checkConfigs{did we make any config changes?};
     checkConfigs --> |yes| updateUpgradingDoc([update upgrading doc with changed configs and/or metrics]);
@@ -62,10 +74,11 @@ graph TD;
     issue --> tag;
 
     tag --> |Push tag| drone[/Trigger Drone Pipeline/];
-    drone --> |Wait for Drone Pipeline| copyReleaseNotes([Copy release notes into release]);
+    drone --> |Wait for Drone Pipeline| draftRelease[/Publish Draft Release/];
+    draftRelease --> copyReleaseNotes([Copy release notes into draft release]);
     copyReleaseNotes --> publish([Publish release]);
     publish --> waitForPublish{Is release published?};
-    waitForPublish --> |published| mergeVersionRefs([Merge updated version refs PR into main]);
+    waitForPublish --> |published| versionDocsWebsite([Update docs version on Grafana Website]);
 ```
 
 ## Detailed Drone Pipeline
@@ -147,3 +160,23 @@ graph TD;
 
     E --> ag[/build and publish lambda-promtail arm64 image to dockerhub/];
 ```
+
+## Versioning Docs Website
+
+Loki docs are versioned. Follow the below steps to version Loki docs for this release.
+
+>NOTE: Here $LOCAL_LOKI_PATH is your local path where Loki is checked out with correct $VERSION
+
+1. Clone Grafana website [repo](https://github.com/grafana/website)
+1. Create new branch `git checkout -b $VERSION` (replace `$VERSION` with current release version. e.g: `v2.5.0`)
+1. Run `mv content/docs/loki/next content/docs/loki/next.main`
+1. Run `mkdir content/docs/loki/next`
+1. Run `cp -R $LOCAL_LOKI_PATH/docs/sources/* content/docs/loki/next`
+1. Run `scripts/docs-release.sh loki latest next`
+1. Run `scripts/docs-release.sh loki $VERSION latest`
+1. Run `mv content/docs/loki/next.main content/docs/loki/next`
+1. Update `version_latest` to `$VERSION` in `content/docs/loki/_index.md`
+1. Docs will be generated for this release.
+1. Create PR and Merge it after approval.
+
+
