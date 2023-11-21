@@ -178,5 +178,3 @@ Loki docs are versioned. Follow the below steps to version Loki docs for this re
 1. Update `version_latest` to `$VERSION` in `content/docs/loki/_index.md`
 1. Docs will be generated for this release.
 1. Create PR and Merge it after approval.
-
-
