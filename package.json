@@ -1,0 +1,20 @@
+{
+  "name": "loki-release",
+  "version": "0.1.0",
+  "description": "release pipeline for the Loki database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grafana/loki-release.git"
+  },
+  "bugs": {
+    "url": "https://github.com/grafana/loki-release/issues"
+  },
+  "homepage": "https://github.com/grafana/loki-release#readme",
+  "devDependencies": {
+    "release-please": "^16.3.0"
+  }
+}
