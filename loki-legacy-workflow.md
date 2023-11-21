@@ -28,20 +28,17 @@ graph TD;
     changes --> checkChangelog([Check Changelog]);
     checkChangelog --> changelogHeader([Update the Unrealeased changelog header]);
     changelogHeader --> changelogMain([PR updated changelog headers into main]);
-    changelogHeader --> prChangelog([PR changelog into release branch]);
-    prChangelog --> mergePRs([Merge outstanding PRs into release branch]);
-    changelogMain --> mergeMainPRs([Merge outstanding PRs into main]);
+    changelogMain --> backportChangelog([Backport changelog into release branch]);
+    backportChangelog --> mergePRs([Merge outstanding PRs into release branch]);
 
     changes --> releaseNotes([Curate Release Notes]);
-    releaseNotes --> prReleaseNotes([PR release notes into release branch]);
-    releaseNotes --> prReleaseNotesMain([PR release notes into main branch]);
-    prReleaseNotesMain --> mergeMainPRs;
-    prReleaseNotes --> mergePRs;
+    releaseNotes --> prReleaseNotes([PR release notes into main branch]);
+    prReleaseNotes --> backportReleaseNotes([Backport release notes into release branch]);
+    backportReleaseNotes --> mergePRs;
 
     mergePRs --> tag([Tag release]);
 
     changes --> binaryVersions([Update references to binary/image versions]);
-    binaryVersions --> prVersions([PR updated versions references into release branch]);
     binaryVersions --> isLatestVersion{Is release for latest version?};
     isLatestVersion --> |yes| prVersionsMain([PR updated versions references into main branch]);
     prVersionsMain --> backportVersion([Backport versions references into release branch]);
@@ -62,10 +59,9 @@ graph TD;
     changes --> checkConfigs{did we make any config changes?};
     checkConfigs --> |yes| updateUpgradingDoc([update upgrading doc with changed configs and/or metrics]);
     checkConfigs --> |no| tag;
-    updateUpgradingDoc --> prUpgradingDoc([PR upgrading doc changes into release branch]);
-    updateUpgradingDoc --> prUpgradingDocMain([PR upgrading doc changes into main branch]);
-    prUpgradingDocMain --> mergeMainPRs;
-    prUpgradingDoc --> tag;
+    updateUpgradingDoc --> prUpgradingDoc([PR upgrading doc changes into main branch]);
+    prUpgradingDoc --> backportUpgradingDoc([Backport upgrading doc changes into release branch]);
+    backportUpgradingDoc --> mergePRs;
 
     changes --> checkMetrics{did we change any metric names?};
     checkMetrics --> |yes| updateUpgradingDoc;
