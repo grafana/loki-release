@@ -43,13 +43,19 @@ jobs:
           gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
       - name: create release branch from k release
         if: ${{ startsWith(steps.extract_branch.outputs.branch, 'k') && steps.release.outputs.release_created }}
+        id: update_release_config
         run: |
           branch=release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
           git checkout -b $branch
           mv release-please-config.json tmp.json
           jq '.versioning = "always-bump-patch"' tmp.json > release-please-config.json
           rm tmp.json
-          git add release-please-config.json
-          git commit -m 'chore: release branch config bumps patch'
-          git push -u origin
-      # TODO: announce in #loki-releases if release created
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        if: ${{ steps.update_release_config.outcome == 'success' }}
+        with:
+          commit_message: "chore: release branch bumps patch on release"
+          branch: release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
+          file_pattern: "release-please-config.json"
+          create_branch: true
+
+        # TODO: announce in #loki-releases if release created
