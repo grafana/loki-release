@@ -1,31 +1,18 @@
 # Changelog
 
-<<<<<<< HEAD
+## [1.3.0](https://github.com/grafana/loki-release/compare/v1.2.0...v1.3.0) (2023-11-22)
 
 ## [1.2.0](https://github.com/grafana/loki-release/compare/v1.1.3...v1.2.0) (2023-12-01)
 
-=======
+### Features
+
+- super awesome feature
+  ([73104a1](https://github.com/grafana/loki-release/commit/73104a1b87ee0539f454f8fb739d77e26af0ff7f))
 
 ## [1.2.0](https://github.com/grafana/loki-release/compare/v1.1.3...v1.2.0) (2023-11-22)
 
-> > > > > > > ae1cf63 (chore(k103): release 1.2.0 (#24))
-
 ### Features
 
-<<<<<<< HEAD
-
-- add backport action
-  ([4df43c6](https://github.com/grafana/loki-release/commit/4df43c665e46daa36fca0b9be0932b2393ebb5c7))
-- add install binary action
-  ([947ed95](https://github.com/grafana/loki-release/commit/947ed95bf340634e24bfc316eda4f20d356190de))
-- add release steps to jsonnet-build workflow
-  ([55a14d6](https://github.com/grafana/loki-release/commit/55a14d67b6cdbda880abe16ed3cd1db969714b1c))
-- build images for multiple platforms
-  ([49a846e](https://github.com/grafana/loki-release/commit/49a846e2da75e56cd22fd4bbadb2469919afed2e))
-
-- # build pipeline using jsonnet for reuse ([b6cc287](https://github.com/grafana/loki-release/commit/b6cc2876ac3a593ede5644ca2e5a3bbec5572837))
-  > > > > > > >
-  > > > > > > > ae1cf63 (chore(k103): release 1.2.0 (#24))
 - **ci:** bump minor for k branches
   ([44d573d](https://github.com/grafana/loki-release/commit/44d573d107dd71ae26e2884a8d5e75c2e7a6d76f))
 - **ci:** try to move versioning into workflow definition
@@ -34,12 +21,6 @@
   ([07f2b06](https://github.com/grafana/loki-release/commit/07f2b064a9a0234a0cfe87cf390bb6f055dff967))
 - exclude component from tag for better release notes
   ([9841d98](https://github.com/grafana/loki-release/commit/9841d98bbfefd2a1d972c4bb81f5a4d6bcffc5e7))
-- make workflow reusable
-  ([c01b721](https://github.com/grafana/loki-release/commit/c01b7213100dca261ddf9cad255cf4428bebd8a7))
-- nest workflows in folder
-  ([2eab631](https://github.com/grafana/loki-release/commit/2eab6317c6381b2827dac7409bfd8dfcaf96f4eb))
-- try a merge to main w/ backport strategy
-  ([cf996f4](https://github.com/grafana/loki-release/commit/cf996f4cb2366df03c668af2b572f845c904e7ac))
 
 ## [1.1.3](https://github.com/grafana/loki-release/compare/v1.1.2...v1.1.3) (2023-11-22)
 
