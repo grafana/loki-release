@@ -118,3 +118,5 @@ _TODO_: define validate
 - the cron job needs to use the GitHub api to call the prepare release pipline with the correct branches
 
 super awesome feature
+
+bug fix
