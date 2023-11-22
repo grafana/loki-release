@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/grafana/loki-release/compare/v1.2.0...v1.3.0) (2023-11-22)
+
+
+### Features
+
+* super awesome feature ([73104a1](https://github.com/grafana/loki-release/commit/73104a1b87ee0539f454f8fb739d77e26af0ff7f))
+
 ## [1.2.0](https://github.com/grafana/loki-release/compare/v1.1.3...v1.2.0) (2023-11-22)
 
 
