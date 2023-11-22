@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/grafana/loki-release/compare/v1.1.3...v1.1.4) (2023-11-22)
+
+
+### Features
+
+* exclude component from tag for better release notes ([9841d98](https://github.com/grafana/loki-release/commit/9841d98bbfefd2a1d972c4bb81f5a4d6bcffc5e7))
+
 ## [1.1.3](https://github.com/grafana/loki-release/compare/v1.1.2...v1.1.3) (2023-11-22)
 
 
