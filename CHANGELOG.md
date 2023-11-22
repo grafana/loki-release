@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.4](https://github.com/grafana/loki-release/compare/v1.1.3...v1.1.4) (2023-11-22)
+
+
+### Features
+
+* **ci:** bump minor for k branches ([44d573d](https://github.com/grafana/loki-release/commit/44d573d107dd71ae26e2884a8d5e75c2e7a6d76f))
+* **ci:** try to move versioning into workflow definition ([d66d51a](https://github.com/grafana/loki-release/commit/d66d51a562d6384e2966acd1cbf3755b99ff93a4))
+* exclude component from tag for better release notes ([9841d98](https://github.com/grafana/loki-release/commit/9841d98bbfefd2a1d972c4bb81f5a4d6bcffc5e7))
+
 ## [1.1.3](https://github.com/grafana/loki-release/compare/v1.1.2...v1.1.3) (2023-11-22)
 
 
