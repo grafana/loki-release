@@ -42,6 +42,7 @@ jobs:
           BRANCH: "${{ steps.extract_branch.outputs.branch }}"
         run: |
           prNumber=$(echo ${{ steps.release.outputs.pr }} | jq -r .number)
+          echo "gh pr edit $prNumber --add-label \"backport $BRANCH\""
           gh pr edit $prNumber --add-label "backport $BRANCH"
       - name: upload release artifacts
         if: ${{ steps.release.outputs.release_created }}
