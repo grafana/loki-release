@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.1](https://github.com/grafana/loki-release/compare/v1.0.0...v1.0.1) (2023-11-22)
+
+
+### Features
+
+* add versioning to manifest ([328833c](https://github.com/grafana/loki-release/commit/328833c3114d3ebeb3e61a38f428d3cf7a072b18))
+* fix release workflow in release branch ([ea90fdc](https://github.com/grafana/loki-release/commit/ea90fdc1520283bd4c1ae0a7e9f81e3b355e7e00))
+* fix typo in versioing-strategy ([fa8a3d5](https://github.com/grafana/loki-release/commit/fa8a3d5140efaf807cb1175fcf41491ece9d69f0))
+* pretend I did something ([fb85235](https://github.com/grafana/loki-release/commit/fb8523507c35fbc18410d42cacb2ce1296b82a50))
+
 ## 1.0.0 (2023-11-22)
 
 
