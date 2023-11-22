@@ -2,8 +2,8 @@
 name: prepare release
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 8 * * *"  # daily at 8am
+  # schedule:
+  #   - cron: "0 8 * * *" # daily at 8am, but how to specify branch name?
   push:
     branches:
       - "release-[0-9].[0-9].x"
@@ -36,6 +36,11 @@ jobs:
     needs:
       - upload
     steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
       - uses: google-github-actions/release-please-action@v3
         with:
           command: manifest
+          default-branch: "${{ steps.extract_branch.outputs.branch }}"
