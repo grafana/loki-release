@@ -8,6 +8,7 @@ on:
     branches:
       - "main"
       - "release-[0-9].[0-9].x"
+      - "k[0-9]*"
 
 permissions:
   contents: write
@@ -40,3 +41,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
+      # TODO: announce in #loki-releases if release created
