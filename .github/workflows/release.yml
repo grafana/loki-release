@@ -1,0 +1,55 @@
+---
+name: prepare release
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "0 8 * * *" # daily at 8am, but how to specify branch name?
+  push:
+    branches:
+      - "main"
+      - "release-[0-9].[0-9].x"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: validate
+        run: |
+          echo "validating code"
+      - name: extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_branch
+      - uses: google-github-actions/release-please-action@v3
+        id: release
+        with:
+          command: manifest
+          default-branch: "${{ steps.extract_branch.outputs.branch }}"
+      - name: build artifacts
+        run: |
+          mkdir -p dist
+          echo "building code" > dist/build.txt
+          version="${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
+          tar -czf build-$version.tar.gz dist
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-candidate
+          path: build-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}.tar.gz
+      - name: Download build artifacts
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/download-artifact@v3
+        with:
+          name: release-candidate
+      - name: Upload Release Artifact
+        if: ${{ steps.release.outputs.release_created }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
+          tar -xzf build-$version.tar.gz
+          gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
