@@ -44,4 +44,4 @@ jobs:
         with:
           command: manifest
           default-branch: "${{ steps.extract_branch.outputs.branch }}"
-          versioning-stragegy: always-bump-patch
+          versioning-strategy: always-bump-patch
