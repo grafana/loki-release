@@ -1,0 +1,40 @@
+---
+name: prepare release
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * *"  # daily at 8am
+  push:
+    branches:
+      - "release-[0-9].[0-9].x"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "validating code"
+  build:
+    runs-on: ubuntu-latest
+    needs:
+      - validate
+    steps:
+      - run: |
+          echo "building code"
+  upload:
+    runs-on: ubuntu-latest
+    needs:
+      - validate
+      - build
+    steps:
+      - run: |
+          echo "building code"
+  release-please:
+    runs-on: ubuntu-latest
+    needs:
+      - validate
+      - build
+      - upload
+    steps:
+      - run: |
+          echo "running release please"
