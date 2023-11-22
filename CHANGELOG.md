@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/grafana/loki-release/compare/v1.3.0...v1.3.1) (2023-11-22)
+
+
+### Bug Fixes
+
+* critical bug fix ([05e8966](https://github.com/grafana/loki-release/commit/05e896636e7ee33544baf9b43c3a0b57f94ddff4))
+
 ## [1.3.0](https://github.com/grafana/loki-release/compare/v1.2.0...v1.3.0) (2023-11-22)
 
 ## [1.2.0](https://github.com/grafana/loki-release/compare/v1.1.3...v1.2.0) (2023-12-01)
