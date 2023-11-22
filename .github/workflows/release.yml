@@ -30,11 +30,6 @@ jobs:
         shell: bash
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         id: extract_branch
-      - name: bump minor for k releases
-        if: ${{ startsWith(steps.extract_branch.outputs.branch, 'k') }}
-        run: |
-          mv release-please-config.json release-please-config.orig.json
-          jq '.versioning = "always-bump-minor"' release-please-config.orig.json > release-please-config.json
       - uses: google-github-actions/release-please-action@v3
         id: release
         with:
@@ -46,4 +41,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
+      - name: create release branch from k release
+        if: ${{ startsWith(steps.extract_branch.outputs.branch, 'k') && steps.release.outputs.release_created }}
+        run: |
+          branch=release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
+          git checkout -b $branch
+          mv release-please-config.json tmp.json
+          jq '.versioning = "always-bump-patch"' tmp.json > release-please-config.json
+          rm tmp.json
+          git add release-please-config.json
+          git commit -m 'chore: release branch config bumps patch'
+          git push -u origin
       # TODO: announce in #loki-releases if release created
