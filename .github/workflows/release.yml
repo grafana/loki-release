@@ -30,12 +30,16 @@ jobs:
         shell: bash
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         id: extract_branch
+      - name: bump minor for k releases
+        if: ${{ startsWith(steps.extract_branch.outputs.branch, 'k') }}
+        run: |
+          mv release-please-config.json release-please-config.orig.json
+          jq '.versioning = "always-bump-minor"' release-please-config.orig.json > release-please-config.json
       - uses: google-github-actions/release-please-action@v3
         id: release
         with:
           command: manifest
           default-branch: "${{ steps.extract_branch.outputs.branch }}"
-          versioning-strategy: always-bump-patch
       - name: Upload Release Artifact
         if: ${{ steps.release.outputs.release_created }}
         env:
