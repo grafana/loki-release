@@ -2,49 +2,63 @@
 
 This repository was built to replace our [existing workflow](./docs/loki-legacy-workflow.md), which was mostly a manual process. This new workflow (diagramed below), runs on a daily cron trigger, whenever a commit to a release branch is made, or at the end of our automated weekly release process.
 
+In the following diagram, light blue stadium-shaped nodes indicate manual actions, parallelagrams indicate automated actions, and a rhombus indicates a conditional flow.
+
 ```mermaid
 graph TD;
-    cron[/daily cron trigger/] --> startWorkflow[/start GitHub actions release workflow/];
-    commit([commit merged to release branch]) --> startWorkflow
-    weekly[/weekly roll-out to prod finishes/] --> startWorkflow
+    manual([manual action]) --> automated[/automated action/];
+    manual --> conditional{conditional flow}
+    conditional --> |yes| satisfied([condition satisfied])
+    conditional --> |no| unsatisfied([condition not satisfied])
 
-    startWorkflow --> validate[/validate code/]
-    startWorkflow --> test[/run automated tests/]
-    startWorkflow --> lint[/run automated linting/]
-
-    test --> buildBinaries[/build release binaries/]
-    lint --> buildBinaries
-    validate --> buildBinaries
-
-    test --> buildImages[/build release images/]
-    lint --> buildImages
-    validate --> buildImages
-
-    buildBinaries --> releasePlease[/create/update release PR with release please/]
-    buildImages --> releasePlease
-
-    releasePlease --> mergeReleasePR([merge release PR])
-    mergeReleasePR --> createDraftRelease[/draft release is created/]
-    mergeReleasePR --> updateMain[/generate PRs to update main/])
-
-    updateMain --> updateChangelog[/update changelog in main to add new version/]
-    updateMain --> updateUpgradeGuide[/update upgrade guide in main to add new version/]
-
-    updateMain --> isLatestVersion{does the released version represent the latest release?}
-
-    isLatestVersion --> |yes| updateVersions[/update references to versions on main/]
-    updateVersions --> updateBinaryVersions[/update references to the binary versions/]
-    updateVersions --> updateImageVersions[/update references to the image versions/]
-    updateVersions --> updateHelmVersions[/update image version in helm values/]
-    updateVersions --> updateKsonnetVersions[/update image version in ksonnet libs/]
-
-    updateChangelog --> publishRelease[/publish the draft release created by release PR/]
-    updateUpgradeGuide --> publishRelease
-    updateBinaryVersions --> publishRelease
-    updateImageVersions --> publishRelease
-    updateHelmVersions --> publishRelease
-    updateKsonnetVersions --> publishRelease
+    style manual fill:lightBlue
 ```
+
+The new workflow is depicted below. Note that there are only 4 manual steps (1 of which is optional, the other 3 of which are merging a PR, with 1 of those only needing to happen when releasing the newest version):
+
+```mermaid
+graph TD;
+    cron[/daily cron trigger/] --> validate[/validate, test, and lint code/];
+    commit([commit to release branch]) --> validate;
+    weekly[/weekly roll-out to prod finishes/] --> validate;
+
+    validate --> buildBinaries[/build release artifacts/];
+    buildBinaries --> uploadBinaries[/upload release artifacts to GCS/];
+    uploadBinaries --> releasePlease[/create or update release PR with release please/];
+
+    releasePlease --> mergeReleasePR([merge release PR]);
+
+    mergeReleasePR --> createDraftRelease[/create draft rekease/];
+    createDraftRelease --> attachArtifacts[/attach release artifacts to draft release/];
+
+    mergeReleasePR --> updateChangelog[/update changelog in main to add new version/];
+    updateChangelog --> updateUpgradeGuide[/update upgrade guide in main to add new version/];
+    updateUpgradeGuide --> prDocUpdatesMain[/create PR  for changelog and upgrade guide updates into main/]
+
+    mergeReleasePR --> isLatestVersion{is release newest version?};
+    isLatestVersion --> |yes| updateVersions[/update references to binary and image versions in repo, helm, and ksonnet/];
+    updateVersions --> prUpdatesMain[/create PR for version updates into main/]
+    
+    prDocUpdatesMain --> mergePRs([merge updates PR into main]);
+    prUpdatesMain --> mergePRs;
+    isLatestVersion --> |no| mergePRs;
+    attachArtifacts --> mergePRs;
+
+    mergePRs --> publishRelease[/publish draft release/];
+
+    publishRelease --> isLatestVersionPost{is release newest version?};
+    isLatestVersionPost --> prDocsWebsite[/create PR to update docs website/]
+    prDocsWebsite --> mergeDocsWebsite([merge docs website PR])
+
+    style commit fill:lightBlue,stroke:darkBlue;
+    style mergeReleasePR fill:lightBlue,stroke:darkBlue;
+    style mergePRs fill:lightBlue,stroke:darkBlue;
+    style mergeDocsWebsite fill:lightBlue,stroke:darkBlue;
+```
+
+## Backlog
+
+For now, I'm just keeping a backlog here
 
 _TODO_: release PR needs to: - update references to binary versions - update references to image versions - update helm/ksonnet versions - update the upgrade guide if (this is likely going to require the upgrade guide to be made of individual files): - there are config changes - there are metric changes
 
