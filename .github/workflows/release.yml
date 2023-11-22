@@ -38,6 +38,7 @@ jobs:
       - name: tag PR with backport tag
         shell: bash
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: "${{ steps.extract_branch.outputs.branch }}"
         run:
           prNumber=$(echo ${{ steps.release.outputs.pr }} | jq -r .number)
