@@ -35,17 +35,9 @@ jobs:
         with:
           command: manifest
           default-branch: main
-      - name: tag PR with backport tag
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: ${{ steps.extract_branch.outputs.branch }}
-          PR: ${{ steps.release.outputs.pr }}
-        run: |
-          echo $PR
-          prNumber=$(echo ${{ steps.release.outputs.pr }} | jq -r .number)
-          echo "gh pr edit $prNumber --add-label \"backport $BRANCH\""
-          gh pr edit $prNumber --add-label "backport $BRANCH"
+          labels:
+            - "autorelease: pending"
+            - "backport ${{ steps.extract_branch.outputs.branch}}"
       - name: upload release artifacts
         if: ${{ steps.release.outputs.release_created }}
         env:
