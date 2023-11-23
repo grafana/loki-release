@@ -35,7 +35,7 @@ jobs:
         with:
           command: manifest
           default-branch: main
-          labels: "autorelease: pending\nbackport ${{ steps.extract_branch.outputs.branch}}"
+          labels: "backport ${{ steps.extract_branch.outputs.branch}}"
       - name: upload release artifacts
         if: ${{ steps.release.outputs.release_created }}
         env:
@@ -59,7 +59,8 @@ jobs:
           branch: release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
           file_pattern: "release-please-config.json"
           create_branch: true
-      - if: ${{ steps.create_release_branch.outcome == 'success' }}
+      - name: comment on PR with release branch
+        if: ${{ steps.create_release_branch.outcome == 'success' }}
         id: created_branch_message
         env:
           BRANCH: release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
