@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/grafana/loki-release/compare/v1.1.3...v1.2.0) (2023-11-23)
+
+
+### Features
+
+* add backport action ([4df43c6](https://github.com/grafana/loki-release/commit/4df43c665e46daa36fca0b9be0932b2393ebb5c7))
+* **ci:** bump minor for k branches ([44d573d](https://github.com/grafana/loki-release/commit/44d573d107dd71ae26e2884a8d5e75c2e7a6d76f))
+* **ci:** try to move versioning into workflow definition ([d66d51a](https://github.com/grafana/loki-release/commit/d66d51a562d6384e2966acd1cbf3755b99ff93a4))
+* create release branch from k release ([07f2b06](https://github.com/grafana/loki-release/commit/07f2b064a9a0234a0cfe87cf390bb6f055dff967))
+* exclude component from tag for better release notes ([9841d98](https://github.com/grafana/loki-release/commit/9841d98bbfefd2a1d972c4bb81f5a4d6bcffc5e7))
+* try a merge to main w/ backport strategy ([cf996f4](https://github.com/grafana/loki-release/commit/cf996f4cb2366df03c668af2b572f845c904e7ac))
+
 ## [1.1.3](https://github.com/grafana/loki-release/compare/v1.1.2...v1.1.3) (2023-11-22)
 
 
