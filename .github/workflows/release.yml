@@ -34,7 +34,6 @@ jobs:
         id: release
         with:
           command: manifest
-          default-branch: main
           labels: "backport ${{ steps.extract_branch.outputs.branch}}"
       - name: upload release artifacts
         if: ${{ steps.release.outputs.release_created }}
