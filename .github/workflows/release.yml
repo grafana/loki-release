@@ -34,14 +34,7 @@ jobs:
         id: release
         with:
           command: manifest
-          default-branch: main
-      - name: tag PR with backport tag
-        shell: bash
-        env:
-          BRANCH: "${{ steps.extract_branch.outputs.branch }}"
-        run:
-          prNumber=$(echo ${{ steps.release.outputs.pr }} | jq -r .number)
-          gh pr edit $prNumber --tag "backport $BRANCH"
+          labels: "backport ${{ steps.extract_branch.outputs.branch}}"
       - name: upload release artifacts
         if: ${{ steps.release.outputs.release_created }}
         env:
