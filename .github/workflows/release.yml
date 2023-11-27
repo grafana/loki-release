@@ -37,7 +37,7 @@ jobs:
       - name: release
         id: release
         shell: bash
-        run:
+        run: |
           npm install
           npm exec --  release-please release-pr \
             --token="${GITHUB_TOKEN}" \
