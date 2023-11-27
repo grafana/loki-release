@@ -30,11 +30,24 @@ jobs:
         shell: bash
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         id: extract_branch
-      - uses: google-github-actions/release-please-action@v3
-        id: release
+      - name: Setup node
+        uses: actions/setup-node@v4
         with:
-          command: release-pr
-          labels: "backport ${{ steps.extract_branch.outputs.branch}}"
+          node-version: 16
+      - name: release
+        id: release
+        shell: bash
+        run:
+          npm install
+          npm exec --  release-please release-pr \
+            --token="${GITHUB_TOKEN}" \
+            --repo-url="grafana/loki-release" \
+            --label "backport ${{ steps.extract_branch.outputs.branch}}"
+      # - uses: google-github-actions/release-please-action@v3
+      #   id: release
+      #   with:
+      #     command: manifest
+      #     labels: "backport ${{ steps.extract_branch.outputs.branch}}"
       - name: upload release artifacts
         if: ${{ steps.release.outputs.release_created }}
         env:
