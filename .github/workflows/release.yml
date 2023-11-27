@@ -33,7 +33,7 @@ jobs:
       - uses: google-github-actions/release-please-action@v3
         id: release
         with:
-          command: manifest-pr
+          command: release-pr
           labels: "backport ${{ steps.extract_branch.outputs.branch}}"
       - name: upload release artifacts
         if: ${{ steps.release.outputs.release_created }}
