@@ -1,5 +1,6 @@
 local common = import 'common.libsonnet';
 local job = common.job;
+local container = job.container;
 local step = common.step;
 
 {
@@ -7,8 +8,13 @@ local step = common.step;
     common.fetchLokiRepo,
     common.setupGo,
     step.new('test') +
-    step.withRun(common.makeTarget('test'))
-  ]),
+    step.withRun(common.makeTarget('test')),
+  ]) + job.withContainer(
+    container.new('grafana/loki-build-image') +
+    container.withVolumes([
+      container.volume.new('.', '/src/loki'),
+    ])
+  ),
 
   lint: job.new() + job.withSteps([
     common.fetchLokiRepo,
@@ -16,8 +22,13 @@ local step = common.step;
     step.new('lint') +
     step.withRun(common.makeTarget('lint')),
     step.new('lint jsonnet') +
-    step.withRun(common.makeTarget('lint-jsonnet'))
-  ]),
+    step.withRun(common.makeTarget('lint-jsonnet')),
+  ]) + job.withContainer(
+    container.new('grafana/loki-build-image') +
+    container.withVolumes([
+      container.volume.new('.', '/src/loki'),
+    ])
+  ),
 
   check: job.new() + job.withSteps([
     common.fetchLokiRepo,
@@ -34,5 +45,10 @@ local step = common.step;
     step.withRun(common.makeTarget('check-example-config-doc')),
     step.new('check helm reference doc') +
     step.withRun(common.makeTarget('documentation-helm-reference-check')),
-  ])
+  ]) + job.withContainer(
+    container.new('grafana/loki-build-image') +
+    container.withVolumes([
+      container.volume.new('.', '/src/loki'),
+    ])
+  ),
 }

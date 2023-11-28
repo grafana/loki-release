@@ -1,5 +1,9 @@
 "jobs":
   "check":
+    "container":
+      "image": "grafana/loki-build-image"
+      "volumes":
+      - ".:/src/loki"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
@@ -13,23 +17,21 @@
         "go-version-file": "go.mod"
     - "name": "check generated files"
       "run": "make BUILD_IN_CONTAINER=false check-generated-files"
-      "shell": "bash"
     - "name": "check mod"
       "run": "make BUILD_IN_CONTAINER=false check-mod"
-      "shell": "bash"
     - "name": "shellcheck"
       "run": "make BUILD_IN_CONTAINER=false lint-scripts"
-      "shell": "bash"
     - "name": "check docs"
       "run": "make BUILD_IN_CONTAINER=false check-doc"
-      "shell": "bash"
     - "name": "validate example configs"
       "run": "make BUILD_IN_CONTAINER=false check-example-config-doc"
-      "shell": "bash"
     - "name": "check helm reference doc"
       "run": "make BUILD_IN_CONTAINER=false documentation-helm-reference-check"
-      "shell": "bash"
   "lint":
+    "container":
+      "image": "grafana/loki-build-image"
+      "volumes":
+      - ".:/src/loki"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
@@ -43,10 +45,8 @@
         "go-version-file": "go.mod"
     - "name": "lint"
       "run": "make BUILD_IN_CONTAINER=false lint"
-      "shell": "bash"
     - "name": "lint jsonnet"
       "run": "make BUILD_IN_CONTAINER=false lint-jsonnet"
-      "shell": "bash"
   "loki-image":
     "needs":
     - "test"
@@ -146,6 +146,10 @@
         - "linux/arm64"
         - "linux/arm"
   "test":
+    "container":
+      "image": "grafana/loki-build-image"
+      "volumes":
+      - ".:/src/loki"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
@@ -159,7 +163,6 @@
         "go-version-file": "go.mod"
     - "name": "test"
       "run": "make BUILD_IN_CONTAINER=false test"
-      "shell": "bash"
 "name": "release (jsonnet version)"
 "on":
   "push":

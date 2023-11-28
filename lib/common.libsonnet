@@ -9,19 +9,32 @@
       with: with,
     },
     withRun: function(run) {
-      shell: 'bash',
       run: run,
     },
   },
   job: {
     new: function(runsOn='ubuntu-latest') {
-      "runs-on": runsOn,
+      'runs-on': runsOn,
     },
     withSteps: function(steps) {
       steps: steps,
     },
     needs: function(needs) {
       needs: needs,
+    },
+    withContainer: function(container) {
+      container: container,
+    },
+    container: {
+      new: function(image) {
+        image: image,
+      },
+      withVolumes: function(volumes) {
+        volumes: volumes,
+      },
+      volume: {
+        new: function(path, mountPath) '%s:%s' % [path, mountPath],
+      },
     },
   },
 
@@ -37,4 +50,3 @@
 
   makeTarget: function(target) 'make BUILD_IN_CONTAINER=false %s' % target,
 }
-
