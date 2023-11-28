@@ -15,8 +15,62 @@ permissions:
   issues: write
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: pull loki code
+        uses: actions/checkout@v3
+        with:
+          repository: grafana/loki
+      - name: test
+        run: |
+          make BUILD_IN_CONTAINER=false test
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: pull loki code
+        uses: actions/checkout@v3
+        with:
+          repository: grafana/loki
+      - name: lint
+        run: |
+          make BUILD_IN_CONTAINER=false lint
+      - name: lint jsonnet
+        run: |
+          make BUILD_IN_CONTAINER=false lint-jsonnet
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: pull loki code
+        uses: actions/checkout@v3
+        with:
+          repository: grafana/loki
+      - name: check generated files
+        run: |
+          make BUILD_IN_CONTAINER=false check-generated-files
+      - name: check generated files
+        run: |
+          make BUILD_IN_CONTAINER=false check-mod
+      - name: shellcheck
+        run: |
+          make BUILD_IN_CONTAINER=false lint-scripts
+      - name: check docs
+        run: |
+          make BUILD_IN_CONTAINER=false check-doc
+      - name: validate example configs
+        run: |
+          make BUILD_IN_CONTAINER=false check-example-config-doc
+      - name: check helm reference doc
+        run: |
+          make BUILD_IN_CONTAINER=false documentation-helm-reference-check
+
   release:
     runs-on: ubuntu-latest
+    needs:
+      - test
+      - lint
+      - check
     steps:
       - name: pull release code
         uses: actions/checkout@v3
@@ -29,14 +83,10 @@ jobs:
           path: loki
       - uses: actions/setup-go@v4
         with:
-          go-version: '>=1.21.3'
+          go-version: ">=1.21.3"
       - uses: actions/setup-node@v4
         with:
           node-version: 16
-      - name: validate
-        working-directory: loki
-        run: |
-          make test
       - name: build artifacts
         working-directory: loki
         run: |
