@@ -38,7 +38,7 @@ jobs:
         # TODO: this version will come from key cmd/loki in release manifest
         # version=$(jq -r '."cmd/loki"' .release-please-manifest.json)
         run: |
-          platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/"
+          platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
           echo "platform=${platform}" >> $GITHUB_OUTPUT
 
           version="1.2.0"
