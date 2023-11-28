@@ -13,8 +13,12 @@ local step = common.step;
   lint: job.new() + job.withSteps([
     common.fetchLokiRepo,
     common.setupGo,
-    step.new('install golangci-lint') +
-    step.withRun('curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.55.1'),
+    step.new('install golangci-lint', 'supplypike/setup-bin@v3') +
+    step.with({
+      uri: 'https://github.com/golangci/golangci-lint/releases/download/v1.55.1/golangci-lint-1.55.1-linux-amd64.tar.gz',
+      name: 'golangci-lint',
+      version: '1.55.1',
+    }),
     step.new('lint') +
     step.withRun(common.makeTarget('lint')),
     step.new('lint jsonnet') +
