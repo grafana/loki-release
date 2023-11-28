@@ -54,4 +54,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: loki-image-${{ matrix.platform }}
-          path: dist/loki-${{ steps.parse-metadata.outputs.platform) }}.tar
+          path: dist/loki-${{ steps.parse-metadata.outputs.platform }}.tar
