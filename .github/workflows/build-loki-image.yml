@@ -13,10 +13,6 @@ on:
 jobs:
   loki-image:
     runs-on: ubuntu-latest
-    needs:
-      - test
-      - lint
-      - check
     steps:
       - name: pull loki code
         uses: actions/checkout@v3
