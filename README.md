@@ -116,3 +116,5 @@ _TODO_: define validate
 - there is no longer a need to announce, since we have a long running PR
 
 - the cron job needs to use the GitHub api to call the prepare release pipline with the correct branches
+
+- cool feature

@@ -15,35 +15,155 @@ permissions:
   issues: write
 
 jobs:
-  release:
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: validate
+      - name: pull loki code
+        uses: actions/checkout@v3
+        with:
+          repository: grafana/loki
+      - name: test
         run: |
-          echo "validating code"
+          make BUILD_IN_CONTAINER=false test
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: pull loki code
+        uses: actions/checkout@v3
+        with:
+          repository: grafana/loki
+      - name: lint
+        run: |
+          make BUILD_IN_CONTAINER=false lint
+      - name: lint jsonnet
+        run: |
+          make BUILD_IN_CONTAINER=false lint-jsonnet
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: pull loki code
+        uses: actions/checkout@v3
+        with:
+          repository: grafana/loki
+      - name: check generated files
+        run: |
+          make BUILD_IN_CONTAINER=false check-generated-files
+      - name: check generated files
+        run: |
+          make BUILD_IN_CONTAINER=false check-mod
+      - name: shellcheck
+        run: |
+          make BUILD_IN_CONTAINER=false lint-scripts
+      - name: check docs
+        run: |
+          make BUILD_IN_CONTAINER=false check-doc
+      - name: validate example configs
+        run: |
+          make BUILD_IN_CONTAINER=false check-example-config-doc
+      - name: check helm reference doc
+        run: |
+          make BUILD_IN_CONTAINER=false documentation-helm-reference-check
+
+  dist:
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - lint
+      - check
+    steps:
+      - name: pull loki code
+        uses: actions/checkout@v3
+        with:
+          repository: grafana/loki
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.21.3"
       - name: build artifacts
         run: |
-          mkdir -p dist
+          make BUILD_IN_CONTAINER=false dist
           echo "building code" > dist/build.txt
-      - name: extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
-      - uses: google-github-actions/release-please-action@v3
-        id: release
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3
         with:
-          command: manifest
-          labels: "backport ${{ steps.extract_branch.outputs.branch}}"
+          name: dist
+          path: dist/
+
+  loki-image:
+    runs-on: ubuntu-latest
+    needs:
+      - test
+      - lint
+      - check
+    steps:
+      - name: pull loki code
+        uses: actions/checkout@v3
+        with:
+          repository: grafana/loki
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.21.3"
+      - name: set up docker buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64,linux/arm
+          driver: docker-container
+          install: true  # setup docker build alias
+      - name: build image
+        run: |
+          make BUILD_IN_CONTAINER=false loki-image
+
+  release:
+    runs-on: ubuntu-latest
+    needs:
+      - dist
+      - loki-image
+    steps:
+      - name: pull release code
+        uses: actions/checkout@v3
+        with:
+          path: release
+      - name: pull loki code
+        uses: actions/checkout@v3
+        with:
+          repository: grafana/loki
+          path: loki
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.21.3"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 16
+      - name: extract branch name
+        id: extract_branch
+        shell: bash
+        working-directory: loki
+        run: |
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      - name: release please
+        id: release
+        shell: bash
+        working-directory: release
+        run: |
+          npm install
+          npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="grafana/loki-release" --label "backport ${{ steps.extract_branch.outputs.branch}}" --manifest-file release/release-please-config.json
+      - name: download artifacts
+        if: ${{ steps.release.outputs.release_created }}
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: release/dist/
       - name: upload release artifacts
         if: ${{ steps.release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: release
         run: |
           gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
       - name: create release branch from k release
         if: ${{ startsWith(steps.extract_branch.outputs.branch, 'k') && steps.release.outputs.release_created }}
         id: update_release_config
+        working-directory: release
         run: |
           branch=release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
           git checkout -b $branch
@@ -56,13 +176,15 @@ jobs:
         with:
           commit_message: "chore: release branch bumps patch on release"
           branch: release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
-          file_pattern: "release-please-config.json"
+          file_pattern: "release/release-please-config.json"
           create_branch: true
-      - if: ${{ steps.create_release_branch.outcome == 'success' }}
+      - name: comment on PR with release branch
+        if: ${{ steps.create_release_branch.outcome == 'success' }}
         id: created_branch_message
         env:
           BRANCH: release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
         shell: bash
+        working-directory: release
         run: |
           prNumber=$(echo ${{ steps.release.outputs.pr }} | jq -r .number)
           gh pr comment $prNumber --body "created release branch [$BRANCH](https://github.com/grafana/loki-release/tree/$BRANCH)"
