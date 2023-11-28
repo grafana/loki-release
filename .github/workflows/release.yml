@@ -18,35 +18,40 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: pull release code
+        uses: actions/checkout@v3
         with:
           path: release
-      - uses: actions/checkout@v3
+      - name: pull loki code
+        uses: actions/checkout@v3
         with:
-          repository: 'grafana/loki'
+          repository: grafana/loki
           path: loki
-      - name: validate
-        run: |
-          cd loki
-          make test
-      - name: build artifacts
-        run: |
-          mkdir -p dist
-          echo "building code" > dist/build.txt
-
-          cd loki
-          make dist
-      - name: extract branch name
-        shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_branch
-      - name: Setup node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.21.3'
+      - uses: actions/setup-node@v4
         with:
           node-version: 16
+      - name: validate
+        working-directory: loki
+        run: |
+          make test
+      - name: build artifacts
+        working-directory: loki
+        run: |
+          make dist
+          echo "building code" > dist/build.txt
+      - name: extract branch name
+        id: extract_branch
+        shell: bash
+        working-directory: loki
+        run: |
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       - name: release please
         id: release
         shell: bash
+        working-directory: release
         run: |
           npm install
           npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="grafana/loki-release" --label "backport ${{ steps.extract_branch.outputs.branch}}" --manifest-file release/release-please-config.json
@@ -54,11 +59,13 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: loki
         run: |
           gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
       - name: create release branch from k release
         if: ${{ startsWith(steps.extract_branch.outputs.branch, 'k') && steps.release.outputs.release_created }}
         id: update_release_config
+        working-directory: release
         run: |
           branch=release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
           git checkout -b $branch
@@ -71,7 +78,7 @@ jobs:
         with:
           commit_message: "chore: release branch bumps patch on release"
           branch: release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
-          file_pattern: "release-please-config.json"
+          file_pattern: "release/release-please-config.json"
           create_branch: true
       - name: comment on PR with release branch
         if: ${{ steps.create_release_branch.outcome == 'success' }}
@@ -79,6 +86,7 @@ jobs:
         env:
           BRANCH: release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
         shell: bash
+        working-directory: release
         run: |
           prNumber=$(echo ${{ steps.release.outputs.pr }} | jq -r .number)
           gh pr comment $prNumber --body "created release branch [$BRANCH](https://github.com/grafana/loki-release/tree/$BRANCH)"
