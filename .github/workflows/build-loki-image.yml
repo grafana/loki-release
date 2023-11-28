@@ -49,7 +49,7 @@ jobs:
           context: cmd/loki
           platforms: ${{ matrix.platform }}
           tags: grafana/loki:${{ steps.parse-metadata.outputs.version }}
-          outputs: type=docker,dest=/dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform) }}.tar
+          outputs: type=docker,dest=/dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar
       - name: upload artifacts
         uses: actions/upload-artifact@v3
         with:
