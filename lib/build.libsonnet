@@ -1,9 +1,11 @@
 local common = import 'common.libsonnet';
+local job = common.job;
+local step = common.step;
 
 {
-  buildImage: function(name, path) {
-    'runs-on': 'ubuntu-latest',
-    strategy: {
+  image: function(name, path)
+    job.new()
+    + job.withStrategy({
       'fail-fast': true,
       matrix: {
         platform: [
@@ -12,8 +14,8 @@ local common = import 'common.libsonnet';
           'linux/arm',
         ],
       },
-    },
-    steps: [
+    })
+    + job.withSteps([
       common.fetchLokiRepo,
       common.setupGo
       {
@@ -57,6 +59,18 @@ local common = import 'common.libsonnet';
           path: 'dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
         },
       },
-    ],
-  },
+    ]),
+
+  dist: job.new()
+        + job.withSteps([
+          common.fetchLokiRepo,
+          common.setupGo,
+          step.new('build artifacts')
+          + step.withRun(common.makeTarget('dist')),
+          step.new('upload artifacts', 'actions/upload-artifact@v3')
+          + step.with({
+            name: 'dist',
+            path: 'dist/',
+          }),
+        ]),
 }

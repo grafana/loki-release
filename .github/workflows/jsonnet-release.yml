@@ -46,6 +46,30 @@ jobs:
     - name: "check helm reference doc"
       run: "make BUILD_IN_CONTAINER=false documentation-helm-reference-check"
       shell: "bash"
+  dist:
+    needs:
+    - "test"
+    - "lint"
+    - "check"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull loki code"
+      uses: "actions/checkout@v3"
+      with:
+        ref: "prepare-release-please"
+        repository: "grafana/loki"
+    - name: "setup go"
+      uses: "actions/setup-go@v4"
+      with:
+        go-version-file: "go.mod"
+    - name: "build artifacts"
+      run: "make BUILD_IN_CONTAINER=false dist"
+      shell: "bash"
+    - name: "upload artifacts"
+      uses: "actions/upload-artifact@v3"
+      with:
+        name: "dist"
+        path: "dist/"
   lint:
     runs-on: "ubuntu-latest"
     steps:
@@ -187,6 +211,89 @@ jobs:
         - "linux/amd64"
         - "linux/arm64"
         - "linux/arm"
+  release:
+    needs:
+    - "dist"
+    - "loki-image"
+    - "promtail-image"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull loki code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "loki"
+        ref: "prepare-release-please"
+        repository: "grafana/loki"
+    - name: "pull release code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "release"
+        repository: "grafana/loki-release"
+    - name: "setup go"
+      uses: "actions/setup-go@v4"
+      with:
+        go-version-file: "go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 16
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "loki"
+    - id: "release"
+      name: "release please"
+      run: |
+        npm install
+        npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="grafana/loki-release" --label "backport ${{ steps.extract_branch.outputs.branch}}" --manifest-file release/release-please-config.json
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ steps.release.outputs.release_created }}"
+      name: "download dist"
+      uses: "actions/download-artifact@v3"
+      with:
+        name: "dist"
+        path: "release/dist/"
+    - env:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      if: "${{ steps.release.outputs.release_created }}"
+      name: "upload release artifacts"
+      run: |
+        gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
+      shell: "bash"
+      working-directory: "release"
+    - id: "update_release_config"
+      if: "${{ startsWith(steps.extract_branch.outputs.branch, \"k\") && steps.release.outputs.release_created }}"
+      name: "create release branch from k release"
+      run: |
+        branch=release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
+        git checkout -b $branch
+        mv release-please-config.json tmp.json
+        jq '.versioning = "always-bump-patch"' tmp.json > release-please-config.json
+        rm tmp.json
+      shell: "bash"
+      working-directory: "release"
+    - id: "create_release_branch"
+      if: "${{ steps.update_release_config.outcome == 'success' }}"
+      name: "commit changes to release branch"
+      uses: "stefanzweifel/git-auto-commit-action@v5"
+      with:
+        branch: "release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x"
+        commit_message: "chore: release branch bumps patch on release"
+        create_branch: true
+        file_pattern: "release/release-please-config.json"
+    - env:
+        BRANCH: "release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x"
+      id: "created_branch_message"
+      if: "${{ steps.create_release_branch.outcome == 'success' }}"
+      name: "comment on PR with release branch"
+      run: |
+        prNumber=$(echo ${{ steps.release.outputs.pr }} | jq -r .number)
+        gh pr comment $prNumber --body "created release branch [$BRANCH](https://github.com/grafana/loki-release/tree/$BRANCH)"
+      shell: "bash"
+      working-directory: "release"
   test:
     runs-on: "ubuntu-latest"
     steps:

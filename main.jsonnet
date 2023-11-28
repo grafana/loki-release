@@ -1,9 +1,10 @@
 local lib = import 'lib/lib.libsonnet';
 local job = lib.job;
-local image = lib.image;
+local build = lib.build;
+local release = lib.release;
 
 std.manifestYamlDoc({
-  name: 'release (jsonnet version)',
+  name: 'release',
   on: {
     workflow_dispatch: {},
     push: {
@@ -25,9 +26,13 @@ std.manifestYamlDoc({
     check: lib.validate.check,
 
     local validationSteps = ['test', 'lint', 'check'],
-    'loki-image': image.buildImage('loki', 'cmd/loki') +
-                  job.needs(validationSteps),
-    'promtail-image': image.buildImage('promtail', 'clients/cmd/promtail') +
-                      job.needs(validationSteps),
+    dist: build.dist + job.withNeeds(validationSteps),
+    'loki-image': build.image('loki', 'cmd/loki')
+                  + job.withNeeds(validationSteps),
+    'promtail-image': build.image('promtail', 'clients/cmd/promtail')
+                      + job.withNeeds(validationSteps),
+
+    local buildSteps = ['dist', 'loki-image', 'promtail-image'],
+    release: release.release + job.withNeeds(buildSteps),
   },
 }, false, false)
