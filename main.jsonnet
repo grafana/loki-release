@@ -1,4 +1,6 @@
 local lib = import 'lib/lib.libsonnet';
+local job = lib.job;
+local image = lib.image;
 
 std.manifestYamlDoc({
   name: 'release (jsonnet version)',
@@ -12,8 +14,20 @@ std.manifestYamlDoc({
       ],
     },
   },
+  permissions: {
+    contents: 'write',
+    'pull-requests': 'write',
+    issues: 'write',
+  },
   jobs: {
-    'loki-image': lib.image.buildImage("loki", "cmd/loki"),
-    'promtail-image': lib.image.buildImage("promtail", "cmd/promtail"),
+    test: lib.validate.test,
+    lint: lib.validate.lint,
+    check: lib.validate.check,
+
+    local validationSteps = ['test', 'lint', 'check'],
+    'loki-image': image.buildImage('loki', 'cmd/loki') +
+                  job.needs(validationSteps),
+    'promtail-image': image.buildImage('promtail', 'clients/cmd/promtail') +
+                      job.needs(validationSteps),
   },
 })

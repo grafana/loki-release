@@ -1,5 +1,57 @@
 "jobs":
+  "check":
+    "runsOn": "ubuntu-latest"
+    "steps":
+    - "name": "pull loki code"
+      "uses": "actions/checkout@v3"
+      "with":
+        "ref": "prepare-release-please"
+        "repository": "grafana/loki"
+    - "name": "setup go"
+      "uses": "actions/setup-go@v4"
+      "with":
+        "go-version-file": "go.mod"
+    - "name": "check generated files"
+      "run": "make BUILD_IN_CONTAINER=false check-generated-files"
+      "shell": "bash"
+    - "name": "check mod"
+      "run": "make BUILD_IN_CONTAINER=false check-mod"
+      "shell": "bash"
+    - "name": "shellcheck"
+      "run": "make BUILD_IN_CONTAINER=false lint-scripts"
+      "shell": "bash"
+    - "name": "check docs"
+      "run": "make BUILD_IN_CONTAINER=false check-doc"
+      "shell": "bash"
+    - "name": "validate example configs"
+      "run": "make BUILD_IN_CONTAINER=false check-example-config-doc"
+      "shell": "bash"
+    - "name": "check helm reference doc"
+      "run": "make BUILD_IN_CONTAINER=false documentation-helm-reference-check"
+      "shell": "bash"
+  "lint":
+    "runsOn": "ubuntu-latest"
+    "steps":
+    - "name": "pull loki code"
+      "uses": "actions/checkout@v3"
+      "with":
+        "ref": "prepare-release-please"
+        "repository": "grafana/loki"
+    - "name": "setup go"
+      "uses": "actions/setup-go@v4"
+      "with":
+        "go-version-file": "go.mod"
+    - "name": "lint"
+      "run": "make BUILD_IN_CONTAINER=false lint"
+      "shell": "bash"
+    - "name": "lint jsonnet"
+      "run": "make BUILD_IN_CONTAINER=false lint-jsonnet"
+      "shell": "bash"
   "loki-image":
+    "needs":
+    - "test"
+    - "lint"
+    - "check"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
@@ -35,7 +87,7 @@
     - "name": "upload artifacts"
       "uses": "actions/upload-artifact@v3"
       "with":
-        "name": "loki-image-${{ matrix.platform }}"
+        "name": "loki-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
         "path": "dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
     "strategy":
       "fail-fast": true
@@ -45,6 +97,10 @@
         - "linux/arm64"
         - "linux/arm"
   "promtail-image":
+    "needs":
+    - "test"
+    - "lint"
+    - "check"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
@@ -66,21 +122,21 @@
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."cmd/promtail"' .release-please-manifest.json)
+        version=$(jq -r '."clients/cmd/promtail"' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       "shell": "bash"
     - "name": "Build and export"
       "uses": "docker/build-push-action@v5"
       "with":
         "context": "."
-        "file": "cmd/promtail/Dockerfile"
+        "file": "clients/cmd/promtail/Dockerfile"
         "outputs": "type=docker,dest=dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
         "platforms": "${{ matrix.platform }}"
         "tags": "grafana/promtail:${{ steps.parse-metadata.outputs.version }}"
     - "name": "upload artifacts"
       "uses": "actions/upload-artifact@v3"
       "with":
-        "name": "promtail-image-${{ matrix.platform }}"
+        "name": "promtail-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
         "path": "dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
     "strategy":
       "fail-fast": true
@@ -89,6 +145,21 @@
         - "linux/amd64"
         - "linux/arm64"
         - "linux/arm"
+  "test":
+    "runsOn": "ubuntu-latest"
+    "steps":
+    - "name": "pull loki code"
+      "uses": "actions/checkout@v3"
+      "with":
+        "ref": "prepare-release-please"
+        "repository": "grafana/loki"
+    - "name": "setup go"
+      "uses": "actions/setup-go@v4"
+      "with":
+        "go-version-file": "go.mod"
+    - "name": "test"
+      "run": "make BUILD_IN_CONTAINER=false test"
+      "shell": "bash"
 "name": "release (jsonnet version)"
 "on":
   "push":
@@ -97,3 +168,7 @@
     - "release-[0-9].[0-9].x"
     - "k[0-9]*"
   "workflow_dispatch": {}
+"permissions":
+  "contents": "write"
+  "issues": "write"
+  "pull-requests": "write"

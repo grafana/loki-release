@@ -53,7 +53,7 @@ local common = import 'common.libsonnet';
         name: 'upload artifacts',
         uses: 'actions/upload-artifact@v3',
         with: {
-          name: '%s-image-${{ matrix.platform }}' % name,
+          name: '%s-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}' % name,
           path: 'dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
         },
       },
