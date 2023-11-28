@@ -13,11 +13,13 @@ local step = common.step;
   lint: job.new() + job.withSteps([
     common.fetchLokiRepo,
     common.setupGo,
-    step.new('install golangci-lint', 'supplypike/setup-bin@v3') +
+    step.new('install golangci-lint', 'giantswarm/install-binary-action@v1') +
     step.with({
-      uri: 'https://github.com/golangci/golangci-lint/releases/download/v1.55.1/golangci-lint-1.55.1-linux-amd64.tar.gz',
-      name: 'golangci-lint',
+      binary: 'golangci-lint',
       version: '1.55.1',
+      download_url: 'https://github.com/golangci/golangci-lint/releases/download/v1.55.1/golangci-lint-1.55.1-linux-amd64.tar.gz',
+      tarball_binary_path: '*/${binary}',
+      smoke_test: '${binary} version',
     }),
     step.new('lint') +
     step.withRun(common.makeTarget('lint')),
