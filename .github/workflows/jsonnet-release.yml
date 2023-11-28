@@ -1,6 +1,6 @@
 "jobs":
   "check":
-    "runsOn": "ubuntu-latest"
+    "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
       "uses": "actions/checkout@v3"
@@ -30,7 +30,7 @@
       "run": "make BUILD_IN_CONTAINER=false documentation-helm-reference-check"
       "shell": "bash"
   "lint":
-    "runsOn": "ubuntu-latest"
+    "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
       "uses": "actions/checkout@v3"
@@ -146,7 +146,7 @@
         - "linux/arm64"
         - "linux/arm"
   "test":
-    "runsOn": "ubuntu-latest"
+    "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
       "uses": "actions/checkout@v3"

@@ -15,7 +15,7 @@
   },
   job: {
     new: function(runsOn='ubuntu-latest') {
-      runsOn: runsOn,
+      "runs-on": runsOn,
     },
     withSteps: function(steps) {
       steps: steps,
