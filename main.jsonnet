@@ -30,4 +30,4 @@ std.manifestYamlDoc({
     'promtail-image': image.buildImage('promtail', 'clients/cmd/promtail') +
                       job.needs(validationSteps),
   },
-})
+}, false, false)

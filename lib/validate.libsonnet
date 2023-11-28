@@ -21,6 +21,17 @@ local step = common.step;
       tarball_binary_path: '*/${binary}',
       smoke_test: '${binary} version',
     }),
+    step.new('install dependencies') +
+    step.withRun(|||
+      go install github.com/bufbuild/buf/cmd/buf@v1.4.0
+      go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
+      go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
+      go install github.com/fatih/faillint@v1.11.0
+      go install golang.org/x/tools/cmd/goimports@v0.7.0
+      go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@v0.4.0
+      go install github.com/monitoring-mixins/mixtool/cmd/mixtool@bca3066
+      go install github.com/google/go-jsonnet/cmd/jsonnet@v0.18.0
+    |||),
     step.new('lint') +
     step.withRun(common.makeTarget('lint')),
     step.new('lint jsonnet') +
@@ -30,8 +41,12 @@ local step = common.step;
   check: job.new() + job.withSteps([
     common.fetchLokiRepo,
     common.setupGo,
-    step.new('install buf') +
-    step.withRun('go install github.com/bufbuild/buf/cmd/buf@v1.4.0'),
+    step.new('install dependencies') +
+    step.withRun(|||
+      go install github.com/bufbuild/buf/cmd/buf@v1.4.0
+      go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
+      go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
+    |||),
     step.new('check generated files') +
     step.withRun(common.makeTarget('check-generated-files')),
     step.new('check mod') +
