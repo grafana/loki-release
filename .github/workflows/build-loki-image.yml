@@ -26,7 +26,8 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64,linux/arm
           driver: docker-container
-          install: true # setup docker build alias
+          install: true  # setup docker build alias
+          buildkitd-flags: --output "type=image"
       - name: build image
         run: |
           make BUILD_IN_CONTAINER=false loki-image
