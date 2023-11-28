@@ -19,13 +19,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          path: release
+      - uses: actions/checkout@v3
+        with:
+          repository: 'grafana/loki'
+          path: loki
       - name: validate
         run: |
-          echo "validating code"
+          cd loki
+          make test
       - name: build artifacts
         run: |
           mkdir -p dist
           echo "building code" > dist/build.txt
+
+          cd loki
+          make dist
       - name: extract branch name
         shell: bash
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
@@ -39,12 +49,7 @@ jobs:
         shell: bash
         run: |
           npm install
-          npm exec --  release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="grafana/loki-release" --label "backport ${{ steps.extract_branch.outputs.branch}}"
-      # - uses: google-github-actions/release-please-action@v3
-      #   id: release
-      #   with:
-      #     command: manifest
-      #     labels: "backport ${{ steps.extract_branch.outputs.branch}}"
+          npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="grafana/loki-release" --label "backport ${{ steps.extract_branch.outputs.branch}}" --manifest-file release/release-please-config.json
       - name: upload release artifacts
         if: ${{ steps.release.outputs.release_created }}
         env:
