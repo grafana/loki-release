@@ -2,8 +2,6 @@
   "check":
     "container":
       "image": "grafana/loki-build-image"
-      "volumes":
-      - ".:/src/loki"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
@@ -11,10 +9,6 @@
       "with":
         "ref": "prepare-release-please"
         "repository": "grafana/loki"
-    - "name": "setup go"
-      "uses": "actions/setup-go@v4"
-      "with":
-        "go-version-file": "go.mod"
     - "name": "check generated files"
       "run": "make BUILD_IN_CONTAINER=false check-generated-files"
     - "name": "check mod"
@@ -30,8 +24,6 @@
   "lint":
     "container":
       "image": "grafana/loki-build-image"
-      "volumes":
-      - ".:/src/loki"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
@@ -39,10 +31,6 @@
       "with":
         "ref": "prepare-release-please"
         "repository": "grafana/loki"
-    - "name": "setup go"
-      "uses": "actions/setup-go@v4"
-      "with":
-        "go-version-file": "go.mod"
     - "name": "lint"
       "run": "make BUILD_IN_CONTAINER=false lint"
     - "name": "lint jsonnet"
@@ -148,8 +136,6 @@
   "test":
     "container":
       "image": "grafana/loki-build-image"
-      "volumes":
-      - ".:/src/loki"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull loki code"
@@ -157,10 +143,6 @@
       "with":
         "ref": "prepare-release-please"
         "repository": "grafana/loki"
-    - "name": "setup go"
-      "uses": "actions/setup-go@v4"
-      "with":
-        "go-version-file": "go.mod"
     - "name": "test"
       "run": "make BUILD_IN_CONTAINER=false test"
 "name": "release (jsonnet version)"
