@@ -265,7 +265,7 @@ jobs:
       shell: "bash"
       working-directory: "release"
     - id: "update_release_config"
-      if: "${{ startsWith(steps.extract_branch.outputs.branch, \"k\") && steps.release.outputs.release_created }}"
+      if: "${{ startsWith(steps.extract_branch.outputs.branch, 'k') && steps.release.outputs.release_created }}"
       name: "create release branch from k release"
       run: |
         branch=release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x

@@ -53,7 +53,7 @@ local step = common.step;
       |||),
 
       step.new('create release branch from k release')
-      + step.withIf('${{ startsWith(steps.extract_branch.outputs.branch, "k") && steps.release.outputs.release_created }}')
+      + step.withIf("${{ startsWith(steps.extract_branch.outputs.branch, 'k') && steps.release.outputs.release_created }}")
       + step.withId('update_release_config')
       + step.withWorkingDirectory('release')
       + step.withRun(|||
