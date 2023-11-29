@@ -4,8 +4,14 @@ local step = common.step;
 
 local setupValidationDeps = function(job) job {
   steps: [
-    common.fetchLokiRepo,
+    common.fetchLokiRepo + step.with({
+      path: 'loki',
+    }),
+    common.fetchReleaseRepo + step.with({
+      path: 'release',
+    }),
     common.setupGo,
+    common.setupNode,
     step.new('install dependencies') +
     step.withRun(|||
       go install github.com/bufbuild/buf/cmd/buf@v1.4.0
@@ -23,7 +29,7 @@ local setupValidationDeps = function(job) job {
         protobuf-compiler libprotobuf-dev \
         libsystemd-dev jq
     |||),
-    step.new('install golangci-lint', 'giantswarm/install-binary-action@v1')
+    step.new('install golangci-lint', './release/actions/install-binary')
     + step.with({
       binary: 'golangci-lint',
       version: '1.55.1',
@@ -31,47 +37,52 @@ local setupValidationDeps = function(job) job {
       tarball_binary_path: '*/${binary}',
       smoke_test: '${binary} version',
     }),
-    step.new('install shellcheck', 'giantswarm/install-binary-action@v1')
+    step.new('install shellcheck', './release/action/install-binary')
     + step.with({
       binary: 'shellcheck',
       version: '0.9.0',
       download_url: 'https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz',
       tarball_binary_path: '*/${binary}',
       smoke_test: '${binary} --version',
+      tar_args: 'xvf',
     }),
   ] + job.steps,
 };
 
+local lokiValidationStep =
+  function(name) step.new(name) +
+                 step.withWorkingDirectory('loki');
+
 {
   test: setupValidationDeps(
     job.new() + job.withSteps([
-      step.new('test')
+      lokiValidationStep('test')
       + step.withRun(common.makeTarget('test')),
     ])
   ),
 
   lint: setupValidationDeps(
     job.new() + job.withSteps([
-      step.new('lint')
+      lokiValidationStep('lint')
       + step.withRun(common.makeTarget('lint')),
-      step.new('lint jsonnet')
+      lokiValidationStep('lint jsonnet')
       + step.withRun(common.makeTarget('lint-jsonnet')),
     ])
   ),
 
   check: setupValidationDeps(
     job.new() + job.withSteps([
-      step.new('check generated files')
+      lokiValidationStep('check generated files')
       + step.withRun(common.makeTarget('check-generated-files')),
-      step.new('check mod')
+      lokiValidationStep('check mod')
       + step.withRun(common.makeTarget('check-mod')),
-      step.new('shellcheck')
+      lokiValidationStep('shellcheck')
       + step.withRun(common.makeTarget('lint-scripts')),
-      step.new('check docs')
+      lokiValidationStep('check docs')
       + step.withRun(common.makeTarget('check-doc')),
-      step.new('validate example configs')
+      lokiValidationStep('validate example configs')
       + step.withRun(common.makeTarget('check-example-config-doc')),
-      step.new('check helm reference doc')
+      lokiValidationStep('check helm reference doc')
       + step.withRun(common.makeTarget('documentation-helm-reference-check')),
     ])
   ),

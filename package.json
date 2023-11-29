@@ -57,7 +57,7 @@
     ],
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "./src/**"
+      "./actions/*/src/**"
     ]
   },
   "dependencies": {

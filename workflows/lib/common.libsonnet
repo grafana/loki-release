@@ -6,7 +6,7 @@
       uses: uses,
     } else {},
     with: function(with) {
-      with: with,
+      with+: with,
     },
     withRun: function(run) {
       shell: 'bash',

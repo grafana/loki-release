@@ -5,12 +5,22 @@ jobs:
     - name: "pull loki code"
       uses: "actions/checkout@v3"
       with:
+        path: "loki"
         ref: "prepare-release-please"
         repository: "grafana/loki"
+    - name: "pull release code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "release"
+        repository: "grafana/loki-release"
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
         go-version-file: "go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 16
     - name: "install dependencies"
       run: |
         go install github.com/bufbuild/buf/cmd/buf@v1.4.0
@@ -29,7 +39,7 @@ jobs:
           libsystemd-dev jq
       shell: "bash"
     - name: "install golangci-lint"
-      uses: "giantswarm/install-binary-action@v1"
+      uses: "./release/actions/install-binary"
       with:
         binary: "golangci-lint"
         download_url: "https://github.com/golangci/golangci-lint/releases/download/v${version}/golangci-lint-${version}-linux-amd64.tar.gz"
@@ -37,31 +47,38 @@ jobs:
         tarball_binary_path: "*/${binary}"
         version: "1.55.1"
     - name: "install shellcheck"
-      uses: "giantswarm/install-binary-action@v1"
+      uses: "./release/action/install-binary"
       with:
         binary: "shellcheck"
         download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
         smoke_test: "${binary} --version"
+        tar_args: "xvf"
         tarball_binary_path: "*/${binary}"
         version: "0.9.0"
     - name: "check generated files"
       run: "make BUILD_IN_CONTAINER=false check-generated-files"
       shell: "bash"
+      working-directory: "loki"
     - name: "check mod"
       run: "make BUILD_IN_CONTAINER=false check-mod"
       shell: "bash"
+      working-directory: "loki"
     - name: "shellcheck"
       run: "make BUILD_IN_CONTAINER=false lint-scripts"
       shell: "bash"
+      working-directory: "loki"
     - name: "check docs"
       run: "make BUILD_IN_CONTAINER=false check-doc"
       shell: "bash"
+      working-directory: "loki"
     - name: "validate example configs"
       run: "make BUILD_IN_CONTAINER=false check-example-config-doc"
       shell: "bash"
+      working-directory: "loki"
     - name: "check helm reference doc"
       run: "make BUILD_IN_CONTAINER=false documentation-helm-reference-check"
       shell: "bash"
+      working-directory: "loki"
   dist:
     needs:
     - "test"
@@ -92,12 +109,22 @@ jobs:
     - name: "pull loki code"
       uses: "actions/checkout@v3"
       with:
+        path: "loki"
         ref: "prepare-release-please"
         repository: "grafana/loki"
+    - name: "pull release code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "release"
+        repository: "grafana/loki-release"
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
         go-version-file: "go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 16
     - name: "install dependencies"
       run: |
         go install github.com/bufbuild/buf/cmd/buf@v1.4.0
@@ -116,7 +143,7 @@ jobs:
           libsystemd-dev jq
       shell: "bash"
     - name: "install golangci-lint"
-      uses: "giantswarm/install-binary-action@v1"
+      uses: "./release/actions/install-binary"
       with:
         binary: "golangci-lint"
         download_url: "https://github.com/golangci/golangci-lint/releases/download/v${version}/golangci-lint-${version}-linux-amd64.tar.gz"
@@ -124,19 +151,22 @@ jobs:
         tarball_binary_path: "*/${binary}"
         version: "1.55.1"
     - name: "install shellcheck"
-      uses: "giantswarm/install-binary-action@v1"
+      uses: "./release/action/install-binary"
       with:
         binary: "shellcheck"
         download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
         smoke_test: "${binary} --version"
+        tar_args: "xvf"
         tarball_binary_path: "*/${binary}"
         version: "0.9.0"
     - name: "lint"
       run: "make BUILD_IN_CONTAINER=false lint"
       shell: "bash"
+      working-directory: "loki"
     - name: "lint jsonnet"
       run: "make BUILD_IN_CONTAINER=false lint-jsonnet"
       shell: "bash"
+      working-directory: "loki"
   loki-image:
     needs:
     - "test"
@@ -324,12 +354,22 @@ jobs:
     - name: "pull loki code"
       uses: "actions/checkout@v3"
       with:
+        path: "loki"
         ref: "prepare-release-please"
         repository: "grafana/loki"
+    - name: "pull release code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "release"
+        repository: "grafana/loki-release"
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
         go-version-file: "go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 16
     - name: "install dependencies"
       run: |
         go install github.com/bufbuild/buf/cmd/buf@v1.4.0
@@ -348,7 +388,7 @@ jobs:
           libsystemd-dev jq
       shell: "bash"
     - name: "install golangci-lint"
-      uses: "giantswarm/install-binary-action@v1"
+      uses: "./release/actions/install-binary"
       with:
         binary: "golangci-lint"
         download_url: "https://github.com/golangci/golangci-lint/releases/download/v${version}/golangci-lint-${version}-linux-amd64.tar.gz"
@@ -356,16 +396,18 @@ jobs:
         tarball_binary_path: "*/${binary}"
         version: "1.55.1"
     - name: "install shellcheck"
-      uses: "giantswarm/install-binary-action@v1"
+      uses: "./release/action/install-binary"
       with:
         binary: "shellcheck"
         download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
         smoke_test: "${binary} --version"
+        tar_args: "xvf"
         tarball_binary_path: "*/${binary}"
         version: "0.9.0"
     - name: "test"
       run: "make BUILD_IN_CONTAINER=false test"
       shell: "bash"
+      working-directory: "loki"
 name: "release"
 "on":
   push:
