@@ -34,7 +34,7 @@ local setupValidationDeps = function(job) job {
       tarball_binary_path: '*/${binary}',
       smoke_test: '${binary} version',
     }),
-    step.new('install shellcheck', './release/action/install-binary')
+    step.new('install shellcheck', './release/actions/install-binary')
     + step.with({
       binary: 'shellcheck',
       version: '0.9.0',

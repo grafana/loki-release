@@ -47,7 +47,7 @@ jobs:
         tarball_binary_path: "*/${binary}"
         version: "1.55.1"
     - name: "install shellcheck"
-      uses: "./release/action/install-binary"
+      uses: "./release/actions/install-binary"
       with:
         binary: "shellcheck"
         download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
@@ -153,7 +153,7 @@ jobs:
         tarball_binary_path: "*/${binary}"
         version: "1.55.1"
     - name: "install shellcheck"
-      uses: "./release/action/install-binary"
+      uses: "./release/actions/install-binary"
       with:
         binary: "shellcheck"
         download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
@@ -406,7 +406,7 @@ jobs:
         tarball_binary_path: "*/${binary}"
         version: "1.55.1"
     - name: "install shellcheck"
-      uses: "./release/action/install-binary"
+      uses: "./release/actions/install-binary"
       with:
         binary: "shellcheck"
         download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
