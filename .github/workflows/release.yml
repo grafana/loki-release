@@ -104,8 +104,7 @@ jobs:
       uses: "actions/upload-artifact@v3"
       with:
         name: "dist"
-        path: "dist/"
-      working-directory: "loki"
+        path: "lok/dist/"
   lint:
     runs-on: "ubuntu-latest"
     steps:
@@ -206,18 +205,16 @@ jobs:
     - name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
-        context: "."
-        file: "cmd/loki/Dockerfile"
-        outputs: "type=docker,dest=dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        context: "loki"
+        file: "loki/cmd/loki/Dockerfile"
+        outputs: "type=docker,dest=loki/dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "grafana/loki:${{ steps.parse-metadata.outputs.version }}"
-      working-directory: "loki"
     - name: "upload artifacts"
       uses: "actions/upload-artifact@v3"
       with:
         name: "loki-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
-        path: "dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
-      working-directory: "loki"
+        path: "loki/dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
     strategy:
       fail-fast: true
       matrix:
@@ -261,18 +258,16 @@ jobs:
     - name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
-        context: "."
-        file: "clients/cmd/promtail/Dockerfile"
-        outputs: "type=docker,dest=dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        context: "loki"
+        file: "loki/clients/cmd/promtail/Dockerfile"
+        outputs: "type=docker,dest=loki/dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "grafana/promtail:${{ steps.parse-metadata.outputs.version }}"
-      working-directory: "loki"
     - name: "upload artifacts"
       uses: "actions/upload-artifact@v3"
       with:
         name: "promtail-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
-        path: "dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
-      working-directory: "loki"
+        path: "loki/dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
     strategy:
       fail-fast: true
       matrix:
@@ -324,8 +319,7 @@ jobs:
       uses: "actions/download-artifact@v3"
       with:
         name: "dist"
-        path: "dist/"
-      working-directory: "loki"
+        path: "release/dist/"
     - env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       if: "${{ steps.release.outputs.release_created }}"
@@ -353,8 +347,7 @@ jobs:
         branch: "release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x"
         commit_message: "chore: release branch bumps patch on release"
         create_branch: true
-        file_pattern: "release/release-please-config.json"
-      working-directory: "loki"
+        file_pattern: "loki/release-please-config.json"
     - env:
         BRANCH: "release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x"
       id: "created_branch_message"

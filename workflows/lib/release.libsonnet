@@ -27,11 +27,11 @@ local releaseStep = common.lokiStep;
         npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="grafana/loki-release" --label "backport ${{ steps.extract_branch.outputs.branch}}" --manifest-file release/release-please-config.json
       |||),
 
-      releaseStep('download dist', 'actions/download-artifact@v3')
+      step.new('download dist', 'actions/download-artifact@v3')
       + step.withIf('${{ steps.release.outputs.release_created }}')
       + step.with({
         name: 'dist',
-        path: 'dist/',
+        path: 'release/dist/',
       }),
       //TODO: download images
 
@@ -55,13 +55,13 @@ local releaseStep = common.lokiStep;
         rm tmp.json
       |||),
 
-      lokiStep('commit changes to release branch', 'stefanzweifel/git-auto-commit-action@v5')
+      step.new('commit changes to release branch', 'stefanzweifel/git-auto-commit-action@v5')
       + step.withIf("${{ steps.update_release_config.outcome == 'success' }}")
       + step.withId('create_release_branch')
       + step.with({
         commit_message: 'chore: release branch bumps patch on release',
         branch: 'release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x',
-        file_pattern: 'release/release-please-config.json',
+        file_pattern: 'loki/release-please-config.json',
         create_branch: true,
       }),
 

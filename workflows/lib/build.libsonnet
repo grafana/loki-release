@@ -32,18 +32,18 @@ local lokiStep = common.lokiStep;
         version=$(jq -r '."%s"' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       ||| % path),
-      lokiStep('Build and export', 'docker/build-push-action@v5')
+      step.new('Build and export', 'docker/build-push-action@v5')
       + step.with({
-        context: '.',
-        file: '%s/Dockerfile' % path,
+        context: 'loki',
+        file: 'loki/%s/Dockerfile' % path,
         platforms: '${{ matrix.platform }}',
         tags: 'grafana/%s:${{ steps.parse-metadata.outputs.version }}' % name,
-        outputs: 'type=docker,dest=dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        outputs: 'type=docker,dest=loki/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
-      lokiStep('upload artifacts', 'actions/upload-artifact@v3')
+      step.new('upload artifacts', 'actions/upload-artifact@v3')
       + step.with({
         name: '%s-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}' % name,
-        path: 'dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        path: 'loki/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
     ]),
 
@@ -53,10 +53,10 @@ local lokiStep = common.lokiStep;
           common.setupGo,
           lokiStep('build artifacts')
           + step.withRun(common.makeTarget('dist')),
-          lokiStep('upload artifacts', 'actions/upload-artifact@v3')
+          step.new('upload artifacts', 'actions/upload-artifact@v3')
           + step.with({
             name: 'dist',
-            path: 'dist/',
+            path: 'lok/dist/',
           }),
         ]),
 }
