@@ -39,7 +39,7 @@ local setupValidationDeps = function(job) job {
       binary: 'shellcheck',
       version: '0.9.0',
       download_url: 'https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz',
-      tarball_binary_path: '*/${binary}',
+      tarball_binary_path: '${binary}',
       smoke_test: '${binary} --version',
       tar_args: 'xvf',
     }),
