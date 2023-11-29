@@ -1,7 +1,9 @@
-local lib = import '../lib/lib.libsonnet';
-local job = lib.job;
-local build = lib.build;
-local release = lib.release;
+local common = import '../lib/common.libsonnet';
+local job = common.job;
+
+local build = import '../lib/build.libsonnet';
+local release = import '../lib/release.libsonnet';
+local validate = import '../lib/validate.libsonnet';
 
 std.manifestYamlDoc({
   name: 'release',
@@ -21,9 +23,9 @@ std.manifestYamlDoc({
     issues: 'write',
   },
   jobs: {
-    test: lib.validate.test,
-    lint: lib.validate.lint,
-    check: lib.validate.check,
+    test: validate.test,
+    lint: validate.lint,
+    check: validate.check,
 
     local validationSteps = ['test', 'lint', 'check'],
     dist: build.dist + job.withNeeds(validationSteps),

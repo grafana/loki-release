@@ -43,6 +43,22 @@ local setupValidationDeps = function(job) job {
       smoke_test: '${binary} --version',
       tar_args: 'xvf',
     }),
+    step.new('install helm', './release/actions/install-binary')
+    + step.with({
+      binary: 'helm',
+      version: '3.2.3',
+      download_url: 'https://get.helm.sh/helm-v${version}-linux-amd64.tar.gz',
+      tarball_binary_path: '*/${binary}',
+      smoke_test: '${binary} version',
+    }),
+    step.new('install helm-docs', './release/actions/install-binary')
+    + step.with({
+      binary: 'helm-docs',
+      version: '1.11.2',
+      download_url: 'https://github.com/norwoodj/helm-docs/releases/download/v${version}/helm-docs_Linux_x86_64.tar.gz',
+      tarball_binary_path: '*/${binary}',
+      smoke_test: '${binary} --version',
+    }),
   ] + job.steps,
 };
 
