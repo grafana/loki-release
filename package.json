@@ -3,18 +3,19 @@
   "version": "0.1.0",
   "description": "release pipeline and actions for Loki",
   "scripts": {
+    "all": "npm run workflows && npm run format:write && npm run lint && npm run test && npm run coverage && npm run package",
     "test": "jest",
-    "workflows": "jsonnet -S main.jsonnet > .github/workflows/release.yml",
-    "bundle": "npm run format:write && npm run package",
     "ci-test": "jest",
+    "lint": "npx eslint . -c .eslintrc.yml",
+    "workflows": "for w in release; do npm run workflows:${w}; done",
+    "workflows:release": "jsonnet -S workflows/release/main.jsonnet > .github/workflows/release.yml",
+    "package": "for p in install-binary; do npm run package:${p}; done",
+    "package:install-binary": "ncc build actions/install-binary/src/index.ts --license licenses.txt --out actions/install-binary/dist",
+    "package:install-binary:watch": "npm run package -- --watch",
+    "bundle": "npm run format:write && npm run package",
     "coverage": "make-coverage-badge --output-path ./badges/coverage.svg",
     "format:write": "prettier --write **/*.ts",
-    "format:check": "prettier --check **/*.ts",
-    "lint": "npx eslint . -c .eslintrc.yml",
-    "install-binary:package": "ncc build actions/install-binary/src/index.ts --license licenses.txt --out actions/install-binary/dist",
-    "install-binary:package:watch": "npm run package -- --watch",
-    "package": "for p in install-binary; do npm run ${p}:package; done",
-    "all": "npm run workflows && npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
+    "format:check": "prettier --check **/*.ts"
   },
   "repository": {
     "type": "git",

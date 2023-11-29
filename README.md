@@ -1,5 +1,7 @@
 # loki-release
 
+[![Coverage](./badges/coverage.svg)](./badges/coverage.svg)
+
 This repository was built to replace our [existing workflow](./docs/loki-legacy-workflow.md), which was mostly a manual process. This new workflow (diagramed below), runs on a daily cron trigger, whenever a commit to a release branch is made, or at the end of our automated weekly release process.
 
 In the following diagram, light blue stadium-shaped nodes indicate manual actions, parallelagrams indicate automated actions, and a rhombus indicates a conditional flow.

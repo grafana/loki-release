@@ -1,4 +1,4 @@
-local lib = import 'lib/lib.libsonnet';
+local lib = import '../lib/lib.libsonnet';
 local job = lib.job;
 local build = lib.build;
 local release = lib.release;
