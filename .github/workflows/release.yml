@@ -16,7 +16,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        go-version-file: "go.mod"
+        go-version-file: "loki/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
@@ -89,20 +89,23 @@ jobs:
     - name: "pull loki code"
       uses: "actions/checkout@v3"
       with:
+        path: "loki"
         ref: "prepare-release-please"
         repository: "grafana/loki"
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        go-version-file: "go.mod"
+        go-version-file: "loki/go.mod"
     - name: "build artifacts"
       run: "make BUILD_IN_CONTAINER=false dist"
       shell: "bash"
+      working-directory: "loki"
     - name: "upload artifacts"
       uses: "actions/upload-artifact@v3"
       with:
         name: "dist"
         path: "dist/"
+      working-directory: "loki"
   lint:
     runs-on: "ubuntu-latest"
     steps:
@@ -120,7 +123,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        go-version-file: "go.mod"
+        go-version-file: "loki/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
@@ -177,12 +180,15 @@ jobs:
     - name: "pull loki code"
       uses: "actions/checkout@v3"
       with:
+        path: "loki"
         ref: "prepare-release-please"
         repository: "grafana/loki"
+    - name: "setup go"
+      uses: "actions/setup-go@v4"
+      with:
+        go-version-file: "loki/go.mod"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
-      with:
-        go-version-file: "go.mod"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
     - id: "parse-metadata"
@@ -196,6 +202,7 @@ jobs:
         version=$(jq -r '."cmd/loki"' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
+      working-directory: "loki"
     - name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -204,11 +211,13 @@ jobs:
         outputs: "type=docker,dest=dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "grafana/loki:${{ steps.parse-metadata.outputs.version }}"
+      working-directory: "loki"
     - name: "upload artifacts"
       uses: "actions/upload-artifact@v3"
       with:
         name: "loki-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
         path: "dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+      working-directory: "loki"
     strategy:
       fail-fast: true
       matrix:
@@ -226,12 +235,15 @@ jobs:
     - name: "pull loki code"
       uses: "actions/checkout@v3"
       with:
+        path: "loki"
         ref: "prepare-release-please"
         repository: "grafana/loki"
+    - name: "setup go"
+      uses: "actions/setup-go@v4"
+      with:
+        go-version-file: "loki/go.mod"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
-      with:
-        go-version-file: "go.mod"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
     - id: "parse-metadata"
@@ -245,6 +257,7 @@ jobs:
         version=$(jq -r '."clients/cmd/promtail"' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
+      working-directory: "loki"
     - name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -253,11 +266,13 @@ jobs:
         outputs: "type=docker,dest=dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "grafana/promtail:${{ steps.parse-metadata.outputs.version }}"
+      working-directory: "loki"
     - name: "upload artifacts"
       uses: "actions/upload-artifact@v3"
       with:
         name: "promtail-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
         path: "dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+      working-directory: "loki"
     strategy:
       fail-fast: true
       matrix:
@@ -286,7 +301,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        go-version-file: "go.mod"
+        go-version-file: "loki/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
@@ -303,13 +318,14 @@ jobs:
         npm install
         npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="grafana/loki-release" --label "backport ${{ steps.extract_branch.outputs.branch}}" --manifest-file release/release-please-config.json
       shell: "bash"
-      working-directory: "release"
+      working-directory: "loki"
     - if: "${{ steps.release.outputs.release_created }}"
       name: "download dist"
       uses: "actions/download-artifact@v3"
       with:
         name: "dist"
-        path: "release/dist/"
+        path: "dist/"
+      working-directory: "loki"
     - env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
       if: "${{ steps.release.outputs.release_created }}"
@@ -317,7 +333,7 @@ jobs:
       run: |
         gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
       shell: "bash"
-      working-directory: "release"
+      working-directory: "loki"
     - id: "update_release_config"
       if: "${{ startsWith(steps.extract_branch.outputs.branch, 'k') && steps.release.outputs.release_created }}"
       name: "create release branch from k release"
@@ -328,7 +344,7 @@ jobs:
         jq '.versioning = "always-bump-patch"' tmp.json > release-please-config.json
         rm tmp.json
       shell: "bash"
-      working-directory: "release"
+      working-directory: "loki"
     - id: "create_release_branch"
       if: "${{ steps.update_release_config.outcome == 'success' }}"
       name: "commit changes to release branch"
@@ -338,6 +354,7 @@ jobs:
         commit_message: "chore: release branch bumps patch on release"
         create_branch: true
         file_pattern: "release/release-please-config.json"
+      working-directory: "loki"
     - env:
         BRANCH: "release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x"
       id: "created_branch_message"
@@ -347,7 +364,7 @@ jobs:
         prNumber=$(echo ${{ steps.release.outputs.pr }} | jq -r .number)
         gh pr comment $prNumber --body "created release branch [$BRANCH](https://github.com/grafana/loki-release/tree/$BRANCH)"
       shell: "bash"
-      working-directory: "release"
+      working-directory: "loki"
   test:
     runs-on: "ubuntu-latest"
     steps:
@@ -365,7 +382,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        go-version-file: "go.mod"
+        go-version-file: "loki/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:

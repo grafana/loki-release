@@ -1,15 +1,12 @@
 local common = import 'common.libsonnet';
 local job = common.job;
 local step = common.step;
+local lokiStep = common.lokiStep;
 
 local setupValidationDeps = function(job) job {
   steps: [
-    common.fetchLokiRepo + step.with({
-      path: 'loki',
-    }),
-    common.fetchReleaseRepo + step.with({
-      path: 'release',
-    }),
+    common.fetchLokiRepo,
+    common.fetchReleaseRepo,
     common.setupGo,
     common.setupNode,
     step.new('install dependencies') +
@@ -49,40 +46,37 @@ local setupValidationDeps = function(job) job {
   ] + job.steps,
 };
 
-local lokiValidationStep =
-  function(name) step.new(name) +
-                 step.withWorkingDirectory('loki');
 
 {
   test: setupValidationDeps(
     job.new() + job.withSteps([
-      lokiValidationStep('test')
+      lokiStep('test')
       + step.withRun(common.makeTarget('test')),
     ])
   ),
 
   lint: setupValidationDeps(
     job.new() + job.withSteps([
-      lokiValidationStep('lint')
+      lokiStep('lint')
       + step.withRun(common.makeTarget('lint')),
-      lokiValidationStep('lint jsonnet')
+      lokiStep('lint jsonnet')
       + step.withRun(common.makeTarget('lint-jsonnet')),
     ])
   ),
 
   check: setupValidationDeps(
     job.new() + job.withSteps([
-      lokiValidationStep('check generated files')
+      lokiStep('check generated files')
       + step.withRun(common.makeTarget('check-generated-files')),
-      lokiValidationStep('check mod')
+      lokiStep('check mod')
       + step.withRun(common.makeTarget('check-mod')),
-      lokiValidationStep('shellcheck')
+      lokiStep('shellcheck')
       + step.withRun(common.makeTarget('lint-scripts')),
-      lokiValidationStep('check docs')
+      lokiStep('check docs')
       + step.withRun(common.makeTarget('check-doc')),
-      lokiValidationStep('validate example configs')
+      lokiStep('validate example configs')
       + step.withRun(common.makeTarget('check-example-config-doc')),
-      lokiValidationStep('check helm reference doc')
+      lokiStep('check helm reference doc')
       + step.withRun(common.makeTarget('documentation-helm-reference-check')),
     ])
   ),

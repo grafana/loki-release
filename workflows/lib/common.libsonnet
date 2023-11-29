@@ -40,20 +40,28 @@
     },
   },
 
+  lokiStep: function(name, uses=null) $.step.new(name, uses) +
+                                      $.step.withWorkingDirectory('loki'),
+
+  releaseStep: function(name, uses=null) $.step.new(name, uses) +
+                                         $.step.withWorkingDirectory('release'),
+
   fetchLokiRepo:
     $.step.new('pull loki code', 'actions/checkout@v3')
     + $.step.with({
       repository: 'grafana/loki',
       ref: 'prepare-release-please',
+      path: 'loki',
     }),
   fetchReleaseRepo:
     $.step.new('pull release code', 'actions/checkout@v3')
     + $.step.with({
       repository: 'grafana/loki-release',
+      path: 'release',
     }),
   setupGo: $.step.new('setup go', 'actions/setup-go@v4')
            + $.step.with({
-             'go-version-file': 'go.mod',
+             'go-version-file': 'loki/go.mod',
            }),
 
   setupNode: $.step.new('setup node', 'actions/setup-node@v4')
