@@ -28,6 +28,22 @@ jobs:
           protobuf-compiler libprotobuf-dev \
           libsystemd-dev jq
       shell: "bash"
+    - name: "install golangci-lint"
+      uses: "giantswarm/install-binary-action@v1"
+      with:
+        binary: "golangci-lint"
+        download_url: "https://github.com/golangci/golangci-lint/releases/download/v${version}/golangci-lint-${version}-linux-amd64.tar.gz"
+        smoke_test: "${binary} version"
+        tarball_binary_path: "*/${binary}"
+        version: "1.55.1"
+    - name: "install shellcheck"
+      uses: "giantswarm/install-binary-action@v1"
+      with:
+        binary: "shellcheck"
+        download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
+        smoke_test: "${binary} --version"
+        tarball_binary_path: "*/${binary}"
+        version: "0.9.0"
     - name: "check generated files"
       run: "make BUILD_IN_CONTAINER=false check-generated-files"
       shell: "bash"
@@ -103,10 +119,18 @@ jobs:
       uses: "giantswarm/install-binary-action@v1"
       with:
         binary: "golangci-lint"
-        download_url: "https://github.com/golangci/golangci-lint/releases/download/v1.55.1/golangci-lint-1.55.1-linux-amd64.tar.gz"
+        download_url: "https://github.com/golangci/golangci-lint/releases/download/v${version}/golangci-lint-${version}-linux-amd64.tar.gz"
         smoke_test: "${binary} version"
         tarball_binary_path: "*/${binary}"
         version: "1.55.1"
+    - name: "install shellcheck"
+      uses: "giantswarm/install-binary-action@v1"
+      with:
+        binary: "shellcheck"
+        download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
+        smoke_test: "${binary} --version"
+        tarball_binary_path: "*/${binary}"
+        version: "0.9.0"
     - name: "lint"
       run: "make BUILD_IN_CONTAINER=false lint"
       shell: "bash"
@@ -323,6 +347,22 @@ jobs:
           protobuf-compiler libprotobuf-dev \
           libsystemd-dev jq
       shell: "bash"
+    - name: "install golangci-lint"
+      uses: "giantswarm/install-binary-action@v1"
+      with:
+        binary: "golangci-lint"
+        download_url: "https://github.com/golangci/golangci-lint/releases/download/v${version}/golangci-lint-${version}-linux-amd64.tar.gz"
+        smoke_test: "${binary} version"
+        tarball_binary_path: "*/${binary}"
+        version: "1.55.1"
+    - name: "install shellcheck"
+      uses: "giantswarm/install-binary-action@v1"
+      with:
+        binary: "shellcheck"
+        download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
+        smoke_test: "${binary} --version"
+        tarball_binary_path: "*/${binary}"
+        version: "0.9.0"
     - name: "test"
       run: "make BUILD_IN_CONTAINER=false test"
       shell: "bash"
