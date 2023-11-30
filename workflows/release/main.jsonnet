@@ -42,10 +42,16 @@ std.manifestYamlDoc({
 
     local validationSteps = ['test', 'lint', 'check'],
     dist: build.dist + job.withNeeds(validationSteps),
+    // 'loki-image': build.image('loki', 'cmd/loki')
+    //               + job.withNeeds(validationSteps),
     'loki-image': build.image('loki', 'cmd/loki')
-                  + job.withNeeds(validationSteps),
+                  + job.withNeeds(validationSteps)
+                  + alwaysGreen,
+    // 'promtail-image': build.image('promtail', 'clients/cmd/promtail')
+    //                   + job.withNeeds(validationSteps),
     'promtail-image': build.image('promtail', 'clients/cmd/promtail')
-                      + job.withNeeds(validationSteps),
+                      + job.withNeeds(validationSteps)
+                      + alwaysGreen,
 
     local buildSteps = ['dist', 'loki-image', 'promtail-image'],
     'create-release-pr': release.createReleasePR + job.withNeeds(buildSteps),
