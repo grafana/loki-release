@@ -16,6 +16,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
+        cache-dependency-path: "loki/go.sum"
         go-version-file: "loki/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
@@ -111,6 +112,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
+        cache-dependency-path: "loki/go.sum"
         go-version-file: "loki/go.mod"
     - name: "build artifacts"
       run: "make BUILD_IN_CONTAINER=false dist"
@@ -138,6 +140,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
+        cache-dependency-path: "loki/go.sum"
         go-version-file: "loki/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
@@ -217,6 +220,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
+        cache-dependency-path: "loki/go.sum"
         go-version-file: "loki/go.mod"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
@@ -270,6 +274,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
+        cache-dependency-path: "loki/go.sum"
         go-version-file: "loki/go.mod"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
@@ -328,6 +333,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
+        cache-dependency-path: "loki/go.sum"
         go-version-file: "loki/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
@@ -407,6 +413,7 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
+        cache-dependency-path: "loki/go.sum"
         go-version-file: "loki/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
