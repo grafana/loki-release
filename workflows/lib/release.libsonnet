@@ -30,13 +30,12 @@ local releaseStep = common.lokiStep;
       releaseStep('release please')
       + step.withId('release')
       + step.withRun(|||
-        manifest_file="./release-please-config.json"
-        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
-          manifest_file="../loki/release-please-config.json"
-        fi
+        echo "manifest file: ${manifest_file}"
+        echo "current dir: $(pwd)"
 
         npm install
-        npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --label "backport ${{ steps.extract_branch.outputs.branch}}" --manifest-file "${manifest_file}"
+        echo "npm exec -- release-please release-pr --token=\"${{ secrets.GITHUB_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\" --label \"backport ${{ steps.extract_branch.outputs.branch}}\""
+        npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --label "backport ${{ steps.extract_branch.outputs.branch }}"
       |||),
     ]),
 
