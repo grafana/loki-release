@@ -1,0 +1,20 @@
+jobs:
+  release:
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "always green"
+      run: "echo \"always green\""
+      shell: "bash"
+name: "create release"
+"on":
+  workflow_call:
+    inputs:
+      release_repo:
+        default: "grafana/loki"
+        description: "repo to make release in"
+        required: false
+        type: "string"
+permissions:
+  contents: "write"
+  issues: "write"
+  pull-requests: "write"
