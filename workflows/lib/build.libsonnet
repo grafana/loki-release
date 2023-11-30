@@ -51,6 +51,19 @@ local lokiStep = common.lokiStep;
         + job.withSteps([
           common.fetchLokiRepo,
           common.setupGo,
+          step.new('install dependencies') +
+          step.withRun(|||
+            go install github.com/mitchellh/gox@9f71238
+            go install github.com/bufbuild/buf/cmd/buf@v1.4.0
+            go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
+            go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
+
+            sudo apt update
+            sudo apt install -qy musl gnupg ragel \
+              file zip unzip jq gettext \
+              protobuf-compiler libprotobuf-dev \
+              libsystemd-dev jq
+          |||),
           lokiStep('build artifacts')
           + step.withRun(common.makeTarget('dist')),
           step.new('upload artifacts', 'actions/upload-artifact@v3')
