@@ -22,7 +22,7 @@ std.manifestYamlDoc({
           description: 'repo to make release PRs and releases against',
           default: 'grafana/loki',
           required: false,
-          type: ' string',
+          type: 'string',
         },
       },
     },
