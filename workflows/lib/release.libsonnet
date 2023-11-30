@@ -18,7 +18,7 @@ local releaseStep = common.lokiStep;
       step.new('extract branch name')
       + step.withId('extract_branch')
       + step.withRun(|||
-        if [[ "${{ inputs.release_repo }}" == "grafana/loki" }}]]; then
+        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
           cd loki
           echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         else

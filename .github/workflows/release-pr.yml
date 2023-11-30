@@ -35,7 +35,7 @@ jobs:
     - id: "extract_branch"
       name: "extract branch name"
       run: |
-        if [[ "${{ inputs.release_repo }}" == "grafana/loki" }}]]; then
+        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
           cd loki
           echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         else
