@@ -19,6 +19,7 @@ local setupValidationDeps = function(job) job {
       go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@v0.4.0
       go install github.com/monitoring-mixins/mixtool/cmd/mixtool@bca3066
       go install github.com/google/go-jsonnet/cmd/jsonnet@v0.18.0
+      go install github.com/google/go-jsonnet/cmd/jsonnet-lint@v0.18.0
 
       sudo apt update
       sudo apt install -qy musl gnupg ragel \
@@ -56,6 +57,14 @@ local setupValidationDeps = function(job) job {
       binary: 'helm-docs',
       version: '1.11.2',
       download_url: 'https://github.com/norwoodj/helm-docs/releases/download/v${version}/helm-docs_Linux_x86_64.tar.gz',
+      tarball_binary_path: '${binary}',
+      smoke_test: '${binary} --version',
+    }),
+    step.new('install jsonnetfmt', './release/actions/install-binary')
+    + step.with({
+      binary: 'jsonnetfmt',
+      version: '0.18.0',
+      download_url: 'https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz',
       tarball_binary_path: '${binary}',
       smoke_test: '${binary} --version',
     }),

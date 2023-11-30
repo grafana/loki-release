@@ -32,6 +32,7 @@ jobs:
         go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@v0.4.0
         go install github.com/monitoring-mixins/mixtool/cmd/mixtool@bca3066
         go install github.com/google/go-jsonnet/cmd/jsonnet@v0.18.0
+        go install github.com/google/go-jsonnet/cmd/jsonnet-lint@v0.18.0
         
         sudo apt update
         sudo apt install -qy musl gnupg ragel \
@@ -72,6 +73,14 @@ jobs:
         smoke_test: "${binary} --version"
         tarball_binary_path: "${binary}"
         version: "1.11.2"
+    - name: "install jsonnetfmt"
+      uses: "./release/actions/install-binary"
+      with:
+        binary: "jsonnetfmt"
+        download_url: "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
+        smoke_test: "${binary} --version"
+        tarball_binary_path: "${binary}"
+        version: "0.18.0"
     - name: "check generated files"
       run: "make BUILD_IN_CONTAINER=false check-generated-files"
       shell: "bash"
@@ -156,6 +165,7 @@ jobs:
         go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@v0.4.0
         go install github.com/monitoring-mixins/mixtool/cmd/mixtool@bca3066
         go install github.com/google/go-jsonnet/cmd/jsonnet@v0.18.0
+        go install github.com/google/go-jsonnet/cmd/jsonnet-lint@v0.18.0
         
         sudo apt update
         sudo apt install -qy musl gnupg ragel \
@@ -196,6 +206,14 @@ jobs:
         smoke_test: "${binary} --version"
         tarball_binary_path: "${binary}"
         version: "1.11.2"
+    - name: "install jsonnetfmt"
+      uses: "./release/actions/install-binary"
+      with:
+        binary: "jsonnetfmt"
+        download_url: "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
+        smoke_test: "${binary} --version"
+        tarball_binary_path: "${binary}"
+        version: "0.18.0"
     - name: "lint"
       run: "make BUILD_IN_CONTAINER=false lint"
       shell: "bash"
@@ -429,6 +447,7 @@ jobs:
         go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@v0.4.0
         go install github.com/monitoring-mixins/mixtool/cmd/mixtool@bca3066
         go install github.com/google/go-jsonnet/cmd/jsonnet@v0.18.0
+        go install github.com/google/go-jsonnet/cmd/jsonnet-lint@v0.18.0
         
         sudo apt update
         sudo apt install -qy musl gnupg ragel \
@@ -469,6 +488,14 @@ jobs:
         smoke_test: "${binary} --version"
         tarball_binary_path: "${binary}"
         version: "1.11.2"
+    - name: "install jsonnetfmt"
+      uses: "./release/actions/install-binary"
+      with:
+        binary: "jsonnetfmt"
+        download_url: "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
+        smoke_test: "${binary} --version"
+        tarball_binary_path: "${binary}"
+        version: "0.18.0"
     - name: "test"
       run: "make BUILD_IN_CONTAINER=false test"
       shell: "bash"
