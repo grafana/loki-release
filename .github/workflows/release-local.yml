@@ -12,7 +12,7 @@ permissions:
   issues: 'write'
   pull-requests: 'write'
 jobs:
-  release:
+  create-release-pr:
     uses: ./.github/workflows/release-pr.yml
     with:
       release_repo: grafana/loki-release
