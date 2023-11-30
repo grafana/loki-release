@@ -3,14 +3,14 @@
 
 npx lint-staged
 
-workflow_files_count="$(git ls-files -s workflows/**/*.{libsonnet,jsonnet} || echo -n "" | wc -l)"
+workflow_files_count="$(git diff --name-only --cached workflows/**/*.{libsonnet,jsonnet} | wc -l)"
 if [[ "${workflow_files_count}" -gt 0 ]]
 then
   npm run workflows
-  git add .github/workflows
+  git add workflows/dist
 fi
 
-action_files_count="$(git ls-files -s actions/*/src/**/*.{js,ts} || echo -n "" | wc -l)"
+action_files_count="$(git diff --name-only --cached actions/*/src/**/*.{js,ts} | wc -l)"
 if [[ "${action_files_count}" -gt 0 ]]
 then
   npm run workflows
