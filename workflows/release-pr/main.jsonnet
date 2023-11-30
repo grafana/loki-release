@@ -1,25 +1,19 @@
 local common = import '../lib/common.libsonnet';
 local job = common.job;
 local step = common.step;
+local alwaysGreen = common.alwaysGreen;
 
 local build = import '../lib/build.libsonnet';
 local release = import '../lib/release.libsonnet';
 local validate = import '../lib/validate.libsonnet';
 
-local alwaysGreen = {
-  steps: [
-    step.new('always green')
-    + step.withRun('echo "always green"'),
-  ],
-};
-
 std.manifestYamlDoc({
-  name: 'release',
+  name: 'create release PR',
   on: {
     workflow_call: {
       inputs: {
         release_repo: {
-          description: 'repo to make release PRs and releases against',
+          description: 'repo to make release PRs against',
           default: 'grafana/loki',
           required: false,
           type: 'string',

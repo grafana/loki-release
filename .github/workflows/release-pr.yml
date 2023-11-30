@@ -141,13 +141,13 @@ jobs:
     - name: "always green"
       run: "echo \"always green\""
       shell: "bash"
-name: "release"
+name: "create release PR"
 "on":
   workflow_call:
     inputs:
       release_repo:
         default: "grafana/loki"
-        description: "repo to make release PRs and releases against"
+        description: "repo to make release PRs against"
         required: false
         type: "string"
 permissions:

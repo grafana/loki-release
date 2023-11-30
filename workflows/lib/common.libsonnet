@@ -71,4 +71,11 @@
              }),
 
   makeTarget: function(target) 'make BUILD_IN_CONTAINER=false %s' % target,
+
+  alwaysGreen: {
+    steps: [
+      $.step.new('always green')
+      + $.step.withRun('echo "always green"'),
+    ],
+  },
 }
