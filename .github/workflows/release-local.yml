@@ -1,5 +1,5 @@
 ---
-name: 'release'
+name: 'create release PR'
 on:
   push:
     branches:
@@ -13,6 +13,6 @@ permissions:
   pull-requests: 'write'
 jobs:
   release:
-    uses: ./.github/workflows/release.yml
+    uses: ./.github/workflows/release-pr.yml
     with:
       release_repo: grafana/loki-release

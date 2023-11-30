@@ -69,7 +69,7 @@ local lokiStep = common.lokiStep;
           step.new('upload artifacts', 'actions/upload-artifact@v3')
           + step.with({
             name: 'dist',
-            path: 'lok/dist/',
+            path: 'loki/dist/',
           }),
         ]),
 }

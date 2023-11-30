@@ -94,7 +94,7 @@ jobs:
       uses: "actions/upload-artifact@v3"
       with:
         name: "dist"
-        path: "lok/dist/"
+        path: "loki/dist/"
   lint:
     runs-on: "ubuntu-latest"
     steps:

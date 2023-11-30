@@ -16,8 +16,7 @@
     "package:install-binary:watch": "npm run package -- --watch",
     "prepare": "husky install",
     "test": "jest",
-    "workflows": "for w in release; do npm run workflows:${w}; done",
-    "workflows:release": "jsonnet -S workflows/release/main.jsonnet > .github/workflows/release.yml"
+    "workflows": "for w in release-pr; do jsonnet -S workflows/${w}/main.jsonnet > .github/workflows/${w}.yml; done"
   },
   "repository": {
     "type": "git",
