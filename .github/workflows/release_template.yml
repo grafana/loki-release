@@ -1,0 +1,230 @@
+jobs:
+  check:
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "always green"
+      run: "echo \"always green\""
+      shell: "bash"
+  create-release-pr:
+    needs:
+    - "dist"
+    - "loki-image"
+    - "promtail-image"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull loki code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "loki"
+        ref: "prepare-release-please"
+        repository: "grafana/loki"
+    - name: "pull release code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "release"
+        repository: "grafana/loki-release"
+    - name: "setup go"
+      uses: "actions/setup-go@v4"
+      with:
+        cache-dependency-path: "loki/go.sum"
+        go-version-file: "loki/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 16
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        if [[ "${{ inputs.release_repo }}" == "grafana/loki" }}]]; then
+          cd loki
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        else
+          cd release
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+    - id: "release"
+      name: "release please"
+      run: |
+        manifest_file="./release-please-config.json"
+        if [[ "${{ inputs.release_repo }}" == "grafana/loki" }}]]; then
+          manifest_file="../loki/release-please-config.json"
+        fi
+        
+        npm install
+        npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --label "backport ${{ steps.extract_branch.outputs.branch}}" --manifest-file "${manifest_file}"
+      shell: "bash"
+      working-directory: "loki"
+  dist:
+    needs:
+    - "test"
+    - "lint"
+    - "check"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull loki code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "loki"
+        ref: "prepare-release-please"
+        repository: "grafana/loki"
+    - name: "setup go"
+      uses: "actions/setup-go@v4"
+      with:
+        cache-dependency-path: "loki/go.sum"
+        go-version-file: "loki/go.mod"
+    - name: "install dependencies"
+      run: |
+        go install github.com/mitchellh/gox@9f71238
+        go install github.com/bufbuild/buf/cmd/buf@v1.4.0
+        go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
+        go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
+        
+        sudo apt update
+        sudo apt install -qy musl gnupg ragel \
+          file zip unzip jq gettext \
+          protobuf-compiler libprotobuf-dev \
+          libsystemd-dev jq
+      shell: "bash"
+    - name: "build artifacts"
+      run: "make BUILD_IN_CONTAINER=false dist"
+      shell: "bash"
+      working-directory: "loki"
+    - name: "upload artifacts"
+      uses: "actions/upload-artifact@v3"
+      with:
+        name: "dist"
+        path: "lok/dist/"
+  lint:
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "always green"
+      run: "echo \"always green\""
+      shell: "bash"
+  loki-image:
+    needs:
+    - "test"
+    - "lint"
+    - "check"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull loki code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "loki"
+        ref: "prepare-release-please"
+        repository: "grafana/loki"
+    - name: "setup go"
+      uses: "actions/setup-go@v4"
+      with:
+        cache-dependency-path: "loki/go.sum"
+        go-version-file: "loki/go.mod"
+    - name: "Set up QEMU"
+      uses: "docker/setup-qemu-action@v3"
+    - name: "set up docker buildx"
+      uses: "docker/setup-buildx-action@v3"
+    - id: "parse-metadata"
+      name: "parse image metadata"
+      run: |
+        mkdir -p dist
+        
+        platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
+        echo "platform=${platform}" >> $GITHUB_OUTPUT
+        
+        version=$(jq -r '."cmd/loki"' .release-please-manifest.json)
+        echo "version=${version}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "loki"
+    - name: "Build and export"
+      uses: "docker/build-push-action@v5"
+      with:
+        context: "loki"
+        file: "loki/cmd/loki/Dockerfile"
+        outputs: "type=docker,dest=loki/dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        platforms: "${{ matrix.platform }}"
+        tags: "grafana/loki:${{ steps.parse-metadata.outputs.version }}"
+    - name: "upload artifacts"
+      uses: "actions/upload-artifact@v3"
+      with:
+        name: "loki-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
+        path: "loki/dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+    strategy:
+      fail-fast: true
+      matrix:
+        platform:
+        - "linux/amd64"
+        - "linux/arm64"
+        - "linux/arm"
+  promtail-image:
+    needs:
+    - "test"
+    - "lint"
+    - "check"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull loki code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "loki"
+        ref: "prepare-release-please"
+        repository: "grafana/loki"
+    - name: "setup go"
+      uses: "actions/setup-go@v4"
+      with:
+        cache-dependency-path: "loki/go.sum"
+        go-version-file: "loki/go.mod"
+    - name: "Set up QEMU"
+      uses: "docker/setup-qemu-action@v3"
+    - name: "set up docker buildx"
+      uses: "docker/setup-buildx-action@v3"
+    - id: "parse-metadata"
+      name: "parse image metadata"
+      run: |
+        mkdir -p dist
+        
+        platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
+        echo "platform=${platform}" >> $GITHUB_OUTPUT
+        
+        version=$(jq -r '."clients/cmd/promtail"' .release-please-manifest.json)
+        echo "version=${version}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "loki"
+    - name: "Build and export"
+      uses: "docker/build-push-action@v5"
+      with:
+        context: "loki"
+        file: "loki/clients/cmd/promtail/Dockerfile"
+        outputs: "type=docker,dest=loki/dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        platforms: "${{ matrix.platform }}"
+        tags: "grafana/promtail:${{ steps.parse-metadata.outputs.version }}"
+    - name: "upload artifacts"
+      uses: "actions/upload-artifact@v3"
+      with:
+        name: "promtail-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
+        path: "loki/dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+    strategy:
+      fail-fast: true
+      matrix:
+        platform:
+        - "linux/amd64"
+        - "linux/arm64"
+        - "linux/arm"
+  test:
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "always green"
+      run: "echo \"always green\""
+      shell: "bash"
+name: "release"
+"on":
+  workflow_call:
+    inputs:
+      release_repo:
+        default: "grafana/loki"
+        description: "repo to make release PRs and releases against"
+        required: false
+        type: " string"
+permissions:
+  contents: "write"
+  issues: "write"
+  pull-requests: "write"

@@ -13,6 +13,6 @@ permissions:
   pull-requests: 'write'
 jobs:
   release:
-    uses: ./workflows/dist/release.yml
+    uses: ./.github/workflows/release_template.yml
     with:
       release_repo: grafana/loki-release
