@@ -63,17 +63,9 @@ local lokiStep = common.lokiStep;
               file zip unzip jq gettext \
               protobuf-compiler libprotobuf-dev \
               libsystemd-dev jq
-
-            sudo dpkg --add-architecture armhf
-            sudo dpkg --add-architecture arm64
-            sudo apt update
-            sudo apt install -y --no-install-recommends \
-              pkg-config \
-              gcc-aarch64-linux-gnu libc6-dev-arm64-cross libsystemd-dev:arm64 \
-              gcc-arm-linux-gnueabihf libc6-dev-armhf-cross libsystemd-dev:armhf
           |||),
           lokiStep('build artifacts')
-          + step.withRun(common.makeTarget('dist')),
+          + step.withRun('make BUILD_IN_CONTAINER=false SKIP_ARM=true dist'),
           step.new('upload artifacts', 'actions/upload-artifact@v3')
           + step.with({
             name: 'dist',
