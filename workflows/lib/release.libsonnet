@@ -31,7 +31,7 @@ local releaseStep = common.lokiStep;
       + step.withId('release')
       + step.withRun(|||
         manifest_file="./release-please-config.json"
-        if [[ "${{ inputs.release_repo }}" == "grafana/loki" }}]]; then
+        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
           manifest_file="../loki/release-please-config.json"
         fi
 
