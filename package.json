@@ -17,7 +17,7 @@
     "prepare": "husky install",
     "test": "jest",
     "workflows": "for w in release; do npm run workflows:${w}; done",
-    "workflows:release": "jsonnet -S workflows/release/main.jsonnet > .github/workflows/release.yml"
+    "workflows:release": "jsonnet -S workflows/release/main.jsonnet > workflows/dist/release.yml"
   },
   "repository": {
     "type": "git",

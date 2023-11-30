@@ -16,13 +16,15 @@ local alwaysGreen = {
 std.manifestYamlDoc({
   name: 'release',
   on: {
-    workflow_dispatch: {},
-    push: {
-      branches: [
-        'main',
-        'release-[0-9].[0-9].x',
-        'k[0-9]*',
-      ],
+    workflow_call: {
+      inputs: {
+        release_repo: {
+          description: 'repo to make release PRs and releases against',
+          default: 'grafana/loki',
+          required: false,
+          type: ' string',
+        },
+      },
     },
   },
   permissions: {
@@ -46,6 +48,6 @@ std.manifestYamlDoc({
                       + job.withNeeds(validationSteps),
 
     local buildSteps = ['dist', 'loki-image', 'promtail-image'],
-    release: release.release + job.withNeeds(buildSteps),
+    'create-release-pr': release.createReleasePR + job.withNeeds(buildSteps),
   },
 }, false, false)
