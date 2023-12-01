@@ -70,6 +70,9 @@ local lokiStep = common.lokiStep;
           + step.with({
             name: 'dist',
             path: 'loki/dist/',
+          })
+          + step.withEnv({
+            ACTIONS_STEP_DEBUG: 'true',
           }),
         ]),
 }

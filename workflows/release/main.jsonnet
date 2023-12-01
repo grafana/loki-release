@@ -3,6 +3,8 @@ local job = common.job;
 local step = common.step;
 local alwaysGreen = common.alwaysGreen;
 
+local release = import '../lib/release.libsonnet';
+
 std.manifestYamlDoc({
   name: 'create release',
   on: {
@@ -11,6 +13,12 @@ std.manifestYamlDoc({
         release_repo: {
           description: 'repo to make release in',
           default: 'grafana/loki',
+          required: false,
+          type: 'string',
+        },
+        release_pr_workflow: {
+          description: 'workflow file that created the release pr',
+          default: 'release-pr.yml',
           required: false,
           type: 'string',
         },
@@ -23,6 +31,6 @@ std.manifestYamlDoc({
     issues: 'write',
   },
   jobs: {
-    release: job.new() + alwaysGreen,
+    release: job.new() + release.release,
   },
 }, false, false)

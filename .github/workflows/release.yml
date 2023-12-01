@@ -2,13 +2,44 @@ jobs:
   release:
     runs-on: "ubuntu-latest"
     steps:
-    - name: "always green"
-      run: "echo \"always green\""
+    - name: "pull loki code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "loki"
+        ref: "prepare-release-please"
+        repository: "grafana/loki"
+    - name: "pull release code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "release"
+        repository: "grafana/loki-release"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 16
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      id: "download"
+      name: "download dist"
+      uses: "actions/download-artifact@v3"
+      with:
+        name: "dist"
+        path: "release/dist"
+        repo: "${{ inputs.release_repo }}"
+        workflow: "${{ inputs.release_pr_workflow }}"
+    - name: "check dist"
+      run: "ls dist"
       shell: "bash"
+      working-directory: "release"
 name: "create release"
 "on":
   workflow_call:
     inputs:
+      release_pr_workflow:
+        default: "release-pr.yml"
+        description: "workflow file that created the release pr"
+        required: false
+        type: "string"
       release_repo:
         default: "grafana/loki"
         description: "repo to make release in"

@@ -53,7 +53,7 @@ jobs:
         echo "npm exec -- release-please release-pr --token=\"${{ secrets.GITHUB_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\" --label \"backport ${{ steps.extract_branch.outputs.branch}}\""
         npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --label "backport ${{ steps.extract_branch.outputs.branch }}"
       shell: "bash"
-      working-directory: "loki"
+      working-directory: "release"
   dist:
     needs:
     - "test"
@@ -89,7 +89,9 @@ jobs:
       run: "make BUILD_IN_CONTAINER=false SKIP_ARM=true dist"
       shell: "bash"
       working-directory: "loki"
-    - name: "upload artifacts"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "upload artifacts"
       uses: "actions/upload-artifact@v3"
       with:
         name: "dist"
