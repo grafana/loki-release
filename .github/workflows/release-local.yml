@@ -8,9 +8,10 @@ on:
       - 'k[0-9]*'
   workflow_dispatch: {}
 permissions:
-  contents: 'write'
-  issues: 'write'
-  pull-requests: 'write'
+  contents: write
+  issues: write
+  pull-requests: write
+  actions: read
 jobs:
   release:
     uses: ./.github/workflows/release.yml
