@@ -46,7 +46,7 @@ local releaseStep = common.releaseStep;
              common.setupNode,
 
              //TODO: download images
-             step.new('download dist', 'actions/download-artifact@v3')
+             step.new('download dist', 'dawidd6/action-download-artifact@v2')
              + step.withId('download')
              + step.with({
                name: 'dist',
