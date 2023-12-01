@@ -1,5 +1,5 @@
 ---
-name: 'create release PR'
+name: 'create release'
 on:
   push:
     branches:
