@@ -30,6 +30,9 @@ std.manifestYamlDoc({
     'pull-requests': 'write',
     issues: 'write',
   },
+  concurrency: {
+    group: 'create-release-${{ github.sha }}',
+  },
   jobs: {
     release: job.new() + release.release,
   },

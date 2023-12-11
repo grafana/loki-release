@@ -45,21 +45,29 @@ local releaseStep = common.releaseStep;
              common.fetchReleaseRepo,
              common.setupNode,
 
-             //TODO: download images
-             step.new('download dist', 'dawidd6/action-download-artifact@v2')
-             + step.withId('download')
+             step.new('auth gcs', 'google-github-actions/auth@v1')
+             + step.withId('auth')
              + step.with({
-               name: 'dist',
-               workflow: '${{ inputs.release_pr_workflow }}',
-               path: 'release/dist',
-               repo: '${{ inputs.release_repo }}',
+               credentials_json: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}',
              })
              + step.withEnv({
                ACTIONS_STEP_DEBUG: 'true',
              }),
 
-             releaseStep('check dist')
-             + step.withRun('ls dist'),
+             step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
+             + step.with({
+               version: '>= 452.0.0',
+             })
+             + step.withEnv({
+               ACTIONS_STEP_DEBUG: 'true',
+             }),
+
+             releaseStep('download build artifacts')
+             + step.withRun(|||
+               gsutil cp gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz .
+               tar -xzf dist.tar.gz dist
+               ls dist
+             |||),
 
              //TODO: add artifacts to release PR, which we need to get via the event
              // gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt

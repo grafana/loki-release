@@ -64,12 +64,28 @@ local lokiStep = common.lokiStep;
               protobuf-compiler libprotobuf-dev \
               libsystemd-dev jq
           |||),
+
           lokiStep('build artifacts')
           + step.withRun('make BUILD_IN_CONTAINER=false SKIP_ARM=true dist'),
-          step.new('upload artifacts', 'actions/upload-artifact@v3')
+
+          lokiStep('pacakge artifacts')
+          + step.withRun(|||
+            tar -czf dist.tar.gz dist
+          |||),
+
+          step.new('auth gcs', 'google-github-actions/auth@v1')
+          + step.withId('auth')
           + step.with({
-            name: 'dist',
-            path: 'loki/dist/',
+            credentials_json: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}',
+          })
+          + step.withEnv({
+            ACTIONS_STEP_DEBUG: 'true',
+          }),
+
+          step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v1')
+          + step.with({
+            path: 'loki/dist.tar.gz',
+            destination: 'gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz',
           })
           + step.withEnv({
             ACTIONS_STEP_DEBUG: 'true',

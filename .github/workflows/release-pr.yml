@@ -1,3 +1,5 @@
+concurrency:
+  group: "create-release-pr-${{ github.sha }}"
 jobs:
   check:
     runs-on: "ubuntu-latest"
@@ -89,13 +91,25 @@ jobs:
       run: "make BUILD_IN_CONTAINER=false SKIP_ARM=true dist"
       shell: "bash"
       working-directory: "loki"
+    - name: "pacakge artifacts"
+      run: |
+        tar -czf dist.tar.gz dist
+      shell: "bash"
+      working-directory: "loki"
     - env:
         ACTIONS_STEP_DEBUG: "true"
-      name: "upload artifacts"
-      uses: "actions/upload-artifact@v3"
+      id: "auth"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v1"
       with:
-        name: "dist"
-        path: "loki/dist/"
+        credentials_json: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "upload build artifacts"
+      uses: "google-github-actions/upload-cloud-storage@v1"
+      with:
+        destination: "gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz"
+        path: "loki/dist.tar.gz"
   lint:
     runs-on: "ubuntu-latest"
     steps:

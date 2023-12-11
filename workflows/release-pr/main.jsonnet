@@ -26,6 +26,9 @@ std.manifestYamlDoc({
     'pull-requests': 'write',
     issues: 'write',
   },
+  concurrency: {
+    group: 'create-release-pr-${{ github.sha }}',
+  },
   jobs: {
     // test: validate.test,
     test: validate.test + alwaysGreen,

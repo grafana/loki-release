@@ -1,3 +1,5 @@
+concurrency:
+  group: "create-release-${{ github.sha }}"
 jobs:
   release:
     runs-on: "ubuntu-latest"
@@ -19,16 +21,22 @@ jobs:
         node-version: 16
     - env:
         ACTIONS_STEP_DEBUG: "true"
-      id: "download"
-      name: "download dist"
-      uses: "dawidd6/action-download-artifact@v2"
+      id: "auth"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v1"
       with:
-        name: "dist"
-        path: "release/dist"
-        repo: "${{ inputs.release_repo }}"
-        workflow: "${{ inputs.release_pr_workflow }}"
-    - name: "check dist"
-      run: "ls dist"
+        credentials_json: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "Set up Cloud SDK"
+      uses: "google-github-actions/setup-gcloud@v1"
+      with:
+        version: ">= 452.0.0"
+    - name: "download build artifacts"
+      run: |
+        gsutil cp gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz .
+        tar -xzf dist.tar.gz dist
+        ls dist
       shell: "bash"
       working-directory: "release"
 name: "create release"
