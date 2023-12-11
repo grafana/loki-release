@@ -44,15 +44,7 @@ local releaseStep = common.releaseStep;
              common.fetchLokiRepo,
              common.fetchReleaseRepo,
              common.setupNode,
-
-             step.new('auth gcs', 'google-github-actions/auth@v1')
-             + step.withId('auth')
-             + step.with({
-               credentials_json: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}',
-             })
-             + step.withEnv({
-               ACTIONS_STEP_DEBUG: 'true',
-             }),
+             common.googleAuth,
 
              step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
              + step.with({

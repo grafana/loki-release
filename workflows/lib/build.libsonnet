@@ -51,6 +51,8 @@ local lokiStep = common.lokiStep;
         + job.withSteps([
           common.fetchLokiRepo,
           common.setupGo,
+          common.googleAuth,
+
           step.new('install dependencies') +
           step.withRun(|||
             go install github.com/mitchellh/gox@9f71238
@@ -72,15 +74,6 @@ local lokiStep = common.lokiStep;
           + step.withRun(|||
             tar -czf dist.tar.gz dist
           |||),
-
-          step.new('auth gcs', 'google-github-actions/auth@v1')
-          + step.withId('auth')
-          + step.with({
-            credentials_json: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}',
-          })
-          + step.withEnv({
-            ACTIONS_STEP_DEBUG: 'true',
-          }),
 
           step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v1')
           + step.with({

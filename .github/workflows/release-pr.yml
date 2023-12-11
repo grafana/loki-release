@@ -74,6 +74,13 @@ jobs:
       with:
         cache-dependency-path: "loki/go.sum"
         go-version-file: "loki/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      id: "auth"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
     - name: "install dependencies"
       run: |
         go install github.com/mitchellh/gox@9f71238
@@ -96,13 +103,6 @@ jobs:
         tar -czf dist.tar.gz dist
       shell: "bash"
       working-directory: "loki"
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      id: "auth"
-      name: "auth gcs"
-      uses: "google-github-actions/auth@v1"
-      with:
-        credentials_json: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "upload build artifacts"
