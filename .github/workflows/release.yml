@@ -41,8 +41,8 @@ jobs:
     - name: "create release"
       run: |
         npm install
-        echo "release-please release --token=\"${{ secrets.GITHUB_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\""
-        npm exec -- release-please release --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="${{ inputs.release_repo }}"
+        echo "release-please release --token=\"${{ secrets.GH_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\""
+        npm exec -- release-please release --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}"
       shell: "bash"
       working-directory: "release"
 name: "create release"
@@ -62,7 +62,7 @@ name: "create release"
     secrets:
       GCS_SERVICE_ACCOUNT_KEY:
         required: true
-      GITHUB_TOKEN:
+      GH_TOKEN:
         required: true
 permissions:
   contents: "write"

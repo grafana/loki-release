@@ -52,8 +52,8 @@ jobs:
         echo "current dir: $(pwd)"
         
         npm install
-        echo "npm exec -- release-please release-pr --token=\"${{ secrets.GITHUB_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\" --label \"backport ${{ steps.extract_branch.outputs.branch}}\""
-        npm exec -- release-please release-pr --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --label "backport ${{ steps.extract_branch.outputs.branch }}"
+        echo "npm exec -- release-please release-pr --token=\"${{ secrets.GH_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\" --label \"backport ${{ steps.extract_branch.outputs.branch}}\""
+        npm exec -- release-please release-pr --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --label "backport ${{ steps.extract_branch.outputs.branch }}"
       shell: "bash"
       working-directory: "release"
   dist:
@@ -167,7 +167,7 @@ name: "create release PR"
     secrets:
       GCS_SERVICE_ACCOUNT_KEY:
         required: true
-      GITHUB_TOKEN:
+      GH_TOKEN:
         required: true
 permissions:
   contents: "write"
