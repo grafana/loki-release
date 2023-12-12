@@ -165,6 +165,9 @@ name: "create release PR"
         description: "repo to make release PRs against"
         required: false
         type: "string"
+    secrets:
+      GCS_SERVICE_ACCOUNT_KEY:
+        required: true
 permissions:
   contents: "write"
   issues: "write"

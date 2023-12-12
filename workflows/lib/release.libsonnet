@@ -54,6 +54,9 @@ local releaseStep = common.releaseStep;
                ACTIONS_STEP_DEBUG: 'true',
              }),
 
+             // exits with code 1 if the url does not match
+             // meaning there are no artifacts for that sha
+             // we need to handle this if we're going to run this pipeline on every merge to main
              releaseStep('download build artifacts')
              + step.withRun(|||
                gsutil cp gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz .
