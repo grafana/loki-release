@@ -80,8 +80,11 @@
   },
 
   googleAuth: $.step.new('auth gcs', 'google-github-actions/auth@v2')
+              + $.step.withEnv({
+                GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}',
+              })
               + $.step.with({
-                credentials_json: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}',
+                credentials_json: '${{ env.GCS_SERVICE_ACCOUNT_KEY }}',
               })
               + $.step.withEnv({
                 ACTIONS_STEP_DEBUG: 'true',
