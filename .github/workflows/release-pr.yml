@@ -107,7 +107,7 @@ jobs:
       name: "upload build artifacts"
       uses: "google-github-actions/upload-cloud-storage@v1"
       with:
-        destination: "gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz"
+        destination: "loki-build-artifacts/${{ github.sha }}/dist.tar.gz"
         path: "loki/dist.tar.gz"
   lint:
     runs-on: "ubuntu-latest"

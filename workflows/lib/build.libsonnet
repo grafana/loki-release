@@ -78,7 +78,7 @@ local lokiStep = common.lokiStep;
           step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v1')
           + step.with({
             path: 'loki/dist.tar.gz',
-            destination: 'gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz',
+            destination: 'loki-build-artifacts/${{ github.sha }}/dist.tar.gz',
           })
           + step.withEnv({
             ACTIONS_STEP_DEBUG: 'true',
