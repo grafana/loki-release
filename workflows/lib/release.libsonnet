@@ -49,7 +49,7 @@ local releaseStep = common.releaseStep;
                GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}',
              })
              + step.withRun(|||
-               ehco "${GCS_SERVICE_ACCOUNT_KEY}"
+               echo "${GCS_SERVICE_ACCOUNT_KEY}"
              |||),
              common.googleAuth,
 

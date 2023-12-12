@@ -23,7 +23,7 @@ jobs:
         GCS_SERVICE_ACCOUNT_KEY: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
       name: "test secret"
       run: |
-        ehco "${GCS_SERVICE_ACCOUNT_KEY}"
+        echo "${GCS_SERVICE_ACCOUNT_KEY}"
       shell: "bash"
     - env:
         ACTIONS_STEP_DEBUG: "true"
