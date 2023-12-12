@@ -20,18 +20,18 @@ jobs:
       with:
         node-version: 16
     - env:
-        GCS_SERVICE_ACCOUNT_KEY: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
+        GCS_SERVICE_ACCOUNT_KEY: ${{ secrets.BACKEND_ENTERPRISE_DRONE }}
       name: "test secret"
       run: |
         echo "${GCS_SERVICE_ACCOUNT_KEY}"
       shell: "bash"
     - env:
         ACTIONS_STEP_DEBUG: "true"
-        GCS_SERVICE_ACCOUNT_KEY: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
+        GCS_SERVICE_ACCOUNT_KEY: ${{ secrets.BACKEND_ENTERPRISE_DRONE }}
       name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
-        credentials_json: "${{ env.GCS_SERVICE_ACCOUNT_KEY }}"
+        credentials_json: ${{ env.GCS_SERVICE_ACCOUNT_KEY }}
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "Set up Cloud SDK"
