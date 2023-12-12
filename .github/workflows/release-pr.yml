@@ -33,7 +33,7 @@ jobs:
         else
           cd release
         fi
-        
+
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
     - env:
