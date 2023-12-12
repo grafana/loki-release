@@ -79,7 +79,7 @@ jobs:
       name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
-        credentials_json: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
+        credentials_json: "{}"
     - name: "install dependencies"
       run: |
         go install github.com/mitchellh/gox@9f71238
