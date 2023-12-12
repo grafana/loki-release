@@ -76,11 +76,10 @@ jobs:
         go-version-file: "loki/go.mod"
     - env:
         ACTIONS_STEP_DEBUG: "true"
-        GCS_SERVICE_ACCOUNT_KEY: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
       name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
-        credentials_json: "${{ env.GCS_SERVICE_ACCOUNT_KEY }}"
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "install dependencies"
       run: |
         go install github.com/mitchellh/gox@9f71238
@@ -167,6 +166,8 @@ name: "create release PR"
         type: "string"
     secrets:
       GCS_SERVICE_ACCOUNT_KEY:
+        required: true
+      GITHUB_TOKEN:
         required: true
 permissions:
   contents: "write"

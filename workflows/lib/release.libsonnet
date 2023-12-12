@@ -64,6 +64,14 @@ local releaseStep = common.releaseStep;
                ls dist
              |||),
 
+             releaseStep('create release')
+             + step.withRun(|||
+               npm install
+               echo "release-please release --token=\"${{ secrets.GITHUB_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\""
+               npm exec -- release-please release --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="${{ inputs.release_repo }}"
+             |||),
+
+
              //TODO: add artifacts to release PR, which we need to get via the event
              // gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
 

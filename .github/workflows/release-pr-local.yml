@@ -18,3 +18,4 @@ jobs:
       release_repo: grafana/loki-release
     secrets:
       GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}'
+      GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'

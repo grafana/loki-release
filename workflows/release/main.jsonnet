@@ -27,6 +27,9 @@ std.manifestYamlDoc({
         GCS_SERVICE_ACCOUNT_KEY: {
           required: true,
         },
+        GITHUB_TOKEN: {
+          required: true,
+        },
       },
     },
   },

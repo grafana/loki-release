@@ -21,11 +21,10 @@ jobs:
         node-version: 16
     - env:
         ACTIONS_STEP_DEBUG: "true"
-        GCS_SERVICE_ACCOUNT_KEY: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
       name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
-        credentials_json: "${{ env.GCS_SERVICE_ACCOUNT_KEY }}"
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "Set up Cloud SDK"
@@ -37,6 +36,13 @@ jobs:
         gsutil cp gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz .
         tar -xzf dist.tar.gz dist
         ls dist
+      shell: "bash"
+      working-directory: "release"
+    - name: "create release"
+      run: |
+        npm install
+        echo "release-please release --token=\"${{ secrets.GITHUB_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\""
+        npm exec -- release-please release --token="${{ secrets.GITHUB_TOKEN }}" --repo-url="${{ inputs.release_repo }}"
       shell: "bash"
       working-directory: "release"
 name: "create release"
@@ -55,6 +61,8 @@ name: "create release"
         type: "string"
     secrets:
       GCS_SERVICE_ACCOUNT_KEY:
+        required: true
+      GITHUB_TOKEN:
         required: true
 permissions:
   contents: "write"
