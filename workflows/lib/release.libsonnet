@@ -39,6 +39,8 @@ local releaseStep = common.releaseStep;
     ]),
 
   //TODO: part of new workflow triggered by an issue comment
+  // how does it find merged PRs to release?
+  // it looks for Merged PRs with the `autorelease:pending` label
   release: job.new()
            + job.withSteps([
              common.fetchLokiRepo,
