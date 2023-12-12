@@ -80,9 +80,8 @@
   },
 
   googleAuth: $.step.new('auth gcs', 'google-github-actions/auth@v2')
-              + $.step.withId('auth')
               + $.step.with({
-                credentials_json: 'gargbage',
+                credentials_json: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}',
               })
               + $.step.withEnv({
                 ACTIONS_STEP_DEBUG: 'true',

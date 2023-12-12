@@ -21,11 +21,10 @@ jobs:
         node-version: 16
     - env:
         ACTIONS_STEP_DEBUG: "true"
-      id: "auth"
       name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
-        credentials_json: "gargbage"
+        credentials_json: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "Set up Cloud SDK"
