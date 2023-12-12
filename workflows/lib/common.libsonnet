@@ -81,7 +81,7 @@
 
   googleAuth: $.step.new('auth gcs', 'google-github-actions/auth@v2')
               + $.step.withEnv({
-                GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}',
+                GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
                 ACTIONS_STEP_DEBUG: 'true',
               })
               + $.step.with({

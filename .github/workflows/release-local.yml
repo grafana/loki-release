@@ -16,3 +16,5 @@ jobs:
     with:
       release_repo: grafana/loki-release
       release_pr_workflow: release-pr-local.yml
+    secrets:
+      GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}'

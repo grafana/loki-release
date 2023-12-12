@@ -76,7 +76,7 @@ jobs:
         go-version-file: "loki/go.mod"
     - env:
         ACTIONS_STEP_DEBUG: "true"
-        GCS_SERVICE_ACCOUNT_KEY: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
+        GCS_SERVICE_ACCOUNT_KEY: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
       name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:

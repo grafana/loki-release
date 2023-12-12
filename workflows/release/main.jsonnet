@@ -23,6 +23,11 @@ std.manifestYamlDoc({
           type: 'string',
         },
       },
+      secrets: {
+        GCS_SERVICE_ACCOUNT_KEY: {
+          required: true,
+        },
+      },
     },
   },
   permissions: {
