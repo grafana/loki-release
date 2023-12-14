@@ -1,6 +1,6 @@
 import { getInput, info, setFailed } from '@actions/core'
-import { VersioningStrategy, createReleasePR } from './release'
-import { exec } from '@actions/exec'
+import { createReleasePR } from './release'
+import { Version } from 'release-please/build/src/version'
 
 /**
  * The main function for the action.
@@ -10,16 +10,23 @@ export async function run(): Promise<void> {
   try {
     const mainBranch = getInput('mainBranch')
     const releaseBranch = getInput('releaseBranch')
-    const _versioningStrategy = getInput(
-      'versioningStrategy'
-    ) as keyof typeof VersioningStrategy
-    const versioningStrategy = VersioningStrategy[_versioningStrategy]
 
     info(`mainBranch:         ${mainBranch}`)
     info(`releaseBranch:         ${releaseBranch}`)
-    info(`versioningStrategy:  ${versioningStrategy}`)
 
-    createReleasePR(mainBranch, releaseBranch, versioningStrategy)
+    //TODO: need to get current version and versioning strategy from release.json
+    const currentVersion = new Version(1, 0, 0)
+    const versioningStrategy = 'always-bump-patch'
+    createReleasePR(
+      mainBranch,
+      releaseBranch,
+      currentVersion,
+      versioningStrategy
+    )
+
+    //TODO: do something with the created PR
+    // the PR will also need to include the actual changed files
+    // the function above so far just creates metadata
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) setFailed(error.message)

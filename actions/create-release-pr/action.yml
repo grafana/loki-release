@@ -10,10 +10,14 @@ inputs:
   releaseBranch:
     description: 'name of the release branch to release from'
     required: true
-  versioningStrategy:
-    description: 'versioning strategy, can be either bump-patch or bump-minor'
+  token:
+    description: 'GitHub token for creating and grooming release PRs, defaults to using secrets.GITHUB_TOKEN'
     required: false
-    default: bump-minor
+    default: ${{ github.token }}
+  repo-url:
+    description: 'configure github repository URL. Default `process.env.GITHUB_REPOSITORY`'
+    required: false
+    default: ''
 
 # Define your outputs here.
 outputs: { }
