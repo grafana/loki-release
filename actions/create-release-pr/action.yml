@@ -1,0 +1,23 @@
+name: 'Create Release PR'
+description: 'An action to create release PRs'
+
+# Define your inputs here.
+inputs:
+  mainBranch:
+    description: 'main branch to PR release into'
+    required: false
+    default: main
+  releaseBranch:
+    description: 'name of the release branch to release from'
+    required: true
+  versioningStrategy:
+    description: 'versioning strategy, can be either bump-patch or bump-minor'
+    required: false
+    default: bump-minor
+
+# Define your outputs here.
+outputs: { }
+
+runs:
+  using: node20
+  main: dist/index.js
