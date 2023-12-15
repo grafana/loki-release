@@ -58,7 +58,7 @@ function getGitHubInput(): {
   token: string
 } {
   return {
-    repoUrl: getInput('repo-url') || (process.env.GITHUB_REPOSITORY as string),
+    repoUrl: getInput('repoUrl') || (process.env.GITHUB_REPOSITORY as string),
     apiUrl: GITHUB_API_URL,
     graphqlUrl: GITHUB_GRAPHQL_URL,
     token: getInput('token', { required: true })

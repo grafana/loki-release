@@ -1,6 +1,7 @@
 import { Commit } from 'release-please/build/src/commit'
 import { GitHub, GitHubTag } from 'release-please/build/src/github'
 import { Logger } from 'release-please/build/src/util/logger'
+import { LogFn } from '../src/util'
 
 export async function mockGitHub(): Promise<GitHub> {
   return GitHub.create({
@@ -37,12 +38,6 @@ export function mockTags(
     }
   }
   return sandbox.stub(github, 'tagIterator').returns(fakeGenerator())
-}
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-interface LogFn {
-  <T extends object>(obj: T, msg?: string, ...args: any[]): void
-  (msg: string, ...args: any[]): void
 }
 
 class NoOpLogger implements Logger {

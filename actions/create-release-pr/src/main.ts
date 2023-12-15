@@ -1,6 +1,5 @@
 import { getInput, info, setFailed } from '@actions/core'
 import { createReleasePR } from './release'
-import { Version } from 'release-please/build/src/version'
 
 /**
  * The main function for the action.
@@ -8,21 +7,16 @@ import { Version } from 'release-please/build/src/version'
  */
 export async function run(): Promise<void> {
   try {
-    const mainBranch = getInput('mainBranch')
+    const baseBranch = getInput('baseBranch')
     const releaseBranch = getInput('releaseBranch')
+    const shaToRelease = getInput('shaToRelease')
 
-    info(`mainBranch:         ${mainBranch}`)
+    info(`mainBranch:            ${baseBranch}`)
     info(`releaseBranch:         ${releaseBranch}`)
+    info(`shaToRelease:          ${shaToRelease}`)
 
-    //TODO: need to get current version and versioning strategy from release.json
-    const currentVersion = new Version(1, 0, 0)
-    const versioningStrategy = 'always-bump-patch'
-    createReleasePR(
-      mainBranch,
-      releaseBranch,
-      currentVersion,
-      versioningStrategy
-    )
+    //TODO: handle PR being undefined
+    createReleasePR(baseBranch, releaseBranch, shaToRelease)
 
     //TODO: do something with the created PR
     // the PR will also need to include the actual changed files

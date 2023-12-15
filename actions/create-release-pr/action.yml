@@ -3,8 +3,8 @@ description: 'An action to create release PRs'
 
 # Define your inputs here.
 inputs:
-  mainBranch:
-    description: 'main branch to PR release into'
+  baseBranch:
+    description: 'base branch to PR release into (defaults to main)'
     required: false
     default: main
   releaseBranch:
@@ -14,10 +14,14 @@ inputs:
     description: 'GitHub token for creating and grooming release PRs, defaults to using secrets.GITHUB_TOKEN'
     required: false
     default: ${{ github.token }}
-  repo-url:
+  repoUrl:
     description: 'configure github repository URL. Default `process.env.GITHUB_REPOSITORY`'
     required: false
     default: ''
+  shaToRelease:
+    description: 'the sha being built as a release candidate'
+    required: false
+    default: ${{ github.sha}}
 
 # Define your outputs here.
 outputs: { }
