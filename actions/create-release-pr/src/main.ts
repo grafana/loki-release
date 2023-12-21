@@ -1,4 +1,4 @@
-import { getInput, info, setFailed } from '@actions/core'
+import { getInput, info, setFailed, setOutput } from '@actions/core'
 import { createReleasePR } from './release'
 
 /**
@@ -15,12 +15,13 @@ export async function run(): Promise<void> {
     info(`releaseBranch:         ${releaseBranch}`)
     info(`shaToRelease:          ${shaToRelease}`)
 
-    //TODO: handle PR being undefined
-    createReleasePR(baseBranch, releaseBranch, shaToRelease)
+    const pr = createReleasePR(baseBranch, releaseBranch, shaToRelease)
 
-    //TODO: do something with the created PR
-    // the PR will also need to include the actual changed files
-    // the function above so far just creates metadata
+    if (pr === undefined) {
+      info('No PR created')
+    }
+
+    setOutput('pr', JSON.stringify(pr))
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) setFailed(error.message)
