@@ -158,7 +158,7 @@ describe('github', () => {
   describe('createGitHubInstance', () => {
     it('gets config from the action inputs', async () => {
       const getInputMock = sandbox.stub(core, 'getInput')
-      getInputMock.withArgs('repo-url').returns('test-owner/test-repo')
+      getInputMock.withArgs('repoUrl').returns('test-owner/test-repo')
       getInputMock.withArgs('token').returns('super-secret-token')
 
       const gh = await github.createGitHubInstance('main')

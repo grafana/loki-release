@@ -1,31 +1,19 @@
-import { findCommitsSinceLastRelease, createGitHubInstance } from './github'
-import { Version, VersionsMap } from 'release-please/build/src/version'
-import { TagName } from 'release-please/build/src/util/tag-name'
-import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
-import { BranchName } from 'release-please/build/src/util/branch-name'
-import { DefaultChangelogNotes } from 'release-please/build/src/changelog-notes/default'
-import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
+import {
+  createGitHubInstance,
+  createPullRequestOverflowHandler,
+  findMergedReleasePullRequests,
+  findOpenReleasePullRequests
+} from './github'
+import { Version } from 'release-please/build/src/version'
 import { ReleasePullRequest } from 'release-please/build/src/release-pull-request'
-import { Changelog } from 'release-please/build/src/updaters/changelog'
-import { VersionUpdater, nextVersion } from './version'
 import { GitHub } from 'release-please/build/src/github'
 
-import { info, warning, debug } from '@actions/core'
+import { info, warning } from '@actions/core'
 import { PullRequest } from 'release-please/build/src/pull-request'
 import { GitHubActionsLogger } from './util'
-import {
-  FilePullRequestOverflowHandler,
-  PullRequestOverflowHandler
-} from 'release-please/build/src/util/pull-request-overflow-handler'
-import { Logger } from 'release-please/build/src/util/logger'
-import { BuildUpdatesOptions } from 'release-please/build/src/strategies/base'
-import { Update } from 'release-please/build/src/update'
-
-export const DEFAULT_LABELS = ['autorelease: pending']
-export const DEFAULT_RELEASE_LABELS = ['autorelease: tagged']
-export const DEFAULT_CHANGELOG_PATH = 'CHANGELOG.md'
-export const ROOT_PROJECT_PATH = '.'
-export const RELEASE_CONFIG_PATH = 'release.json'
+import { PullRequestOverflowHandler } from 'release-please/build/src/util/pull-request-overflow-handler'
+import { RELEASE_CONFIG_PATH } from './constants'
+import { buildCandidatePR } from './pull-request'
 
 type ReleaseVersion = string
 type ReleaseSha = string
@@ -51,11 +39,7 @@ export async function createReleasePR(
 ): Promise<PullRequest | undefined> {
   const logger = new GitHubActionsLogger()
   const gh = await createGitHubInstance(baseBranch)
-
-  const pullRequestOverflowHandler = new FilePullRequestOverflowHandler(
-    gh,
-    logger
-  )
+  const prOverflowHandler = createPullRequestOverflowHandler(gh, logger)
 
   const releaseConfig = await gh.getFileJson<ReleaseConfig>(
     RELEASE_CONFIG_PATH,
@@ -71,7 +55,7 @@ export async function createReleasePR(
 
   const currentVersion = Version.parse(branchConfig.currentVersion)
 
-  const pr = await buildReleasePR(
+  const pr = await buildCandidatePR(
     gh,
     baseBranch,
     releaseBranch,
@@ -85,14 +69,14 @@ export async function createReleasePR(
   }
 
   // If there are merged pull requests that have yet to be released, then don't create any new PRs
-  const mergedPullRequestsGenerator = findMergedReleasePullRequests(
+  const mergedPullRequests = await findMergedReleasePullRequests(
     gh,
     baseBranch,
-    pullRequestOverflowHandler,
+    prOverflowHandler,
     logger
   )
 
-  for await (const _ of mergedPullRequestsGenerator) {
+  if (mergedPullRequests.length > 0) {
     warning('There are untagged, merged release PRs outstanding - aborting')
     return undefined
   }
@@ -101,7 +85,7 @@ export async function createReleasePR(
   const openPullRequests = await findOpenReleasePullRequests(
     gh,
     baseBranch,
-    pullRequestOverflowHandler,
+    prOverflowHandler,
     logger
   )
 
@@ -110,13 +94,12 @@ export async function createReleasePR(
     pr,
     openPullRequests,
     baseBranch,
-    pullRequestOverflowHandler
+    prOverflowHandler
   )
 
   return resultPullRequest
 }
 
-//TODO: copied from release-please, needs tests
 async function createOrUpdatePullRequest(
   gh: GitHub,
   pullRequest: ReleasePullRequest,
@@ -144,15 +127,14 @@ async function createOrUpdatePullRequest(
   //TODO: will we need to signoff commit messages?
   const message = pullRequest.title.toString()
 
-  //TODO: test this logic
   const newPullRequest = await gh.createPullRequest(
     {
+      body,
+      title: pullRequest.title.toString(),
       headBranchName: pullRequest.headRefName,
       baseBranchName: targetBranch,
-      number: -1,
-      title: pullRequest.title.toString(),
-      body,
       labels: pullRequest.labels,
+      number: -1,
       files: []
     },
     targetBranch,
@@ -167,8 +149,7 @@ async function createOrUpdatePullRequest(
   return newPullRequest
 }
 
-//TODO: copied from release-please, needs tests
-/// only update an existing pull request if it has release note changes
+// only update an existing pull request if it has release note changes
 async function maybeUpdateExistingPullRequest(
   gh: GitHub,
   existing: PullRequest,
@@ -194,208 +175,4 @@ async function maybeUpdateExistingPullRequest(
     }
   )
   return updatedPullRequest
-}
-
-//TODO: copied from release-please, needs tests
-async function* findMergedReleasePullRequests(
-  gh: GitHub,
-  targetBranch: string,
-  pullRequestOverflowHandler: PullRequestOverflowHandler,
-  logger: Logger
-): AsyncGenerator<PullRequest, void, unknown> {
-  // Find merged release pull requests
-  const pullRequestGenerator = gh.pullRequestIterator(
-    targetBranch,
-    'MERGED',
-    200,
-    false
-  )
-  for await (const pullRequest of pullRequestGenerator) {
-    if (!hasAllLabels(DEFAULT_RELEASE_LABELS, pullRequest.labels)) {
-      continue
-    }
-    debug(`Found pull request #${pullRequest.number}: '${pullRequest.title}'`)
-    // if the pull request body overflows, handle it
-    const pullRequestBody =
-      await pullRequestOverflowHandler.parseOverflow(pullRequest)
-    if (!pullRequestBody) {
-      logger.debug('could not parse pull request body as a release PR')
-      continue
-    }
-    // replace with the complete fetched body
-    yield {
-      ...pullRequest,
-      body: pullRequestBody.toString()
-    }
-  }
-}
-
-//TODO: copied from release-please, needs tests
-/**
- * Helper to compare if a list of labels fully contains another list of labels
- * @param {string[]} expected List of labels expected to be contained
- * @param {string[]} existing List of existing labels to consider
- */
-function hasAllLabels(expected: string[], existing: string[]): boolean {
-  const existingSet = new Set(existing)
-  for (const label of expected) {
-    if (!existingSet.has(label)) {
-      return false
-    }
-  }
-  return true
-}
-
-//TODO: copied from release-please, needs tests
-async function findOpenReleasePullRequests(
-  gh: GitHub,
-  targetBranch: string,
-  pullRequestOverflowHandler: PullRequestOverflowHandler,
-  logger: Logger
-): Promise<PullRequest[]> {
-  logger.info('Looking for open release pull requests')
-  const openPullRequests: PullRequest[] = []
-  const generator = gh.pullRequestIterator(
-    targetBranch,
-    'OPEN',
-    Number.MAX_SAFE_INTEGER,
-    false
-  )
-
-  for await (const openPullRequest of generator) {
-    if (hasAllLabels(DEFAULT_LABELS, openPullRequest.labels)) {
-      const body =
-        await pullRequestOverflowHandler.parseOverflow(openPullRequest)
-      if (body) {
-        // maybe replace with overflow body
-        openPullRequests.push({
-          ...openPullRequest,
-          body: body.toString()
-        })
-      }
-    }
-  }
-
-  logger.info(`found ${openPullRequests.length} open release pull requests.`)
-  return openPullRequests
-}
-
-//TODO: copied from release-please, needs tests
-/**
- * buildReleasePR builds the metadata for a release PR from the releaseBranch into the baseBranch, for the next version based
- * on the current version and versioning strategy.
- * @param {GitHub} gh The GitHub instance to use
- * @param {string} baseBranch The branch to merge the release PR into
- * @param {string} releaseBranch The branch to create the release PR from
- * @param {Version} current The latest released version for this branch
- * @param {string} versioningStrategy The versioning strategy for this release branch
- * @returns {Promise<ReleasePullRequest | undefined>} Resolves to a PullRequestRequest when there are commit to build a release from, otherwise undefined
- */
-export async function buildReleasePR(
-  gh: GitHub,
-  baseBranch: string,
-  releaseBranch: string,
-  current: Version,
-  versioningStrategy: string,
-  shaToRelease: string
-): Promise<ReleasePullRequest | undefined> {
-  const commits = await findCommitsSinceLastRelease(gh, releaseBranch, current)
-
-  if (!commits || commits.length === 0) {
-    return undefined
-  }
-
-  const next = nextVersion(current, versioningStrategy, commits, gh)
-
-  const pullRequestTitle = PullRequestTitle.ofVersion(next)
-  const branchName = BranchName.ofVersion(next)
-
-  const changelogNotes = new DefaultChangelogNotes()
-
-  const { owner, repo } = gh.repository
-
-  const currentVersionTag = new TagName(current)
-  const nextVersionTag = new TagName(next)
-  const releaseNotesBody = await changelogNotes.buildNotes(commits, {
-    owner,
-    repository: repo,
-    version: next.toString(),
-    previousTag: currentVersionTag.toString(),
-    currentTag: nextVersionTag.toString(),
-    targetBranch: baseBranch,
-    commits
-  })
-
-  const pullRequestBody = new PullRequestBody([
-    {
-      version: next,
-      notes: releaseNotesBody
-    }
-  ])
-
-  const updates = await buildUpdates(releaseBranch, shaToRelease, {
-    changelogEntry: releaseNotesBody,
-    newVersion: next,
-    versionsMap: {} as VersionsMap,
-    latestVersion: current,
-    commits
-  })
-
-  return {
-    title: pullRequestTitle,
-    body: pullRequestBody,
-    labels: [],
-    headRefName: branchName.toString(),
-    version: next,
-    draft: false,
-    updates
-  }
-}
-
-//TODO: copied from release-please, needs tests
-async function buildUpdates(
-  releaseBranch: string,
-  shaToRelease: string,
-  options: BuildUpdatesOptions
-): Promise<Update[]> {
-  const updates: Update[] = []
-  const version = options.newVersion
-
-  updates.push({
-    path: addPath(DEFAULT_CHANGELOG_PATH),
-    createIfMissing: true,
-    updater: new Changelog({
-      version,
-      changelogEntry: options.changelogEntry
-    })
-  })
-
-  updates.push({
-    path: addPath(RELEASE_CONFIG_PATH),
-    createIfMissing: false,
-    updater: new VersionUpdater(releaseBranch, shaToRelease, {
-      version
-    })
-  })
-
-  return updates
-}
-
-//TODO: copied from release-please, needs tests?
-function addPath(file: string): string {
-  // There is no strategy path to join, the strategy is at the root, or the
-  // file is at the root (denoted by a leading slash or tilde)
-  if (file.startsWith('/')) {
-    file = file.replace(/^\/+/, '')
-  }
-  // Otherwise, the file is relative to the strategy path
-  else {
-    file = `${ROOT_PROJECT_PATH.replace(/\/+$/, '')}/${file}`
-  }
-  // Ensure the file path does not escape the workspace
-  if (/((^|\/)\.{1,2}|^~|^\/*)+\//.test(file)) {
-    throw new Error(`illegal pathing characters in path: ${file}`)
-  }
-  // Strip any trailing slashes and return
-  return file.replace(/\/+$/, '')
 }

@@ -6,9 +6,15 @@ import {
   Commit,
   ConventionalCommit
 } from 'release-please/build/src/commit'
-import { getInput } from '@actions/core'
+import { debug, getInput } from '@actions/core'
 import { Logger } from 'release-please/build/src/util/logger'
 import { Version } from 'release-please/build/src/version'
+import {
+  FilePullRequestOverflowHandler,
+  PullRequestOverflowHandler
+} from 'release-please/build/src/util/pull-request-overflow-handler'
+import { PullRequest } from 'release-please/build/src/pull-request'
+import { DEFAULT_LABELS, DEFAULT_RELEASE_LABELS } from './constants'
 
 export const GITHUB_API_URL = 'https://api.github.com'
 export const GITHUB_GRAPHQL_URL = 'https://api.github.com'
@@ -113,4 +119,100 @@ function commitsAfterSha(commits: Commit[], lastReleaseSha: string): Commit[] {
     return commits
   }
   return commits.slice(0, index)
+}
+
+//TODO: test me
+export async function findOpenReleasePullRequests(
+  gh: GitHub,
+  targetBranch: string,
+  pullRequestOverflowHandler: PullRequestOverflowHandler,
+  logger: Logger
+): Promise<PullRequest[]> {
+  logger.info('Looking for open release pull requests')
+  const openPullRequests: PullRequest[] = []
+  const generator = gh.pullRequestIterator(
+    targetBranch,
+    'OPEN',
+    Number.MAX_SAFE_INTEGER,
+    false
+  )
+
+  for await (const openPullRequest of generator) {
+    if (hasAllLabels(DEFAULT_LABELS, openPullRequest.labels)) {
+      const body =
+        await pullRequestOverflowHandler.parseOverflow(openPullRequest)
+      if (body) {
+        // maybe replace with overflow body
+        openPullRequests.push({
+          ...openPullRequest,
+          body: body.toString()
+        })
+      }
+    }
+  }
+
+  logger.info(`found ${openPullRequests.length} open release pull requests.`)
+  return openPullRequests
+}
+
+//TODO: copied from release-please, needs tests
+export async function findMergedReleasePullRequests(
+  gh: GitHub,
+  targetBranch: string,
+  pullRequestOverflowHandler: PullRequestOverflowHandler,
+  logger: Logger
+): Promise<PullRequest[]> {
+  // Find merged release pull requests
+  const mergedPullRequests: PullRequest[] = []
+  const pullRequestGenerator = gh.pullRequestIterator(
+    targetBranch,
+    'MERGED',
+    200,
+    false
+  )
+  for await (const pullRequest of pullRequestGenerator) {
+    if (!hasAllLabels(DEFAULT_RELEASE_LABELS, pullRequest.labels)) {
+      continue
+    }
+    debug(`Found pull request #${pullRequest.number}: '${pullRequest.title}'`)
+    // if the pull request body overflows, handle it
+    const pullRequestBody =
+      await pullRequestOverflowHandler.parseOverflow(pullRequest)
+    if (!pullRequestBody) {
+      logger.debug('could not parse pull request body as a release PR')
+      continue
+    }
+    // replace with the complete fetched body
+    mergedPullRequests.push({
+      ...pullRequest,
+      body: pullRequestBody.toString()
+    })
+  }
+
+  logger.info(
+    `found ${mergedPullRequests.length} merged release pull requests.`
+  )
+  return mergedPullRequests
+}
+
+/**
+ * Helper to compare if a list of labels fully contains another list of labels
+ * @param {string[]} expected List of labels expected to be contained
+ * @param {string[]} existing List of existing labels to consider
+ */
+function hasAllLabels(expected: string[], existing: string[]): boolean {
+  const existingSet = new Set(existing)
+  for (const label of expected) {
+    if (!existingSet.has(label)) {
+      return false
+    }
+  }
+  return true
+}
+
+export function createPullRequestOverflowHandler(
+  gh: GitHub,
+  logger: Logger
+): PullRequestOverflowHandler {
+  return new FilePullRequestOverflowHandler(gh, logger)
 }
