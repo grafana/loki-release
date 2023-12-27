@@ -110,7 +110,7 @@ export class GitHubReleaser {
       }
     })()
 
-    this.logger.debug(
+    this.logger.info(
       `iterating through ${commits.length} commits to find commits since last release ${foundTag.name}(${foundTag.sha})`
     )
     const commitsSinceLastRelease = this.commitsAfterSha(commits, foundTag.sha)

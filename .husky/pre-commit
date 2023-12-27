@@ -9,7 +9,7 @@ if [[ "${workflow_files_count}" -gt 0 ]]; then
 	git add .github/workflows
 fi
 
-action_files_count="$(git diff --name-only --cached actions/*/src/**/*.{js,ts} | wc -l)"
+action_files_count="$(git diff --name-only --cached actions/**/*.{js,ts} | wc -l)"
 if [[ "${action_files_count}" -gt 0 ]]; then
 	npm run package
 	git add actions/*/dist
