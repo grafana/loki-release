@@ -306,7 +306,7 @@ parseStatement: true, parseSourceElement: true */
         }
 
         // 'const' is specialized as Keyword in V8.
-        // 'yield' and 'let' are for compatibility with SpiderMonkey and ES.next.
+        // 'yield' and 'let' are for compatiblity with SpiderMonkey and ES.next.
         // Some others are from future reserved words.
 
         switch (id.length) {
@@ -3034,7 +3034,7 @@ parseStatement: true, parseSourceElement: true */
         return delegate.createWithStatement(object, body);
     }
 
-    // 12.10 The switch statement
+    // 12.10 The swith statement
 
     function parseSwitchCase() {
         var test, consequent = [], statement, startToken;
