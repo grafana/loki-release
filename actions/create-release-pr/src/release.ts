@@ -46,6 +46,9 @@ export async function createReleasePR(
     baseBranch
   )
 
+  info(
+    `preparing release pr for sha ${shaToRelease} from ${releaseBranch} into ${baseBranch}`
+  )
   const branchConfig = releaseConfig[releaseBranch]
   if (!branchConfig) {
     throw new Error(

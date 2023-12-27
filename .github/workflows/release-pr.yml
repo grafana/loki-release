@@ -25,27 +25,20 @@ jobs:
       with:
         path: "release"
         repository: "grafana/loki-release"
-    - name: "setup go"
-      uses: "actions/setup-go@v4"
-      with:
-        cache-dependency-path: "loki/go.sum"
-        go-version-file: "loki/go.mod"
-    - name: "setup node"
-      uses: "actions/setup-node@v4"
-      with:
-        node-version: 16
     - id: "extract_branch"
       name: "extract branch name"
       run: |
         if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
           cd loki
-          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         else
           cd release
-          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         fi
+        
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
-    - id: "release-pr"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      id: "release-pr"
       name: "create release PR"
       uses: "./release/actions/create-release-pr"
       with:
