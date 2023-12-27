@@ -30,7 +30,7 @@ local releaseStep = common.releaseStep;
       + step.withId('release-pr')
       + step.with({
         baseBranch: 'main',
-        releaseBranch: '{{ steps.extract_branch.outputs.branch }}',
+        releaseBranch: '${{ steps.extract_branch.outputs.branch }}',
         //TODO: do I need the repo?
       })
       + step.withEnv({

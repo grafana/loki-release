@@ -43,7 +43,7 @@ jobs:
       uses: "./release/actions/create-release-pr"
       with:
         baseBranch: "main"
-        releaseBranch: "{{ steps.extract_branch.outputs.branch }}"
+        releaseBranch: "${{ steps.extract_branch.outputs.branch }}"
   dist:
     needs:
     - "test"
