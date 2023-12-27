@@ -65,12 +65,15 @@ export async function createReleasePR(
     releaseBranch,
     currentVersion,
     branchConfig.strategy,
-    shaToRelease
+    shaToRelease,
+    logger
   )
 
   if (pr === undefined) {
     return pr
   }
+
+  logger.debug(`build candidate PR: ${JSON.stringify(pr)}`)
 
   // If there are merged pull requests that have yet to be released, then don't create any new PRs
   logger.debug(`checking for merged release PRs`)

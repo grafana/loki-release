@@ -6,6 +6,7 @@ import { buildCandidatePR } from '../src/pull-request'
 import { parseConventionalCommits } from 'release-please/build/src/commit'
 import { Version } from 'release-please/build/src/version'
 import { DEFAULT_LABELS } from '../src/constants'
+import { NoOpLogger } from './helpers'
 
 const sandbox = sinon.createSandbox()
 let findCommitsSinceLastRelease: sinon.SinonStub
@@ -20,6 +21,8 @@ const fakeGitHub = {
     return {}
   }
 } as GitHub
+
+const noopLogger = new NoOpLogger()
 
 const happyPathCommits = parseConventionalCommits([
   // This feature will be release in 1.3.2
@@ -70,7 +73,8 @@ describe('pull requests', () => {
         'release-1.3.x',
         new Version(1, 3, 1),
         'always-bump-patch',
-        'shaToRelease'
+        'shaToRelease',
+        noopLogger
       )
       expect(pr).toBeUndefined()
     })
@@ -83,7 +87,8 @@ describe('pull requests', () => {
         'release-1.3.x',
         new Version(1, 3, 1),
         'always-bump-patch',
-        'shaToRelease'
+        'shaToRelease',
+        noopLogger
       )
 
       const today = new Date().toISOString().split('T')[0]

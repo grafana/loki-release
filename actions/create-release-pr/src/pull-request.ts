@@ -16,6 +16,7 @@ import {
   DEFAULT_LABELS,
   RELEASE_CONFIG_PATH
 } from './constants'
+import { Logger } from 'release-please/build/src/util/logger'
 
 /**
  * buildReleasePR builds the metadata for a release PR from the releaseBranch into the baseBranch, for the next version based
@@ -33,15 +34,18 @@ export async function buildCandidatePR(
   releaseBranch: string,
   current: Version,
   versioningStrategy: string,
-  shaToRelease: string
+  shaToRelease: string,
+  logger: Logger
 ): Promise<ReleasePullRequest | undefined> {
   const commits = await findCommitsSinceLastRelease(gh, releaseBranch, current)
 
   if (!commits || commits.length === 0) {
+    logger.debug('found no commits to release')
     return undefined
   }
 
   const next = nextVersion(current, versioningStrategy, commits, gh)
+  logger.debug(`building candidate PR for next version: ${next.toString()}`)
 
   const pullRequestTitle = PullRequestTitle.ofVersion(next)
   const branchName = releaseBranchName(next)
@@ -68,6 +72,7 @@ export async function buildCandidatePR(
     }
   ])
 
+  logger.debug('building updates')
   const updates = await buildUpdates(releaseBranch, shaToRelease, {
     changelogEntry: releaseNotesBody,
     newVersion: next,

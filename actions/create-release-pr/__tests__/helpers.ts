@@ -40,7 +40,7 @@ export function mockTags(
   return sandbox.stub(github, 'tagIterator').returns(fakeGenerator())
 }
 
-class NoOpLogger implements Logger {
+export class NoOpLogger implements Logger {
   error: LogFn = (..._: any[]) => {}
   warn: LogFn = (..._: any[]) => {}
   info: LogFn = (..._: any[]) => {}
