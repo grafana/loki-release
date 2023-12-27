@@ -107,6 +107,9 @@ export class GitHubReleaser {
     await (async function () {
       for await (const commit of commitGenerator) {
         commits.push(commit)
+        if (commit.sha === foundTag.sha) {
+          break
+        }
       }
     })()
 
@@ -189,6 +192,7 @@ export class GitHubReleaser {
       false
     )
     for await (const pullRequest of pullRequestGenerator) {
+      //TODO: found bug from this logic being flipped, do we have a test for that?
       if (this.hasAllLabels(DEFAULT_RELEASE_LABELS, pullRequest.labels)) {
         continue
       }
@@ -197,17 +201,22 @@ export class GitHubReleaser {
         `Found merged pull request #${pullRequest.number}: '${pullRequest.title}' without labeles ${DEFAULT_RELEASE_LABELS} in ${pullRequest.labels}`
       )
       // if the pull request body overflows, handle it
-      const pullRequestBody =
-        await this.pullRequestOverflowHandler.parseOverflow(pullRequest)
-      if (!pullRequestBody) {
-        this.logger.debug('could not parse pull request body as a release PR')
+      try {
+        const pullRequestBody =
+          await this.pullRequestOverflowHandler.parseOverflow(pullRequest)
+
+        if (!pullRequestBody) {
+          continue
+        }
+
+        // replace with the complete fetched body
+        mergedPullRequests.push({
+          ...pullRequest,
+          body: pullRequestBody.toString()
+        })
+      } catch {
         continue
       }
-      // replace with the complete fetched body
-      mergedPullRequests.push({
-        ...pullRequest,
-        body: pullRequestBody.toString()
-      })
     }
 
     this.logger.info(
