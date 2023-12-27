@@ -26,7 +26,7 @@ local releaseStep = common.releaseStep;
         fi
       |||),
 
-      releaseStep('create release PR', './release/actions/create-release-pr')
+      step.new('create release PR', './release/actions/create-release-pr')
       + step.withId('release-pr')
       + step.with({
         baseBranch: 'main',

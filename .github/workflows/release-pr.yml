@@ -51,7 +51,6 @@ jobs:
       with:
         baseBranch: "main"
         releaseBranch: "{{ steps.extract_branch.outputs.branch }}"
-      working-directory: "release"
   dist:
     needs:
     - "test"
