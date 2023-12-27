@@ -189,9 +189,10 @@ export class GitHubReleaser {
       false
     )
     for await (const pullRequest of pullRequestGenerator) {
-      if (!this.hasAllLabels(DEFAULT_RELEASE_LABELS, pullRequest.labels)) {
+      if (this.hasAllLabels(DEFAULT_RELEASE_LABELS, pullRequest.labels)) {
         continue
       }
+
       this.logger.debug(
         `Found merged pull request #${pullRequest.number}: '${pullRequest.title}' without labeles ${DEFAULT_RELEASE_LABELS} in ${pullRequest.labels}`
       )
