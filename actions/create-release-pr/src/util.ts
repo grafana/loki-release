@@ -44,3 +44,16 @@ export class GitHubActionsLogger implements Logger {
     if (this.includeTrace) debug(`${tracePrefix} ${args.join(', ')}`)
   }
 }
+
+export const logger = (() => {
+  let log: Logger
+
+  return (): Logger => {
+    if (log) {
+      return log
+    }
+
+    log = new GitHubActionsLogger()
+    return log
+  }
+})()

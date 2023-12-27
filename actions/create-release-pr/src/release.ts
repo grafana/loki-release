@@ -72,6 +72,11 @@ export async function createReleasePR(
 
   if (mergedPullRequests.length > 0) {
     logger.warn('There are untagged, merged release PRs outstanding - aborting')
+    for (const mergedPR of mergedPullRequests) {
+      logger.debug(
+        `found untagged, merged release PR [${mergedPR.number}] ${mergedPR.title}`
+      )
+    }
     return undefined
   }
 

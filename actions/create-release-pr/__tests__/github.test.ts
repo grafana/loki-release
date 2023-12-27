@@ -79,7 +79,7 @@ describe('gitHubReleaser', () => {
       expect(commits).toHaveLength(2)
     })
 
-    it('returns an empty array if the no tag for the previous version is found', async () => {
+    it('throws an error if no tag for the previous version is found', async () => {
       mockCommits(sandbox, gh, happyPathCommits)
 
       mockTags(sandbox, gh, [
@@ -93,11 +93,11 @@ describe('gitHubReleaser', () => {
         }
       ])
       const version = new Version(1, 3, 1)
-      const commits = await gitHubReleaser.findCommitsSinceLastRelease(
+      const commits = gitHubReleaser.findCommitsSinceLastRelease(
         'release-1.3.x',
         version
       )
-      expect(commits).toHaveLength(0)
+      expect(commits).rejects.toThrow()
     })
 
     it('returns an empty array if the no commits are found since the previous release', async () => {

@@ -1,7 +1,12 @@
+import * as util from '../src/util'
+import sinon from 'sinon'
 import { Version } from 'release-please/build/src/version'
 import { nextVersion, VersionUpdater } from '../src/version'
 import { ReleaseConfig } from '../src/release'
 import { GitHub } from 'release-please/build/src/github'
+import { NoOpLogger } from './helpers'
+
+const sandbox = sinon.createSandbox()
 
 const fakeGithub = {
   repository: {
@@ -11,6 +16,14 @@ const fakeGithub = {
 } as GitHub
 
 describe('version', () => {
+  beforeEach(() => {
+    sandbox.stub(util, 'logger').returns(new NoOpLogger())
+  })
+
+  afterEach(() => {
+    sandbox.restore()
+  })
+
   describe('next version', () => {
     it('returns the next version for a major bump', () => {
       const current = new Version(1, 2, 3)

@@ -5,7 +5,7 @@ import { GitHub } from 'release-please/build/src/github'
 import { Updater } from 'release-please/build/src/update'
 import { UpdateOptions } from 'release-please/build/src/updaters/default'
 import { ReleaseConfig } from './release'
-import { info } from '@actions/core'
+import { logger } from './util'
 
 export function nextVersion(
   currentVersion: Version,
@@ -13,7 +13,8 @@ export function nextVersion(
   commits: ConventionalCommit[],
   github: GitHub
 ): Version {
-  info(`building versioning strategy for ${type}`)
+  const log = logger()
+  log.info(`building versioning strategy for ${type}`)
   const versioningStrategy = buildVersioningStrategy({
     type,
     github

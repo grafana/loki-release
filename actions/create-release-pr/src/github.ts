@@ -6,7 +6,7 @@ import {
   Commit,
   ConventionalCommit
 } from 'release-please/build/src/commit'
-import { debug, getInput } from '@actions/core'
+import { getInput } from '@actions/core'
 import { Logger } from 'release-please/build/src/util/logger'
 import { Version, VersionsMap } from 'release-please/build/src/version'
 import {
@@ -192,7 +192,9 @@ export class GitHubReleaser {
       if (!this.hasAllLabels(DEFAULT_RELEASE_LABELS, pullRequest.labels)) {
         continue
       }
-      debug(`Found pull request #${pullRequest.number}: '${pullRequest.title}'`)
+      this.logger.debug(
+        `Found pull request #${pullRequest.number}: '${pullRequest.title}'`
+      )
       // if the pull request body overflows, handle it
       const pullRequestBody =
         await this.pullRequestOverflowHandler.parseOverflow(pullRequest)
