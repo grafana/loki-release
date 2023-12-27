@@ -22,9 +22,10 @@ export async function run(): Promise<void> {
     const pr = createReleasePR(baseBranch, releaseBranch, shaToRelease)
 
     if (pr === undefined) {
-      info('No PR created')
+      info('PR is undefined, no PR created')
     }
 
+    info('PR created or updated')
     setOutput('pr', JSON.stringify(pr))
   } catch (error) {
     // Fail the workflow run if an error occurs

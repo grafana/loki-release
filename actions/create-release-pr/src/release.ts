@@ -8,12 +8,12 @@ import { Version } from 'release-please/build/src/version'
 import { ReleasePullRequest } from 'release-please/build/src/release-pull-request'
 import { GitHub } from 'release-please/build/src/github'
 
-import { info, warning } from '@actions/core'
 import { PullRequest } from 'release-please/build/src/pull-request'
 import { GitHubActionsLogger } from './util'
 import { PullRequestOverflowHandler } from 'release-please/build/src/util/pull-request-overflow-handler'
 import { RELEASE_CONFIG_PATH } from './constants'
 import { buildCandidatePR } from './pull-request'
+import { info } from '@actions/core'
 
 type ReleaseVersion = string
 type ReleaseSha = string
@@ -46,7 +46,7 @@ export async function createReleasePR(
     baseBranch
   )
 
-  info(
+  logger.info(
     `preparing release pr for sha ${shaToRelease} from ${releaseBranch} into ${baseBranch}`
   )
   const branchConfig = releaseConfig[releaseBranch]
@@ -58,6 +58,7 @@ export async function createReleasePR(
 
   const currentVersion = Version.parse(branchConfig.currentVersion)
 
+  logger.debug(`building candidate PR`)
   const pr = await buildCandidatePR(
     gh,
     baseBranch,
@@ -72,6 +73,7 @@ export async function createReleasePR(
   }
 
   // If there are merged pull requests that have yet to be released, then don't create any new PRs
+  logger.debug(`checking for merged release PRs`)
   const mergedPullRequests = await findMergedReleasePullRequests(
     gh,
     baseBranch,
@@ -80,11 +82,12 @@ export async function createReleasePR(
   )
 
   if (mergedPullRequests.length > 0) {
-    warning('There are untagged, merged release PRs outstanding - aborting')
+    logger.warn('There are untagged, merged release PRs outstanding - aborting')
     return undefined
   }
 
-  // collect open and snoozed release pull requests
+  // collect open release pull requests
+  logger.debug(`checking for open release PRs`)
   const openPullRequests = await findOpenReleasePullRequests(
     gh,
     baseBranch,
