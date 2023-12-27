@@ -1,19 +1,10 @@
-import {
-  createGitHubInstance,
-  createPullRequestOverflowHandler,
-  findMergedReleasePullRequests,
-  findOpenReleasePullRequests
-} from './github'
+import { createGitHubInstance, createGitHubReleaser } from './github'
 import { Version } from 'release-please/build/src/version'
-import { ReleasePullRequest } from 'release-please/build/src/release-pull-request'
-import { GitHub } from 'release-please/build/src/github'
 
 import { PullRequest } from 'release-please/build/src/pull-request'
 import { GitHubActionsLogger } from './util'
-import { PullRequestOverflowHandler } from 'release-please/build/src/util/pull-request-overflow-handler'
 import { RELEASE_CONFIG_PATH } from './constants'
-import { buildCandidatePR } from './pull-request'
-import { info } from '@actions/core'
+import { Logger } from 'release-please/build/src/util/logger'
 
 type ReleaseVersion = string
 type ReleaseSha = string
@@ -35,11 +26,11 @@ export type ReleaseConfig = Record<string, BranchReleaseConfig>
 export async function createReleasePR(
   baseBranch: string,
   releaseBranch: string,
-  shaToRelease: string
+  shaToRelease: string,
+  logger: Logger = new GitHubActionsLogger()
 ): Promise<PullRequest | undefined> {
-  const logger = new GitHubActionsLogger()
   const gh = await createGitHubInstance(baseBranch)
-  const prOverflowHandler = createPullRequestOverflowHandler(gh, logger)
+  const gitHubReleaser = createGitHubReleaser(gh, logger)
 
   const releaseConfig = await gh.getFileJson<ReleaseConfig>(
     RELEASE_CONFIG_PATH,
@@ -59,17 +50,16 @@ export async function createReleasePR(
   const currentVersion = Version.parse(branchConfig.currentVersion)
 
   logger.debug(`building candidate PR`)
-  const pr = await buildCandidatePR(
-    gh,
+  const pr = await gitHubReleaser.buildCandidatePR(
     baseBranch,
     releaseBranch,
     currentVersion,
     branchConfig.strategy,
-    shaToRelease,
-    logger
+    shaToRelease
   )
 
   if (pr === undefined) {
+    logger.debug('unable to build candidate PR, exiting early')
     return pr
   }
 
@@ -77,12 +67,8 @@ export async function createReleasePR(
 
   // If there are merged pull requests that have yet to be released, then don't create any new PRs
   logger.debug(`checking for merged release PRs`)
-  const mergedPullRequests = await findMergedReleasePullRequests(
-    gh,
-    baseBranch,
-    prOverflowHandler,
-    logger
-  )
+  const mergedPullRequests =
+    await gitHubReleaser.findMergedReleasePullRequests(baseBranch)
 
   if (mergedPullRequests.length > 0) {
     logger.warn('There are untagged, merged release PRs outstanding - aborting')
@@ -91,97 +77,14 @@ export async function createReleasePR(
 
   // collect open release pull requests
   logger.debug(`checking for open release PRs`)
-  const openPullRequests = await findOpenReleasePullRequests(
-    gh,
-    baseBranch,
-    prOverflowHandler,
-    logger
-  )
+  const openPullRequests =
+    await gitHubReleaser.findOpenReleasePullRequests(baseBranch)
 
-  const resultPullRequest = await createOrUpdatePullRequest(
-    gh,
+  const resultPullRequest = await gitHubReleaser.createOrUpdatePullRequest(
     pr,
     openPullRequests,
-    baseBranch,
-    prOverflowHandler
+    baseBranch
   )
 
   return resultPullRequest
-}
-
-async function createOrUpdatePullRequest(
-  gh: GitHub,
-  pullRequest: ReleasePullRequest,
-  openPullRequests: PullRequest[],
-  targetBranch: string,
-  pullRequestOverflowHandler: PullRequestOverflowHandler
-): Promise<PullRequest | undefined> {
-  // look for existing, open pull request
-  const existing = openPullRequests.find(
-    openPullRequest =>
-      openPullRequest.headBranchName === pullRequest.headRefName
-  )
-  if (existing) {
-    return await maybeUpdateExistingPullRequest(
-      gh,
-      existing,
-      pullRequest,
-      targetBranch,
-      pullRequestOverflowHandler
-    )
-  }
-
-  const body = await pullRequestOverflowHandler.handleOverflow(pullRequest)
-
-  //TODO: will we need to signoff commit messages?
-  const message = pullRequest.title.toString()
-
-  const newPullRequest = await gh.createPullRequest(
-    {
-      body,
-      title: pullRequest.title.toString(),
-      headBranchName: pullRequest.headRefName,
-      baseBranchName: targetBranch,
-      labels: pullRequest.labels,
-      number: -1,
-      files: []
-    },
-    targetBranch,
-    message,
-    pullRequest.updates,
-    {
-      fork: false,
-      draft: false
-    }
-  )
-
-  return newPullRequest
-}
-
-// only update an existing pull request if it has release note changes
-async function maybeUpdateExistingPullRequest(
-  gh: GitHub,
-  existing: PullRequest,
-  pullRequest: ReleasePullRequest,
-  targetBranch: string,
-  pullRequestOverflowHandler: PullRequestOverflowHandler
-): Promise<PullRequest | undefined> {
-  const { owner, repo } = gh.repository
-  // If unchanged, no need to push updates
-  if (existing.body === pullRequest.body.toString()) {
-    info(
-      `PR https://github.com/${owner}/${repo}/pull/${existing.number} remained the same`
-    )
-    return undefined
-  }
-  const updatedPullRequest = await gh.updatePullRequest(
-    existing.number,
-    pullRequest,
-    targetBranch,
-    {
-      fork: false,
-      pullRequestOverflowHandler
-    }
-  )
-  return updatedPullRequest
 }

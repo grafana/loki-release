@@ -1,8 +1,9 @@
 import sinon from 'sinon'
-import { ReleaseConfig, createReleasePR } from '../src/release'
+import { createReleasePR } from '../src/release'
 
+import { GitHubReleaser } from '../src/github'
 import * as github from '../src/github'
-import * as pullRequest from '../src/pull-request'
+import { releaseBranchName } from '../src/pull-request'
 
 import { BranchName } from 'release-please/build/src/util/branch-name'
 import { DEFAULT_LABELS } from '../src/constants'
@@ -12,8 +13,8 @@ import { PullRequestBody } from 'release-please/build/src/util/pull-request-body
 import { PullRequestOverflowHandler } from 'release-please/build/src/util/pull-request-overflow-handler'
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
 import { ReleasePullRequest } from 'release-please/build/src/release-pull-request'
-import { Update } from 'release-please/build/src/update'
 import { Version } from 'release-please/build/src/version'
+import { NoOpLogger, mockGitHub } from './helpers'
 
 const sandbox = sinon.createSandbox()
 let getFileJson: sinon.SinonStub
@@ -29,46 +30,8 @@ let findMergedReleasePullRequestsSpy: sinon.SinonStub
 let createPullRequestSpy: sinon.SinonStub
 let updatePullRequestSpy: sinon.SinonStub
 
-interface CreatePullRequestOptions {
-  fork?: boolean
-  draft?: boolean
-}
-
-const fakeGitHub = {
-  repository: {
-    owner: 'fake-owner',
-    repo: 'fake-repo'
-  },
-  getFileJson: async (
-    _path: string,
-    _branch: string
-  ): Promise<ReleaseConfig> => {
-    return {}
-  },
-  createPullRequest: async (
-    _pullRequest: PullRequest,
-    _targetBranch: string,
-    _message: string,
-    _updates: Update[],
-    _options?: CreatePullRequestOptions | undefined
-  ) => {
-    return {}
-  },
-  updatePullRequest: async (
-    _number: number,
-    _releasePullRequest: ReleasePullRequest,
-    _targetBranch: string,
-    _options?:
-      | {
-          signoffUser?: string | undefined
-          fork?: boolean | undefined
-          pullRequestOverflowHandler?: PullRequestOverflowHandler | undefined
-        }
-      | undefined
-  ) => {
-    return {}
-  }
-} as GitHub
+let fakeGitHub: GitHub
+let gitHubReleaser: GitHubReleaser
 
 const fakePullRequestOverflowHandler = {
   handleOverflow: async (
@@ -99,16 +62,22 @@ const defaultCreatedPR = {
 
 describe('release', () => {
   beforeEach(async () => {
+    fakeGitHub = await mockGitHub()
+    gitHubReleaser = new GitHubReleaser(
+      fakeGitHub,
+      new NoOpLogger(),
+      fakePullRequestOverflowHandler
+    )
+
     sandbox.stub(github, 'createGitHubInstance').resolves(fakeGitHub)
-    sandbox
-      .stub(github, 'createPullRequestOverflowHandler')
-      .returns(fakePullRequestOverflowHandler)
+    sandbox.stub(github, 'createGitHubReleaser').returns(gitHubReleaser)
+
     findMergedReleasePullRequests = sandbox.stub(
-      github,
+      gitHubReleaser,
       'findMergedReleasePullRequests'
     )
     findOpenReleasePullRequests = sandbox.stub(
-      github,
+      gitHubReleaser,
       'findOpenReleasePullRequests'
     )
 
@@ -116,7 +85,7 @@ describe('release', () => {
     createPullRequest = sandbox.stub(fakeGitHub, 'createPullRequest')
     updatePullRequest = sandbox.stub(fakeGitHub, 'updatePullRequest')
 
-    buildCandidatePR = sandbox.stub(pullRequest, 'buildCandidatePR')
+    buildCandidatePR = sandbox.stub(gitHubReleaser, 'buildCandidatePR')
 
     getFileJsonSpy = getFileJson.resolves({
       'release-1.3.x': {
@@ -133,7 +102,7 @@ describe('release', () => {
       title: PullRequestTitle.ofVersion(defaultNextVersion),
       body: defaultPRBody,
       labels: DEFAULT_LABELS,
-      headRefName: pullRequest.releaseBranchName(defaultNextVersion).toString(),
+      headRefName: releaseBranchName(defaultNextVersion).toString(),
       version: defaultNextVersion,
       draft: false,
       updates: []
@@ -228,7 +197,6 @@ describe('release', () => {
       expect(buildCandidatePRSpy.calledOnce).toBe(true)
       expect(
         buildCandidatePRSpy.calledWith(
-          fakeGitHub,
           'main',
           'release-1.3.x',
           Version.parse('1.3.1'),
@@ -238,6 +206,10 @@ describe('release', () => {
       ).toBe(true)
     })
 
+    //TODO: most of this logic actually lives in the github releaser now.
+    //this should just test that the github releaser is called correctly
+    //TODO: the logic of testing the underlying github gets called correctly should
+    //be move into the github releaser tests
     it('creates a new release PR if there are no open release PRs', async () => {
       await createReleasePR('main', 'release-1.3.x', 'abc123')
 
@@ -245,9 +217,7 @@ describe('release', () => {
 
       const actual = createPullRequestSpy.getCall(0).args
       expect(actual[0]).toEqual({
-        headBranchName: pullRequest
-          .releaseBranchName(defaultNextVersion)
-          .toString(),
+        headBranchName: releaseBranchName(defaultNextVersion).toString(),
         baseBranchName: 'main',
         body: defaultPRBody.toString(),
         title: PullRequestTitle.ofVersion(defaultNextVersion).toString(),
@@ -266,12 +236,13 @@ describe('release', () => {
       })
     })
 
+    //TODO: most of this logic actually lives in the github releaser now.
+    //TODO: the logic of testing the underlying github gets called correctly should
+    //be move into the github releaser tests
     it('updates an existing release PR if one exists', async () => {
       findOpenReleasePullRequests.resolves([
         {
-          headBranchName: pullRequest
-            .releaseBranchName(defaultNextVersion)
-            .toString(),
+          headBranchName: releaseBranchName(defaultNextVersion).toString(),
           baseBranchName: 'main',
           number: 42,
           title: PullRequestTitle.ofVersion(defaultNextVersion).toString(),
@@ -291,9 +262,7 @@ describe('release', () => {
         title: PullRequestTitle.ofVersion(defaultNextVersion),
         body: defaultPRBody,
         labels: DEFAULT_LABELS,
-        headRefName: pullRequest
-          .releaseBranchName(defaultNextVersion)
-          .toString(),
+        headRefName: releaseBranchName(defaultNextVersion).toString(),
         version: defaultNextVersion,
         draft: false,
         updates: []
@@ -305,12 +274,11 @@ describe('release', () => {
       })
     })
 
+    //TODO: most of this logic actually lives in the github releaser now.
     it('does not update existing PR if there are no release note changes', async () => {
       findOpenReleasePullRequests.resolves([
         {
-          headBranchName: pullRequest
-            .releaseBranchName(defaultNextVersion)
-            .toString(),
+          headBranchName: releaseBranchName(defaultNextVersion).toString(),
           baseBranchName: 'main',
           number: 42,
           title: PullRequestTitle.ofVersion(defaultNextVersion).toString(),
