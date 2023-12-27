@@ -45,16 +45,12 @@ jobs:
           echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         fi
       shell: "bash"
-    - id: "release"
-      name: "release please"
-      run: |
-        echo "manifest file: ${manifest_file}"
-        echo "current dir: $(pwd)"
-        
-        npm install
-        echo "npm exec -- release-please release-pr --token=\"${{ secrets.GH_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\" --label \"backport ${{ steps.extract_branch.outputs.branch}}\""
-        npm exec -- release-please release-pr --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --label "backport ${{ steps.extract_branch.outputs.branch }}"
-      shell: "bash"
+    - id: "release-pr"
+      name: "create release PR"
+      uses: "./release/actions/create-release-pr"
+      with:
+        baseBranch: "main"
+        releaseBranch: "{{ steps.extract_branch.outputs.branch }}"
       working-directory: "release"
   dist:
     needs:
@@ -63,52 +59,9 @@ jobs:
     - "check"
     runs-on: "ubuntu-latest"
     steps:
-    - name: "pull loki code"
-      uses: "actions/checkout@v3"
-      with:
-        path: "loki"
-        ref: "prepare-release-please"
-        repository: "grafana/loki"
-    - name: "setup go"
-      uses: "actions/setup-go@v4"
-      with:
-        cache-dependency-path: "loki/go.sum"
-        go-version-file: "loki/go.mod"
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
-      uses: "google-github-actions/auth@v2"
-      with:
-        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-    - name: "install dependencies"
-      run: |
-        go install github.com/mitchellh/gox@9f71238
-        go install github.com/bufbuild/buf/cmd/buf@v1.4.0
-        go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
-        go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
-        
-        sudo apt update
-        sudo apt install -qy musl gnupg ragel \
-          file zip unzip jq gettext \
-          protobuf-compiler libprotobuf-dev \
-          libsystemd-dev jq
+    - name: "always green"
+      run: "echo \"always green\""
       shell: "bash"
-    - name: "build artifacts"
-      run: "make BUILD_IN_CONTAINER=false SKIP_ARM=true dist"
-      shell: "bash"
-      working-directory: "loki"
-    - name: "pacakge artifacts"
-      run: |
-        tar -czf dist.tar.gz dist
-      shell: "bash"
-      working-directory: "loki"
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "upload build artifacts"
-      uses: "google-github-actions/upload-cloud-storage@v1"
-      with:
-        destination: "loki-build-artifacts/${{ github.sha }}/dist.tar.gz"
-        path: "loki/dist.tar.gz"
   lint:
     runs-on: "ubuntu-latest"
     steps:

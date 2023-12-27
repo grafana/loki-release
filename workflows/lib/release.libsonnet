@@ -26,16 +26,13 @@ local releaseStep = common.releaseStep;
         fi
       |||),
 
-      releaseStep('release please')
-      + step.withId('release')
-      + step.withRun(|||
-        echo "manifest file: ${manifest_file}"
-        echo "current dir: $(pwd)"
-
-        npm install
-        echo "npm exec -- release-please release-pr --token=\"${{ secrets.GH_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\" --label \"backport ${{ steps.extract_branch.outputs.branch}}\""
-        npm exec -- release-please release-pr --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --label "backport ${{ steps.extract_branch.outputs.branch }}"
-      |||),
+      releaseStep('create release PR', './release/actions/create-release-pr')
+      + step.withId('release-pr')
+      + step.with({
+        baseBranch: 'main',
+        releaseBranch: '{{ steps.extract_branch.outputs.branch }}',
+        //TODO: do I need the repo?
+      }),
     ]),
 
   //TODO: part of new workflow triggered by an issue comment

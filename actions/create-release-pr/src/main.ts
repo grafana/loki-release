@@ -15,6 +15,10 @@ export async function run(): Promise<void> {
     info(`releaseBranch:         ${releaseBranch}`)
     info(`shaToRelease:          ${shaToRelease}`)
 
+    //TODO:
+    // * check for merged PRs that need releases created
+    // * expose ability the specify command, either PR or release, as we only want to create releases on commits to main
+
     const pr = createReleasePR(baseBranch, releaseBranch, shaToRelease)
 
     if (pr === undefined) {
