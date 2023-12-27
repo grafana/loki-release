@@ -98,8 +98,9 @@ export class GitHubReleaser {
     )
     const foundTag = allTags[currentVersionTag.toString()]
     if (!foundTag) {
-      this.logger.debug(`failed to find tag ${currentVersionTag.toString()}`)
-      return []
+      throw new Error(
+        `failed to find current release tag ${currentVersionTag.toString()}`
+      )
     }
 
     const commits: Commit[] = []
