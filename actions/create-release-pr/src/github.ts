@@ -178,12 +178,12 @@ export class GitHubReleaser {
 
   //TODO: copied from release-please, needs tests
   findMergedReleasePullRequests = async (
-    targetBranch: string
+    baseBranch: string
   ): Promise<PullRequest[]> => {
     // Find merged release pull requests
     const mergedPullRequests: PullRequest[] = []
     const pullRequestGenerator = this.github.pullRequestIterator(
-      targetBranch,
+      baseBranch,
       'MERGED',
       200,
       false
@@ -193,7 +193,7 @@ export class GitHubReleaser {
         continue
       }
       this.logger.debug(
-        `Found pull request #${pullRequest.number}: '${pullRequest.title}'`
+        `Found merged pull request #${pullRequest.number}: '${pullRequest.title}' without labeles ${DEFAULT_RELEASE_LABELS} in ${pullRequest.labels}`
       )
       // if the pull request body overflows, handle it
       const pullRequestBody =
