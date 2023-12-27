@@ -111,10 +111,12 @@ export class GitHubReleaser {
     })()
 
     this.logger.info(
-      `iterating through ${commits.length} commits to find commits since last release ${foundTag.name}(${foundTag.sha})`
+      `looking for commits since last release ${foundTag.name}(${foundTag.sha})`
     )
     const commitsSinceLastRelease = this.commitsAfterSha(commits, foundTag.sha)
-    this.logger.debug(`found ${commits.length} commits since last release`)
+    this.logger.info(
+      `found ${commitsSinceLastRelease.length} commits since last release`
+    )
 
     return parseConventionalCommits(commitsSinceLastRelease)
   }
@@ -233,12 +235,12 @@ export class GitHubReleaser {
     )
 
     if (!commits || commits.length === 0) {
-      this.logger.debug('found no commits to release')
+      this.logger.info('found no commits to release')
       return undefined
     }
 
     const next = nextVersion(current, versioningStrategy, commits, this.github)
-    this.logger.debug(
+    this.logger.info(
       `building candidate PR for next version: ${next.toString()}`
     )
 
