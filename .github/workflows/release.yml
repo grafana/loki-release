@@ -37,7 +37,7 @@ jobs:
     - env:
         ACTIONS_STEP_DEBUG: "true"
       id: "release"
-      name: ""
+      name: "create release"
       uses: "./release/actions/create-release"
       with:
         baseBranch: "main"

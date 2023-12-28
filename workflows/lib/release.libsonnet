@@ -65,7 +65,7 @@ local releaseStep = common.releaseStep;
                ls dist
              |||),
 
-             step.new('', './release/actions/create-release')
+             step.new('create release', './release/actions/create-release')
              + step.withId('release')
              + step.with({
                command: 'release',
