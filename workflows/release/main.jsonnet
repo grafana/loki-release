@@ -42,6 +42,6 @@ std.manifestYamlDoc({
     group: 'create-release-${{ github.sha }}',
   },
   jobs: {
-    release: job.new() + release.release,
+    release: release.release,
   },
 }, false, false)

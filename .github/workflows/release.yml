@@ -15,10 +15,6 @@ jobs:
       with:
         path: "release"
         repository: "grafana/loki-release"
-    - name: "setup node"
-      uses: "actions/setup-node@v4"
-      with:
-        node-version: 16
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -38,13 +34,14 @@ jobs:
         ls dist
       shell: "bash"
       working-directory: "release"
-    - name: "create release"
-      run: |
-        npm install
-        echo "release-please release --token=\"${{ secrets.GH_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\""
-        npm exec -- release-please release --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}"
-      shell: "bash"
-      working-directory: "release"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      id: "release"
+      name: "create release"
+      uses: "./release/actions/create-release"
+      with:
+        baseBranch: "main"
+        command: "release"
 name: "create release"
 "on":
   workflow_call:
