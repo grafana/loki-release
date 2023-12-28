@@ -26,12 +26,12 @@ local releaseStep = common.releaseStep;
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       |||),
 
-      step.new('create release PR', './release/actions/create-release-pr')
+      step.new('create release PR', './release/actions/create-release')
       + step.withId('release-pr')
       + step.with({
+        command: 'pr',
         baseBranch: 'main',
         releaseBranch: '${{ steps.extract_branch.outputs.branch }}',
-        //TODO: do I need the repo?
       })
       + step.withEnv({
         ACTIONS_STEP_DEBUG: 'true',
@@ -45,7 +45,6 @@ local releaseStep = common.releaseStep;
            + job.withSteps([
              common.fetchLokiRepo,
              common.fetchReleaseRepo,
-             common.setupNode,
              common.googleAuth,
 
              step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
@@ -66,17 +65,18 @@ local releaseStep = common.releaseStep;
                ls dist
              |||),
 
-             releaseStep('create release')
-             + step.withRun(|||
-               npm install
-               echo "release-please release --token=\"${{ secrets.GH_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\""
-               npm exec -- release-please release --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}"
-             |||),
+             step.new('', './release/actions/create-release')
+             + step.withId('release')
+             + step.with({
+               command: 'release',
+               baseBranch: 'main',
+             })
+             + step.withEnv({
+               ACTIONS_STEP_DEBUG: 'true',
+             }),
 
              //TODO: add artifacts to release PR, which we need to get via the event
              // gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
-
-
              // lokiStep('create release branch from k release')
              // + step.withIf("${{ startsWith(steps.extract_branch.outputs.branch, 'k') && steps.release.outputs.release_created }}")
              // + step.withId('update_release_config')

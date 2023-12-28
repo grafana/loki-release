@@ -40,9 +40,10 @@ jobs:
         ACTIONS_STEP_DEBUG: "true"
       id: "release-pr"
       name: "create release PR"
-      uses: "./release/actions/create-release-pr"
+      uses: "./release/actions/create-release"
       with:
         baseBranch: "main"
+        command: "pr"
         releaseBranch: "${{ steps.extract_branch.outputs.branch }}"
   dist:
     needs:
