@@ -1,7 +1,9 @@
 concurrency:
   group: "create-release-${{ github.sha }}"
 jobs:
-  release:
+  prepareReleases:
+    outputs:
+      releases: "${{steps.prepare.outputs.releases}}"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull loki code"
@@ -27,21 +29,38 @@ jobs:
       uses: "google-github-actions/setup-gcloud@v1"
       with:
         version: ">= 452.0.0"
-    - name: "download build artifacts"
-      run: |
-        gsutil cp gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz .
-        tar -xzf dist.tar.gz dist
-        ls dist
-      shell: "bash"
-      working-directory: "release"
     - env:
         ACTIONS_STEP_DEBUG: "true"
-      id: "release"
-      name: "create release"
+      id: "prepare"
+      name: "prepare release"
       uses: "./release/actions/create-release"
       with:
         baseBranch: "main"
-        command: "release"
+        command: "prepare-release"
+  release:
+    needs:
+    - "prepareReleases"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "download build artifacts"
+      run: |
+        mkdir -p dist/${{ matrix.release.sha }}}
+        gsutil cp gs://loki-build-artifacts/${{ matrix.release.sha }}/dist.tar.gz .
+        tar -xzf dist.tar.gz dist/${{ matrix.release.sha }}
+      shell: "bash"
+      working-directory: "release"
+    - name: "create release"
+      uses: "softprops/action-gh-release@v1"
+      with:
+        body: "${{ matrix.release.notes }}"
+        files: "dist/${{ matrix.release.sha }}/*"
+        name: "${{ matrix.release.name }}"
+        tag_name: "${{ matrix.release.name }}"
+        target_commitish: "${{ matrix.release.sha }}"
+    strategy:
+      fail-fast: true
+      matrix:
+        release: "${{fromJson(needs.prepareReleases.outputs.releases)}}"
 name: "create release"
 "on":
   workflow_call:

@@ -24,12 +24,14 @@ import { GitHubActionsLogger } from './util'
 import { ReleasePullRequest } from 'release-please/build/src/release-pull-request'
 import { VersionUpdater, nextVersion } from './version'
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
-import { releaseBranchName } from './pull-request'
+import { releaseBranchNameFromVersion } from './pull-request'
 import { DefaultChangelogNotes } from 'release-please/build/src/changelog-notes/default'
 import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
 import { BuildUpdatesOptions } from 'release-please/build/src/strategies/base'
 import { Update } from 'release-please/build/src/update'
 import { Changelog } from 'release-please/build/src/updaters/changelog'
+import { Octokit } from '@octokit/rest'
+import { request } from '@octokit/request'
 
 export const GITHUB_API_URL = 'https://api.github.com'
 export const GITHUB_GRAPHQL_URL = 'https://api.github.com'
@@ -189,7 +191,7 @@ export class GitHubReleaser {
       baseBranch,
       'MERGED',
       200,
-      false
+      true
     )
     for await (const pullRequest of pullRequestGenerator) {
       //TODO: found bug from this logic being flipped, do we have a test for that?
@@ -214,7 +216,7 @@ export class GitHubReleaser {
           ...pullRequest,
           body: pullRequestBody.toString()
         })
-      } catch {
+      } catch (error) {
         continue
       }
     }
@@ -257,7 +259,7 @@ export class GitHubReleaser {
     )
 
     const pullRequestTitle = PullRequestTitle.ofVersion(next)
-    const branchName = releaseBranchName(next)
+    const branchName = releaseBranchNameFromVersion(next)
     const changelogNotes = new DefaultChangelogNotes()
 
     const { owner, repo } = this.github.repository
@@ -442,6 +444,21 @@ export async function createGitHubInstance(
 ): Promise<GitHub> {
   const options = getGitHubOptions(mainBranch)
   return GitHub.create(options)
+}
+
+export function createOctokitInstance(mainBranch: string): Octokit {
+  const options = getGitHubOptions(mainBranch)
+
+  return new Octokit({
+    baseUrl: options.apiUrl,
+    auth: options.token,
+    request: request.defaults({
+      baseUrl: options.apiUrl,
+      headers: {
+        Authorization: `token ${options.token}`
+      }
+    })
+  })
 }
 
 function getGitHubOptions(mainBranch: string): GitHubCreateOptions {

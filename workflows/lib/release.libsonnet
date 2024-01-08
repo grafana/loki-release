@@ -38,75 +38,59 @@ local releaseStep = common.releaseStep;
       }),
     ]),
 
-  //TODO: part of new workflow triggered by an issue comment
-  // how does it find merged PRs to release?
-  // it looks for Merged PRs with the `autorelease:pending` label
-  release: job.new()
-           + job.withSteps([
-             common.fetchLokiRepo,
-             common.fetchReleaseRepo,
-             common.googleAuth,
+  prepareReleases:
+    job.new()
+    + job.withSteps([
+      common.fetchLokiRepo,
+      common.fetchReleaseRepo,
+      common.googleAuth,
 
-             step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
-             + step.with({
-               version: '>= 452.0.0',
-             })
-             + step.withEnv({
-               ACTIONS_STEP_DEBUG: 'true',
-             }),
+      step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
+      + step.with({
+        version: '>= 452.0.0',
+      })
+      + step.withEnv({
+        ACTIONS_STEP_DEBUG: 'true',
+      }),
 
-             // exits with code 1 if the url does not match
-             // meaning there are no artifacts for that sha
-             // we need to handle this if we're going to run this pipeline on every merge to main
-             releaseStep('download build artifacts')
-             + step.withRun(|||
-               gsutil cp gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz .
-               tar -xzf dist.tar.gz dist
-               ls dist
-             |||),
+      step.new('prepare release', './release/actions/create-release')
+      + step.withId('prepare')
+      + step.with({
+        command: 'prepare-release',
+        baseBranch: 'main',
+      })
+      + step.withEnv({
+        ACTIONS_STEP_DEBUG: 'true',
+      }),
+    ])
+    + job.withOutputs({
+      releases: '${{steps.prepare.outputs.releases}}',
+    }),
 
-             step.new('create release', './release/actions/create-release')
-             + step.withId('release')
-             + step.with({
-               command: 'release',
-               baseBranch: 'main',
-             })
-             + step.withEnv({
-               ACTIONS_STEP_DEBUG: 'true',
-             }),
+  release:
+    job.new()
+    + job.withNeeds(['prepareReleases'])
+    + job.withStrategy({
+      'fail-fast': true,
+      matrix: {
+        release: '${{fromJson(needs.prepareReleases.outputs.releases)}}',
+      },
+    })
+    + job.withSteps([
+      releaseStep('download build artifacts')
+      + step.withRun(|||
+        mkdir -p dist/${{ matrix.release.sha }}}
+        gsutil cp gs://loki-build-artifacts/${{ matrix.release.sha }}/dist.tar.gz .
+        tar -xzf dist.tar.gz dist/${{ matrix.release.sha }}
+      |||),
 
-             //TODO: add artifacts to release PR, which we need to get via the event
-             // gh release upload ${{ steps.release.outputs.tag_name }} ./dist/build.txt
-             // lokiStep('create release branch from k release')
-             // + step.withIf("${{ startsWith(steps.extract_branch.outputs.branch, 'k') && steps.release.outputs.release_created }}")
-             // + step.withId('update_release_config')
-             // + step.withRun(|||
-             //   branch=release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x
-             //   git checkout -b $branch
-             //   mv release-please-config.json tmp.json
-             //   jq '.versioning = "always-bump-patch"' tmp.json > release-please-config.json
-             //   rm tmp.json
-             // |||),
-
-             // step.new('commit changes to release branch', 'stefanzweifel/git-auto-commit-action@v5')
-             // + step.withIf("${{ steps.update_release_config.outcome == 'success' }}")
-             // + step.withId('create_release_branch')
-             // + step.with({
-             //   commit_message: 'chore: release branch bumps patch on release',
-             //   branch: 'release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x',
-             //   file_pattern: 'loki/release-please-config.json',
-             //   create_branch: true,
-             // }),
-
-             // releaseStep('comment on PR with release branch')
-             // + step.withIf("${{ steps.create_release_branch.outcome == 'success' }}")
-             // + step.withId('created_branch_message')
-             // + step.withEnv({
-             //   BRANCH: 'release-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.x',
-             // })
-             // + step.withRun(|||
-             //   prNumber=$(echo ${{ steps.release.outputs.pr }} | jq -r .number)
-             //   gh pr comment $prNumber --body "created release branch [$BRANCH](https://github.com/grafana/loki-release/tree/$BRANCH)"
-             // |||),
-           ]),
+      step.new('create release', 'softprops/action-gh-release@v1')
+      + step.with({
+        name: '${{ matrix.release.name }}',
+        tag_name: '${{ matrix.release.name }}',
+        body: '${{ matrix.release.notes }}',
+        target_commitish: '${{ matrix.release.sha }}',
+        files: 'dist/${{ matrix.release.sha }}/*',
+      }),
+    ]),
 }

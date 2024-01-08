@@ -1,5 +1,5 @@
 import { getInput, setFailed, setOutput } from '@actions/core'
-import { createReleasePR, createReleases } from './release'
+import { createReleasePR, prepareReleases } from './release'
 import { logger } from './util'
 
 /**
@@ -32,8 +32,11 @@ export async function run(): Promise<void> {
 
       log.info('PR created or updated')
       setOutput('pr', JSON.stringify(pr))
-    } else if (command === 'release') {
-      const releases = await createReleases(baseBranch)
+    } else if (command === 'prepare-release') {
+      const releases = await prepareReleases(baseBranch)
+      //TODO: change the ouput to be what I care about
+      //set that set that output
+      //use native actions to actually create the release (get get the files from GCS)
       setOutput('releases', JSON.stringify(releases))
     } else {
       throw new Error(`invalid command: ${command}`)

@@ -2,6 +2,7 @@ import { Commit } from 'release-please/build/src/commit'
 import { GitHub, GitHubTag } from 'release-please/build/src/github'
 import { Logger } from 'release-please/build/src/util/logger'
 import { LogFn } from '../src/util'
+import { SinonSandbox, SinonStub } from 'sinon'
 
 export async function mockGitHub(): Promise<GitHub> {
   return GitHub.create({
@@ -14,10 +15,10 @@ export async function mockGitHub(): Promise<GitHub> {
 }
 
 export function mockCommits(
-  sandbox: sinon.SinonSandbox,
+  sandbox: SinonSandbox,
   github: GitHub,
   commits: Commit[]
-): sinon.SinonStub {
+): SinonStub {
   async function* fakeGenerator() {
     for (const commit of commits) {
       yield commit
@@ -28,10 +29,10 @@ export function mockCommits(
 }
 
 export function mockTags(
-  sandbox: sinon.SinonSandbox,
+  sandbox: SinonSandbox,
   github: GitHub,
   tags: GitHubTag[]
-): sinon.SinonStub {
+): SinonStub {
   async function* fakeGenerator() {
     for (const tag of tags) {
       yield tag

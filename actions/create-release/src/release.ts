@@ -1,18 +1,18 @@
-import { createGitHubInstance, createGitHubReleaser } from './github'
+import {
+  createGitHubInstance,
+  createGitHubReleaser,
+  createOctokitInstance
+} from './github'
 import { Version } from 'release-please/build/src/version'
 
 import { PullRequest } from 'release-please/build/src/pull-request'
 import { GitHubActionsLogger, logger } from './util'
-import {
-  DEFAULT_LABELS,
-  DEFAULT_RELEASE_LABELS,
-  RELEASE_CONFIG_PATH
-} from './constants'
+import { RELEASE_CONFIG_PATH } from './constants'
 import { Logger } from 'release-please/build/src/util/logger'
-import { CandidateRelease } from 'release-please/build/src/manifest'
-import { buildStrategy } from 'release-please/build/src/factory'
-import { GitHub, GitHubRelease } from 'release-please/build/src/github'
-import { DuplicateReleaseError } from 'release-please/build/src/errors'
+import { Base64 } from 'js-base64'
+import { DefaultBranchName } from './pull-request'
+import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
+import { GitHub } from 'release-please/build/src/github'
 
 type ReleaseVersion = string
 type ReleaseSha = string
@@ -110,142 +110,103 @@ export async function createReleasePR(
   return resultPullRequest
 }
 
-export async function createReleases(
+export async function prepareReleases(
   baseBranch: string,
   log: Logger = new GitHubActionsLogger()
-): Promise<CreatedRelease[]> {
+): Promise<ReleaseMeta[]> {
   const gh = await createGitHubInstance(baseBranch)
   const gitHubReleaser = createGitHubReleaser(gh, log)
   const mergedReleasePRs =
     await gitHubReleaser.findMergedReleasePullRequests(baseBranch)
 
-  const candidateReleases: CandidateRelease[] = []
+  const candidateReleases: ReleaseMeta[] = []
   for (const pullRequest of mergedReleasePRs) {
-    const releaseConfig = await getBranchReleaseConfig(
-      gh,
-      pullRequest.baseBranchName,
-      pullRequest.headBranchName
-    )
+    //TODO: should be able to get sha to release from pullRequest.sha
+    if (!pullRequest.files.includes(RELEASE_CONFIG_PATH) || !pullRequest.sha) {
+      //not a PR we can make a release from
+      continue
+    }
 
-    const strategy = await buildStrategy({
-      github: gh,
-      targetBranch: pullRequest.baseBranchName,
-      releaseType: 'simple',
-      versioning: releaseConfig.strategy
+    const { owner, repo } = gh.repository
+
+    const octokit = createOctokitInstance(baseBranch)
+
+    const { data } = await octokit.repos.getContent({
+      owner,
+      repo,
+      path: RELEASE_CONFIG_PATH,
+      ref: pullRequest.sha
     })
 
-    const releases = await strategy.buildReleases(pullRequest, {
-      groupPullRequestTitlePattern: 'chore: release ${branch}'
-    })
+    if (Array.isArray(data) || data?.type !== 'file') {
+      continue
+    }
 
-    for (const release of releases) {
+    const releaseConfig = JSON.parse(
+      Base64.decode(data.content)
+    ) as ReleaseConfig
+    log.info(`releaseConfig: ${releaseConfig}`)
+
+    const branchName = new DefaultBranchName(pullRequest.headBranchName)
+    const version = branchName.getVersion()
+    if (version === undefined) {
+      continue
+    }
+
+    const releaseBranch = branchName.getReleaseBranch()
+    if (releaseBranch === undefined) {
+      continue
+    }
+
+    const branchConfig = releaseConfig[releaseBranch]
+    const shaToRelease = branchConfig.releases[version.toString()]
+
+    const release = await prepareRelease(pullRequest, version)
+    log.info(`release: ${release}`)
+
+    if (release !== undefined) {
+      release.sha = shaToRelease
+
       candidateReleases.push({
-        ...release,
-        path: '.',
-        pullRequest,
-        draft: false,
-        prerelease: false
+        ...release
       })
     }
   }
 
-  const pullRequestsByNumber: Record<number, PullRequest> = {}
-  const releasesByPullRequest: Record<number, CandidateRelease[]> = {}
-  for (const release of candidateReleases) {
-    pullRequestsByNumber[release.pullRequest.number] = release.pullRequest
-    if (releasesByPullRequest[release.pullRequest.number]) {
-      releasesByPullRequest[release.pullRequest.number].push(release)
-    } else {
-      releasesByPullRequest[release.pullRequest.number] = [release]
-    }
-  }
-
-  const promises: Promise<CreatedRelease[]>[] = []
-  for (const pullNumber in releasesByPullRequest) {
-    promises.push(
-      createReleasesForPullRequest(
-        gh,
-        releasesByPullRequest[pullNumber],
-        pullRequestsByNumber[pullNumber]
-      )
-    )
-  }
-  const releases = await Promise.all(promises)
-  return releases.reduce((collection, r) => collection.concat(r), [])
+  return candidateReleases
 }
 
-async function createReleasesForPullRequest(
-  gh: GitHub,
-  releases: CandidateRelease[],
-  pullRequest: PullRequest
-): Promise<CreatedRelease[]> {
+type ReleaseMeta = {
+  name: string
+  notes: string
+  sha?: string | undefined
+}
+
+async function prepareRelease(
+  mergedPullRequest: PullRequest,
+  version: Version
+): Promise<ReleaseMeta | undefined> {
   const log = logger()
-  log.info(
-    `Creating ${releases.length} releases for pull #${pullRequest.number}`
-  )
-  const duplicateReleases: DuplicateReleaseError[] = []
-  const githubReleases: CreatedRelease[] = []
-  for (const release of releases) {
-    try {
-      githubReleases.push(await createRelease(gh, release))
-    } catch (err) {
-      if (err instanceof DuplicateReleaseError) {
-        log.warn(`Duplicate release tag: ${release.tag.toString()}`)
-        duplicateReleases.push(err)
-      } else {
-        throw err
-      }
-    }
+  if (!mergedPullRequest.sha) {
+    log.error('Pull request should have been merged')
+    return
   }
 
-  if (duplicateReleases.length > 0) {
-    if (duplicateReleases.length + githubReleases.length === releases.length) {
-      // we've either tagged all releases or they were duplicates:
-      // adjust tags on pullRequest
-      await gh.removeIssueLabels(DEFAULT_LABELS, pullRequest.number)
-      await gh.addIssueLabels(DEFAULT_RELEASE_LABELS, pullRequest.number)
-    }
-    if (githubReleases.length === 0) {
-      // If all releases were duplicate, throw a duplicate error
-      throw duplicateReleases[0]
-    }
-  } else {
-    // adjust tags on pullRequest
-    await gh.removeIssueLabels(DEFAULT_LABELS, pullRequest.number)
-    await gh.addIssueLabels(DEFAULT_RELEASE_LABELS, pullRequest.number)
+  const pullRequestBody = PullRequestBody.parse(mergedPullRequest.body, log)
+  if (!pullRequestBody) {
+    log.error('Could not parse pull request body as a release PR')
+    return
   }
 
-  return githubReleases
-}
+  const releaseData = pullRequestBody.releaseData[0]
 
-async function createRelease(
-  gh: GitHub,
-  release: CandidateRelease
-): Promise<CreatedRelease> {
-  const githubRelease = await gh.createRelease(release, {
-    draft: release.draft,
-    prerelease: release.prerelease
-  })
-
-  // comment on pull request
-  const comment = `:robot: Release is at ${githubRelease.url} :sunflower:`
-  await gh.commentOnIssue(comment, release.pullRequest.number)
+  const notes = releaseData?.notes
+  if (notes === undefined) {
+    log.warn('Failed to find release notes')
+  }
 
   return {
-    ...githubRelease,
-    path: release.path,
-    version: release.tag.version.toString(),
-    major: release.tag.version.major,
-    minor: release.tag.version.minor,
-    patch: release.tag.version.patch
+    name: `v${version.toString()}`,
+    notes: notes || ''
   }
-}
-
-interface CreatedRelease extends GitHubRelease {
-  id: number
-  path: string
-  version: string
-  major: number
-  minor: number
-  patch: number
 }
