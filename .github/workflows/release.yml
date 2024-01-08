@@ -39,7 +39,7 @@ jobs:
         command: "prepare-release"
   release:
     needs:
-    - "prepareReleases"
+      - "prepareReleases"
     runs-on: "ubuntu-latest"
     steps:
     - name: "download build artifacts"

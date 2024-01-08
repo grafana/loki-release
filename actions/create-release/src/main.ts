@@ -34,7 +34,7 @@ export async function run(): Promise<void> {
       setOutput('pr', JSON.stringify(pr))
     } else if (command === 'prepare-release') {
       const releases = await prepareReleases(baseBranch)
-      //TODO: change the ouput to be what I care about
+      //TODO: change the output to be what I care about
       //set that set that output
       //use native actions to actually create the release (get get the files from GCS)
       setOutput('releases', JSON.stringify(releases))
