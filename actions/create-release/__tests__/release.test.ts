@@ -1,5 +1,5 @@
 import { createSandbox, SinonStub } from 'sinon'
-import { createReleasePR, prepareReleases } from '../src/release'
+import { createReleasePR, prepareRelease } from '../src/release'
 
 import { GitHubReleaser } from '../src/github'
 import * as github from '../src/github'
@@ -404,10 +404,10 @@ describe('release', () => {
         }
       })
 
-      const releases = await prepareReleases('main')
-      expect(releases.length).toBe(1)
-      expect(releases[0].name).toEqual('v1.3.2')
-      expect(releases[0].notes).toEqual(defaultPRNotes)
+      const release = await prepareRelease('main')
+      expect(release).toBeDefined()
+      expect(release?.name).toEqual('v1.3.2')
+      expect(release?.notes).toEqual(defaultPRNotes)
     })
   })
 })

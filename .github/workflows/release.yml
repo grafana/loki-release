@@ -1,9 +1,7 @@
 concurrency:
   group: "create-release-${{ github.sha }}"
 jobs:
-  prepareReleases:
-    outputs:
-      releases: "${{steps.prepare.outputs.releases}}"
+  release:
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull loki code"
@@ -37,30 +35,21 @@ jobs:
       with:
         baseBranch: "main"
         command: "prepare-release"
-  release:
-    needs:
-    - "prepareReleases"
-    runs-on: "ubuntu-latest"
-    steps:
     - name: "download build artifacts"
       run: |
-        mkdir -p dist/${{ matrix.release.sha }}}
-        gsutil cp gs://loki-build-artifacts/${{ matrix.release.sha }}/dist.tar.gz .
-        tar -xzf dist.tar.gz dist/${{ matrix.release.sha }}
+        gsutil cp gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist.tar.gz .
+        tar -xzf dist.tar.gz dist
       shell: "bash"
       working-directory: "release"
     - name: "create release"
       uses: "softprops/action-gh-release@v1"
       with:
-        body: "${{ matrix.release.notes }}"
-        files: "dist/${{ matrix.release.sha }}/*"
-        name: "${{ matrix.release.name }}"
-        tag_name: "${{ matrix.release.name }}"
-        target_commitish: "${{ matrix.release.sha }}"
-    strategy:
-      fail-fast: true
-      matrix:
-        release: "${{fromJson(needs.prepareReleases.outputs.releases)}}"
+        body: "${{ steps.prepare.outputs.notes }}"
+        fail_on_unmatched_files: true
+        files: "dist/*"
+        name: "${{ steps.prepare.outputs.name }}"
+        tag_name: "${{ steps.prepare.outputs.name }}"
+        target_commitish: "${{ steps.prepare.outputs.sha }}"
 name: "create release"
 "on":
   workflow_call:

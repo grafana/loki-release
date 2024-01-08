@@ -38,7 +38,7 @@ local releaseStep = common.releaseStep;
       }),
     ]),
 
-  prepareReleases:
+  release:
     job.new()
     + job.withSteps([
       common.fetchLokiRepo,
@@ -62,35 +62,19 @@ local releaseStep = common.releaseStep;
       + step.withEnv({
         ACTIONS_STEP_DEBUG: 'true',
       }),
-    ])
-    + job.withOutputs({
-      releases: '${{steps.prepare.outputs.releases}}',
-    }),
-
-  release:
-    job.new()
-    + job.withNeeds(['prepareReleases'])
-    + job.withStrategy({
-      'fail-fast': true,
-      matrix: {
-        release: '${{fromJson(needs.prepareReleases.outputs.releases)}}',
-      },
-    })
-    + job.withSteps([
       releaseStep('download build artifacts')
       + step.withRun(|||
-        mkdir -p dist/${{ matrix.release.sha }}}
-        gsutil cp gs://loki-build-artifacts/${{ matrix.release.sha }}/dist.tar.gz .
-        tar -xzf dist.tar.gz dist/${{ matrix.release.sha }}
+        gsutil cp gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist.tar.gz .
+        tar -xzf dist.tar.gz dist
       |||),
-
       step.new('create release', 'softprops/action-gh-release@v1')
       + step.with({
-        name: '${{ matrix.release.name }}',
-        tag_name: '${{ matrix.release.name }}',
-        body: '${{ matrix.release.notes }}',
-        target_commitish: '${{ matrix.release.sha }}',
-        files: 'dist/${{ matrix.release.sha }}/*',
+        name: '${{ steps.prepare.outputs.name }}',
+        tag_name: '${{ steps.prepare.outputs.name }}',
+        body: '${{ steps.prepare.outputs.notes }}',
+        target_commitish: '${{ steps.prepare.outputs.sha }}',
+        files: 'dist/*',
+        fail_on_unmatched_files: true,
       }),
     ]),
 }

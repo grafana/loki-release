@@ -6,7 +6,7 @@ import {
 import { Version } from 'release-please/build/src/version'
 
 import { PullRequest } from 'release-please/build/src/pull-request'
-import { GitHubActionsLogger, logger } from './util'
+import { GitHubActionsLogger, logger, suppressErrors } from './util'
 import { RELEASE_CONFIG_PATH } from './constants'
 import { Logger } from 'release-please/build/src/util/logger'
 import { Base64 } from 'js-base64'
@@ -110,10 +110,10 @@ export async function createReleasePR(
   return resultPullRequest
 }
 
-export async function prepareReleases(
+export async function prepareRelease(
   baseBranch: string,
   log: Logger = new GitHubActionsLogger()
-): Promise<ReleaseMeta[]> {
+): Promise<ReleaseMeta | undefined> {
   const gh = await createGitHubInstance(baseBranch)
   const gitHubReleaser = createGitHubReleaser(gh, log)
   const mergedReleasePRs =
@@ -161,7 +161,7 @@ export async function prepareReleases(
     const branchConfig = releaseConfig[releaseBranch]
     const shaToRelease = branchConfig.releases[version.toString()]
 
-    const release = await prepareRelease(pullRequest, version)
+    const release = await prepareSingleRelease(pullRequest, version)
     log.info(`release: ${release}`)
 
     if (release !== undefined) {
@@ -173,7 +173,17 @@ export async function prepareReleases(
     }
   }
 
-  return candidateReleases
+  if (candidateReleases.length === 0) {
+    return undefined
+  }
+
+  if (candidateReleases.length > 1) {
+    log.warn(
+      'More than one release candidate found, only releasing the first one. Rerun job to release the next.'
+    )
+  }
+
+  return candidateReleases[0]
 }
 
 type ReleaseMeta = {
@@ -182,7 +192,7 @@ type ReleaseMeta = {
   sha?: string | undefined
 }
 
-async function prepareRelease(
+async function prepareSingleRelease(
   mergedPullRequest: PullRequest,
   version: Version
 ): Promise<ReleaseMeta | undefined> {
@@ -192,7 +202,10 @@ async function prepareRelease(
     return
   }
 
-  const pullRequestBody = PullRequestBody.parse(mergedPullRequest.body, log)
+  const pullRequestBody = PullRequestBody.parse(
+    mergedPullRequest.body,
+    suppressErrors(log)
+  )
   if (!pullRequestBody) {
     log.error('Could not parse pull request body as a release PR')
     return
