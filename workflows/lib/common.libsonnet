@@ -38,6 +38,9 @@
     withNeeds: function(needs) {
       needs: needs,
     },
+    withOutputs: function(outputs) {
+      outputs: outputs,
+    },
   },
 
   lokiStep: function(name, uses=null) $.step.new(name, uses) +

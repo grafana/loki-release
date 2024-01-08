@@ -42,6 +42,8 @@ std.manifestYamlDoc({
     group: 'create-release-${{ github.sha }}',
   },
   jobs: {
+    prepareReleases: release.prepareReleases,
+    // release has a dependency on prepareReleases, so it must be named prepareReleases
     release: release.release,
   },
 }, false, false)

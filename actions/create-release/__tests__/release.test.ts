@@ -1,12 +1,15 @@
-import sinon from 'sinon'
-import { createReleasePR } from '../src/release'
+import { createSandbox, SinonStub } from 'sinon'
+import { createReleasePR, prepareReleases } from '../src/release'
 
 import { GitHubReleaser } from '../src/github'
 import * as github from '../src/github'
-import { releaseBranchName } from '../src/pull-request'
+import {
+  RELEASE_PLEASE,
+  releaseBranchNameFromVersion
+} from '../src/pull-request'
 
 import { BranchName } from 'release-please/build/src/util/branch-name'
-import { DEFAULT_LABELS } from '../src/constants'
+import { DEFAULT_LABELS, RELEASE_CONFIG_PATH } from '../src/constants'
 import { GitHub } from 'release-please/build/src/github'
 import { PullRequest } from 'release-please/build/src/pull-request'
 import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
@@ -15,22 +18,26 @@ import { PullRequestTitle } from 'release-please/build/src/util/pull-request-tit
 import { ReleasePullRequest } from 'release-please/build/src/release-pull-request'
 import { Version } from 'release-please/build/src/version'
 import { NoOpLogger, mockGitHub } from './helpers'
+import { Octokit } from '@octokit/rest'
+import { Base64 } from 'js-base64'
+import { DefaultChangelogNotes } from 'release-please/build/src/changelog-notes/default'
+import { parseConventionalCommits } from 'release-please/build/src/commit'
 
-const sandbox = sinon.createSandbox()
-let getFileJson: sinon.SinonStub
-let createPullRequest: sinon.SinonStub
-let updatePullRequest: sinon.SinonStub
-let buildCandidatePR: sinon.SinonStub
-let findOpenReleasePullRequests: sinon.SinonStub
-let findMergedReleasePullRequests: sinon.SinonStub
-let getFileJsonSpy: sinon.SinonStub
-let buildCandidatePRSpy: sinon.SinonStub
-let findOpenReleasePullRequestsSpy: sinon.SinonStub
-let findMergedReleasePullRequestsSpy: sinon.SinonStub
-let createPullRequestSpy: sinon.SinonStub
-let updatePullRequestSpy: sinon.SinonStub
+const sandbox = createSandbox()
+let getFileJson: SinonStub
+let createPullRequest: SinonStub
+let updatePullRequest: SinonStub
+let buildCandidatePR: SinonStub
+let findOpenReleasePullRequests: SinonStub
+let findMergedReleasePullRequests: SinonStub
+let getFileJsonSpy: SinonStub
+let buildCandidatePRSpy: SinonStub
+let createPullRequestSpy: SinonStub
+let updatePullRequestSpy: SinonStub
+let getContent: SinonStub
 
 let fakeGitHub: GitHub
+let fakeOctokit: Octokit
 let gitHubReleaser: GitHubReleaser
 
 const fakePullRequestOverflowHandler = {
@@ -43,26 +50,55 @@ const fakePullRequestOverflowHandler = {
 } as PullRequestOverflowHandler
 
 const defaultNextVersion = Version.parse('1.3.2')
-const defaultPRBody = new PullRequestBody([
+
+const commits = parseConventionalCommits([
+  // This feature will be release in 1.3.2
   {
-    version: defaultNextVersion,
-    notes: 'release notes'
+    sha: 'xzy123',
+    message: 'feat(loki): some cool new feature',
+    files: []
+  },
+  // A bug fix in 1.3.2
+  {
+    sha: 'abc123',
+    message: 'fixed: a bug fixed in 1.3.1',
+    files: []
+  },
+
+  // This commit updates the release notes, and was backported
+  // from the release commit that actually tagged abc123 as v1.3.1
+  {
+    sha: 'abc567',
+    message: 'chore: release 1.3.1',
+    files: [],
+    pullRequest: {
+      headBranchName: 'release-please/branches/release-1.3.x',
+      baseBranchName: 'release-1.3.x',
+      number: 123,
+      title: 'chore: release 1.3.1',
+      body: '',
+      labels: [],
+      files: []
+    }
+  },
+
+  // This commit was release as 1.3.1
+  {
+    sha: 'def123',
+    message: 'feat: this was released in 1.3.1',
+    files: []
   }
 ])
 
-const defaultCreatedPR = {
-  headBranchName: 'foo',
-  baseBranchName: 'main',
-  number: 42,
-  title: PullRequestTitle.ofVersion(defaultNextVersion).toString(),
-  body: defaultPRBody.toString(),
-  labels: [],
-  files: []
-} as PullRequest
+let defaultPRNotes: string
+let defaultPRBody: PullRequestBody
+let defaultPRTitle: string
+let defaultCreatedPR: PullRequest
 
 describe('release', () => {
   beforeEach(async () => {
     fakeGitHub = await mockGitHub()
+
     gitHubReleaser = new GitHubReleaser(
       fakeGitHub,
       new NoOpLogger(),
@@ -85,6 +121,16 @@ describe('release', () => {
     createPullRequest = sandbox.stub(fakeGitHub, 'createPullRequest')
     updatePullRequest = sandbox.stub(fakeGitHub, 'updatePullRequest')
 
+    const fakeRepos = {
+      getContent: () => {}
+    }
+    fakeOctokit = {
+      repos: fakeRepos
+    } as unknown as Octokit
+    sandbox.stub(github, 'createOctokitInstance').returns(fakeOctokit)
+
+    getContent = sandbox.stub(fakeRepos, 'getContent')
+
     buildCandidatePR = sandbox.stub(gitHubReleaser, 'buildCandidatePR')
 
     getFileJsonSpy = getFileJson.resolves({
@@ -98,21 +144,44 @@ describe('release', () => {
       }
     })
 
+    defaultPRNotes = await new DefaultChangelogNotes().buildNotes(commits, {
+      owner: 'fake-owner',
+      repository: 'fake-repo',
+      targetBranch: 'main',
+      version: defaultNextVersion.toString(),
+      previousTag: '1.3.1',
+      currentTag: '1.3.2',
+      commits
+    })
+
+    defaultPRBody = new PullRequestBody([
+      {
+        version: defaultNextVersion,
+        notes: defaultPRNotes
+      }
+    ])
+
+    defaultPRTitle = PullRequestTitle.ofVersion(defaultNextVersion).toString()
+
+    defaultCreatedPR = {
+      headBranchName: 'foo',
+      baseBranchName: 'main',
+      number: 42,
+      title: defaultPRTitle,
+      body: defaultPRBody.toString(),
+      labels: [],
+      files: []
+    } as PullRequest
+
     buildCandidatePRSpy = buildCandidatePR.resolves({
       title: PullRequestTitle.ofVersion(defaultNextVersion),
       body: defaultPRBody,
       labels: DEFAULT_LABELS,
-      headRefName: releaseBranchName(defaultNextVersion).toString(),
+      headRefName: releaseBranchNameFromVersion(defaultNextVersion).toString(),
       version: defaultNextVersion,
       draft: false,
       updates: []
     })
-
-    findOpenReleasePullRequestsSpy = findOpenReleasePullRequests.resolves([])
-
-    findMergedReleasePullRequestsSpy = findMergedReleasePullRequests.resolves(
-      []
-    )
 
     createPullRequestSpy = createPullRequest.resolves(defaultCreatedPR)
     updatePullRequestSpy = updatePullRequest.resolves(defaultCreatedPR)
@@ -137,7 +206,7 @@ describe('release', () => {
       })
 
       const pr = createReleasePR('main', 'release-1.3.x', 'abc123')
-      expect(pr).rejects.toThrow(
+      await expect(pr).rejects.toThrow(
         'release.json does not contain a config for branch release-1.3.x'
       )
     })
@@ -211,13 +280,17 @@ describe('release', () => {
     //TODO: the logic of testing the underlying github gets called correctly should
     //be move into the github releaser tests
     it('creates a new release PR if there are no open release PRs', async () => {
+      findOpenReleasePullRequests.resolves([])
+      findMergedReleasePullRequests.resolves([])
+
       await createReleasePR('main', 'release-1.3.x', 'abc123')
 
       expect(createPullRequestSpy.calledOnce).toBe(true)
 
       const actual = createPullRequestSpy.getCall(0).args
       expect(actual[0]).toEqual({
-        headBranchName: releaseBranchName(defaultNextVersion).toString(),
+        headBranchName:
+          releaseBranchNameFromVersion(defaultNextVersion).toString(),
         baseBranchName: 'main',
         body: defaultPRBody.toString(),
         title: PullRequestTitle.ofVersion(defaultNextVersion).toString(),
@@ -242,7 +315,8 @@ describe('release', () => {
     it('updates an existing release PR if one exists', async () => {
       findOpenReleasePullRequests.resolves([
         {
-          headBranchName: releaseBranchName(defaultNextVersion).toString(),
+          headBranchName:
+            releaseBranchNameFromVersion(defaultNextVersion).toString(),
           baseBranchName: 'main',
           number: 42,
           title: PullRequestTitle.ofVersion(defaultNextVersion).toString(),
@@ -251,6 +325,7 @@ describe('release', () => {
           files: []
         }
       ])
+      findMergedReleasePullRequests.resolves([])
 
       await createReleasePR('main', 'release-1.3.x', 'abc123')
 
@@ -262,7 +337,8 @@ describe('release', () => {
         title: PullRequestTitle.ofVersion(defaultNextVersion),
         body: defaultPRBody,
         labels: DEFAULT_LABELS,
-        headRefName: releaseBranchName(defaultNextVersion).toString(),
+        headRefName:
+          releaseBranchNameFromVersion(defaultNextVersion).toString(),
         version: defaultNextVersion,
         draft: false,
         updates: []
@@ -278,7 +354,8 @@ describe('release', () => {
     it('does not update existing PR if there are no release note changes', async () => {
       findOpenReleasePullRequests.resolves([
         {
-          headBranchName: releaseBranchName(defaultNextVersion).toString(),
+          headBranchName:
+            releaseBranchNameFromVersion(defaultNextVersion).toString(),
           baseBranchName: 'main',
           number: 42,
           title: PullRequestTitle.ofVersion(defaultNextVersion).toString(),
@@ -287,9 +364,50 @@ describe('release', () => {
           files: []
         }
       ])
+      findMergedReleasePullRequests.resolves([])
 
       await createReleasePR('main', 'release-1.3.x', 'abc123')
       expect(updatePullRequestSpy.calledOnce).toBe(false)
+    })
+  })
+
+  describe('createReleases', () => {
+    it('creates a release for each merged release PR', async () => {
+      findOpenReleasePullRequests.resolves([])
+      findMergedReleasePullRequests.resolves([
+        {
+          headBranchName: `${RELEASE_PLEASE}--branches--release-1.3.2`,
+          baseBranchName: 'main',
+          sha: 'abc123',
+          number: 42,
+          title: defaultPRTitle,
+          body: defaultPRBody.toString(),
+          labels: [],
+          files: [`${RELEASE_CONFIG_PATH}`]
+        }
+      ])
+
+      getContent.resolves({
+        data: {
+          type: 'file',
+          content: Base64.encode(
+            JSON.stringify({
+              'release-1.3.x': {
+                strategy: 'always-bump-patch',
+                currentVersion: '1.3.1',
+                releases: {
+                  '1.3.2': 'abc123'
+                }
+              }
+            })
+          )
+        }
+      })
+
+      const releases = await prepareReleases('main')
+      expect(releases.length).toBe(1)
+      expect(releases[0].name).toEqual('v1.3.2')
+      expect(releases[0].notes).toEqual(defaultPRNotes)
     })
   })
 })
