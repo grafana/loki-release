@@ -38,27 +38,19 @@ std.manifestYamlDoc({
     group: 'create-release-pr-${{ github.sha }}',
   },
   jobs: {
-    // test: validate.test,
-    test: validate.test + alwaysGreen,
-    // lint: validate.lint,
-    lint: validate.lint + alwaysGreen,
-    // check: validate.check,
-    check: validate.check + alwaysGreen,
+    validateReleaseBranch: validate.validateReleaseBranch,
+
+    test: validate.test + job.withNeeds(['validateReleaseBranch']),
+    lint: validate.lint + job.withNeeds(['validateReleaseBranch']),
+    check: validate.check + job.withNeeds(['validateReleaseBranch']),
 
     local validationSteps = ['test', 'lint', 'check'],
-    // dist: build.dist + job.withNeeds(validationSteps),
-    dist: build.dist + job.withNeeds(validationSteps) + alwaysGreen,
+    dist: build.dist + job.withNeeds(validationSteps),
 
-    // 'loki-image': build.image('loki', 'cmd/loki')
-    //               + job.withNeeds(validationSteps),
     'loki-image': build.image('loki', 'cmd/loki')
-                  + job.withNeeds(validationSteps)
-                  + alwaysGreen,
-    // 'promtail-image': build.image('promtail', 'clients/cmd/promtail')
-    //                   + job.withNeeds(validationSteps),
+                  + job.withNeeds(validationSteps),
     'promtail-image': build.image('promtail', 'clients/cmd/promtail')
-                      + job.withNeeds(validationSteps)
-                      + alwaysGreen,
+                      + job.withNeeds(validationSteps),
 
     local buildSteps = ['dist', 'loki-image', 'promtail-image'],
     'create-release-pr': release.createReleasePR + job.withNeeds(buildSteps),

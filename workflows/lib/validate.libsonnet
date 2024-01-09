@@ -73,6 +73,22 @@ local setupValidationDeps = function(job) job {
 
 
 {
+  validateReleaseBranch: job.new() + job.withSteps([
+    common.extractBranchName,
+    step.new('validate release branch')
+    + step.withId('validate release branch')
+    + step.withRun(|||
+      if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+        cd loki
+      else
+        cd release
+      fi
+
+      jq -e '.[${{ steps.extract_branch.outputs.branch }}]' release.json ||
+        echo 'Invalid release branch: ${{ steps.extract_branch.outputs.branch }}. Make sure release.json includes an entry for this branch' && exit 1
+    |||),
+  ]),
+
   test: setupValidationDeps(
     job.new() + job.withSteps([
       lokiStep('test')

@@ -10,21 +10,7 @@ local releaseStep = common.releaseStep;
     + job.withSteps([
       common.fetchLokiRepo,
       common.fetchReleaseRepo,
-      // common.setupGo,
-      // common.setupNode,
-
-      //TODO: needs to be configurabe at workflow level
-      step.new('extract branch name')
-      + step.withId('extract_branch')
-      + step.withRun(|||
-        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
-          cd loki
-        else
-          cd release
-        fi
-
-        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      |||),
+      common.extractBranchName,
 
       step.new('create release PR', './release/actions/create-release')
       + step.withId('release-pr')
