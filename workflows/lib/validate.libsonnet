@@ -86,7 +86,7 @@ local setupValidationDeps = function(job) job {
         cd release
       fi
 
-      jq -e '.[${{ steps.extract_branch.outputs.branch }}]' release.json ||
+      jq -e '.["${{ steps.extract_branch.outputs.branch }}"]' release.json ||
         echo 'Invalid release branch: ${{ steps.extract_branch.outputs.branch }}. Make sure release.json includes an entry for ${{ steps.extract_branch.outputs.branch }}.' && exit 1
     |||),
   ]),
