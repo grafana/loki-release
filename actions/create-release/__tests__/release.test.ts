@@ -17,7 +17,7 @@ import { PullRequestOverflowHandler } from 'release-please/build/src/util/pull-r
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
 import { ReleasePullRequest } from 'release-please/build/src/release-pull-request'
 import { Version } from 'release-please/build/src/version'
-import { NoOpLogger, mockGitHub } from './helpers'
+import { NoOpLogger, mockGitHub, mockOctokit } from './helpers'
 import { Octokit } from '@octokit/rest'
 import { Base64 } from 'js-base64'
 import { DefaultChangelogNotes } from 'release-please/build/src/changelog-notes/default'
@@ -98,9 +98,11 @@ let defaultCreatedPR: PullRequest
 describe('release', () => {
   beforeEach(async () => {
     fakeGitHub = await mockGitHub()
+    fakeOctokit = mockOctokit()
 
     gitHubReleaser = new GitHubReleaser(
       fakeGitHub,
+      fakeOctokit,
       new NoOpLogger(),
       fakePullRequestOverflowHandler
     )
@@ -121,15 +123,9 @@ describe('release', () => {
     createPullRequest = sandbox.stub(fakeGitHub, 'createPullRequest')
     updatePullRequest = sandbox.stub(fakeGitHub, 'updatePullRequest')
 
-    const fakeRepos = {
-      getContent: () => {}
-    }
-    fakeOctokit = {
-      repos: fakeRepos
-    } as unknown as Octokit
     sandbox.stub(github, 'createOctokitInstance').returns(fakeOctokit)
 
-    getContent = sandbox.stub(fakeRepos, 'getContent')
+    getContent = sandbox.stub(fakeOctokit.repos, 'getContent')
 
     buildCandidatePR = sandbox.stub(gitHubReleaser, 'buildCandidatePR')
 

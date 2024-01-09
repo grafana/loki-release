@@ -3,6 +3,7 @@ import { GitHub, GitHubTag } from 'release-please/build/src/github'
 import { Logger } from 'release-please/build/src/util/logger'
 import { LogFn } from '../src/util'
 import { SinonSandbox, SinonStub } from 'sinon'
+import { Octokit } from '@octokit/rest'
 
 export async function mockGitHub(): Promise<GitHub> {
   return GitHub.create({
@@ -39,6 +40,17 @@ export function mockTags(
     }
   }
   return sandbox.stub(github, 'tagIterator').returns(fakeGenerator())
+}
+
+export function mockOctokit(): Octokit {
+  const fakeRepos = {
+    getContent: () => {},
+    getBranch: () => {}
+  }
+
+  return {
+    repos: fakeRepos
+  } as unknown as Octokit
 }
 
 export class NoOpLogger implements Logger {

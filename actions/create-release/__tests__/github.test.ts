@@ -4,11 +4,19 @@ import * as core from '@actions/core'
 
 import { GitHub } from 'release-please/build/src/github'
 import { Version } from 'release-please/build/src/version'
-import { mockGitHub, mockCommits, mockTags, NoOpLogger } from './helpers'
+import {
+  mockGitHub,
+  mockCommits,
+  mockTags,
+  NoOpLogger,
+  mockOctokit
+} from './helpers'
 import { DEFAULT_LABELS } from '../src/constants'
+import { Octokit } from '@octokit/rest'
 
 const sandbox = sinon.createSandbox()
 let gh: GitHub
+let octokit: Octokit
 let gitHubReleaser: GitHubReleaser
 
 const happyPathCommits = [
@@ -54,7 +62,8 @@ const happyPathCommits = [
 describe('gitHubReleaser', () => {
   beforeEach(async () => {
     gh = await mockGitHub()
-    gitHubReleaser = new GitHubReleaser(gh, new NoOpLogger())
+    octokit = mockOctokit()
+    gitHubReleaser = new GitHubReleaser(gh, octokit, new NoOpLogger())
   })
 
   afterEach(() => {
@@ -74,6 +83,7 @@ describe('gitHubReleaser', () => {
       const version = new Version(1, 3, 1)
       const commits = await gitHubReleaser.findCommitsSinceLastRelease(
         'release-1.3.x',
+        'main',
         version
       )
       expect(commits).toHaveLength(2)
@@ -95,9 +105,10 @@ describe('gitHubReleaser', () => {
       const version = new Version(1, 3, 1)
       const commits = gitHubReleaser.findCommitsSinceLastRelease(
         'release-1.3.x',
+        'main',
         version
       )
-      expect(commits).rejects.toThrow()
+      await expect(commits).rejects.toThrow()
     })
 
     it('returns an empty array if the no commits are found since the previous release', async () => {
@@ -126,6 +137,7 @@ describe('gitHubReleaser', () => {
       const version = new Version(1, 3, 1)
       const commits = await gitHubReleaser.findCommitsSinceLastRelease(
         'release-1.3.x',
+        'main',
         version
       )
       expect(commits).toHaveLength(0)
@@ -143,6 +155,7 @@ describe('gitHubReleaser', () => {
       const version = new Version(1, 3, 1)
       const commits = await gitHubReleaser.findCommitsSinceLastRelease(
         'release-1.3.x',
+        'main',
         version
       )
       expect(commits).toHaveLength(2)
@@ -160,10 +173,10 @@ describe('gitHubReleaser', () => {
       getInputMock.withArgs('repoUrl').returns('test-owner/test-repo')
       getInputMock.withArgs('token').returns('super-secret-token')
 
-      const gh = await createGitHubInstance('main')
+      const github = await createGitHubInstance('main')
 
-      expect(gh).toBeDefined()
-      expect(gh.repository).toEqual({
+      expect(github).toBeDefined()
+      expect(github.repository).toEqual({
         owner: 'test-owner',
         repo: 'test-repo',
         defaultBranch: 'main'

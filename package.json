@@ -75,6 +75,7 @@
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
     "@octokit/types": "^9.0.0",
+    "@octokit/openapi-types": "^9.0.0",
     "@types/jest": "^29.5.10",
     "@types/node": "^20.10.0",
     "@types/sinon": "^10.0.0",

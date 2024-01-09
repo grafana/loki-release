@@ -55,6 +55,7 @@ export interface GitHubCreateOptions {
 
 export class GitHubReleaser {
   private github: GitHub
+  private octokit: Octokit
   private logger: Logger
 
   private _pullRequestOverflowHandler: PullRequestOverflowHandler
@@ -64,10 +65,12 @@ export class GitHubReleaser {
 
   constructor(
     github: GitHub,
+    octokit: Octokit,
     logger: Logger = new GitHubActionsLogger(),
     pullRequestOverflowHandler?: PullRequestOverflowHandler
   ) {
     this.github = github
+    this.octokit = octokit
     this.logger = logger
 
     if (pullRequestOverflowHandler) {
@@ -82,6 +85,7 @@ export class GitHubReleaser {
 
   findCommitsSinceLastRelease = async (
     releaseBranch: string,
+    baseBranch: string,
     currentRelease: Version,
     commitSearchDepth = 500
   ): Promise<ConventionalCommit[]> => {
@@ -98,10 +102,31 @@ export class GitHubReleaser {
         Object.keys(allTags).length
       } tags: ${Object.keys(allTags).join(', ')}`
     )
+
     const foundTag = allTags[currentVersionTag.toString()]
+    let baseSha = foundTag?.sha
+
     if (!foundTag) {
-      throw new Error(
-        `failed to find current release tag ${currentVersionTag.toString()}`
+      // TODO: this isn't tested
+      // if we didn't find a tag for the current version, we'll assume
+      // this is the first release in this branch and compare to the
+      // base branch
+
+      const {
+        data: { commit: baseHeadRef }
+      } = await this.octokit.repos.getBranch({
+        owner: this.github.repository.owner,
+        repo: this.github.repository.repo,
+        branch: baseBranch
+      })
+
+      baseSha = baseHeadRef.sha
+      this.logger.info(
+        `looking for commits since lastest commit on ${baseBranch}(${baseSha})`
+      )
+    } else {
+      this.logger.info(
+        `looking for commits since last release ${foundTag.name}(${baseSha})`
       )
     }
 
@@ -109,15 +134,12 @@ export class GitHubReleaser {
     await (async function () {
       for await (const commit of commitGenerator) {
         commits.push(commit)
-        if (commit.sha === foundTag.sha) {
+        if (commit.sha === baseSha) {
           break
         }
       }
     })()
 
-    this.logger.info(
-      `looking for commits since last release ${foundTag.name}(${foundTag.sha})`
-    )
     const commitsSinceLastRelease = this.commitsAfterSha(commits, foundTag.sha)
     this.logger.info(
       `found ${commitsSinceLastRelease.length} commits since last release`
@@ -245,6 +267,7 @@ export class GitHubReleaser {
   ): Promise<ReleasePullRequest | undefined> => {
     const commits = await this.findCommitsSinceLastRelease(
       releaseBranch,
+      baseBranch,
       current
     )
 
@@ -434,9 +457,10 @@ export class GitHubReleaser {
 
 export function createGitHubReleaser(
   github: GitHub,
+  octokit: Octokit,
   logger: Logger = new GitHubActionsLogger()
 ): GitHubReleaser {
-  return new GitHubReleaser(github, logger)
+  return new GitHubReleaser(github, octokit, logger)
 }
 
 export async function createGitHubInstance(

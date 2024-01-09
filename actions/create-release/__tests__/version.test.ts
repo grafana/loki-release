@@ -1,12 +1,12 @@
 import * as util from '../src/util'
-import sinon from 'sinon'
+import { createSandbox } from 'sinon'
 import { Version } from 'release-please/build/src/version'
 import { nextVersion, VersionUpdater } from '../src/version'
 import { ReleaseConfig } from '../src/release'
 import { GitHub } from 'release-please/build/src/github'
 import { NoOpLogger } from './helpers'
 
-const sandbox = sinon.createSandbox()
+const sandbox = createSandbox()
 
 const fakeGithub = {
   repository: {
@@ -46,6 +46,7 @@ describe('version', () => {
     const releaseConfig: ReleaseConfig = {
       'release-1.2.x': {
         strategy: 'always-bump-patch',
+        initialVersion: '1.2.0',
         currentVersion: '1.2.2',
         releases: {
           '1.2.0': 'abc123',
@@ -55,6 +56,7 @@ describe('version', () => {
       },
       'release-1.3.x': {
         strategy: 'always-bump-patch',
+        initialVersion: '1.3.0',
         currentVersion: '1.3.1',
         releases: {
           '1.3.0': 'abc789',

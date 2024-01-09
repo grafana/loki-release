@@ -19,6 +19,7 @@ type ReleaseSha = string
 
 export interface BranchReleaseConfig {
   strategy: string
+  initialVersion: string
   currentVersion: string
   releases: Record<ReleaseVersion, ReleaseSha>
 }
@@ -56,13 +57,18 @@ export async function createReleasePR(
   log: Logger = new GitHubActionsLogger()
 ): Promise<PullRequest | undefined> {
   const gh = await createGitHubInstance(baseBranch)
-  const gitHubReleaser = createGitHubReleaser(gh, log)
+  const octokit = createOctokitInstance(baseBranch)
+  const gitHubReleaser = createGitHubReleaser(gh, octokit, log)
 
   log.info(
     `preparing release pr for sha ${shaToRelease} from ${releaseBranch} into ${baseBranch}`
   )
   const releaseCfg = await getBranchReleaseConfig(gh, releaseBranch)
-  const currentVersion = Version.parse(releaseCfg.currentVersion)
+
+  const currentVersion =
+    releaseCfg.currentVersion != null
+      ? Version.parse(releaseCfg.currentVersion)
+      : Version.parse(releaseCfg.initialVersion)
 
   log.debug(`building candidate PR`)
   const pr = await gitHubReleaser.buildCandidatePR(
@@ -114,7 +120,8 @@ export async function prepareRelease(
   log: Logger = new GitHubActionsLogger()
 ): Promise<ReleaseMeta | undefined> {
   const gh = await createGitHubInstance(baseBranch)
-  const gitHubReleaser = createGitHubReleaser(gh, log)
+  const octokit = createOctokitInstance(baseBranch)
+  const gitHubReleaser = createGitHubReleaser(gh, octokit, log)
   const mergedReleasePRs =
     await gitHubReleaser.findMergedReleasePullRequests(baseBranch)
 
@@ -127,9 +134,6 @@ export async function prepareRelease(
     }
 
     const { owner, repo } = gh.repository
-
-    const octokit = createOctokitInstance(baseBranch)
-
     const { data } = await octokit.repos.getContent({
       owner,
       repo,
