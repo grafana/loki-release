@@ -491,6 +491,17 @@ jobs:
   validateReleaseBranch:
     runs-on: "ubuntu-latest"
     steps:
+    - name: "pull loki code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "loki"
+        ref: "prepare-release-please"
+        repository: "grafana/loki"
+    - name: "pull release code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "release"
+        repository: "grafana/loki-release"
     - id: "extract_branch"
       name: "extract branch name"
       run: |

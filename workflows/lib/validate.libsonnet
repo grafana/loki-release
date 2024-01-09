@@ -74,6 +74,8 @@ local setupValidationDeps = function(job) job {
 
 {
   validateReleaseBranch: job.new() + job.withSteps([
+    common.fetchLokiRepo,
+    common.fetchReleaseRepo,
     common.extractBranchName,
     step.new('validate-release-branch')
     + step.withId('validate-release-branch')
