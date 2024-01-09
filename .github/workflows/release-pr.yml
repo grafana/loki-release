@@ -502,8 +502,8 @@ jobs:
         
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
-    - id: "validate release branch"
-      name: "validate release branch"
+    - id: "validate-release-branch"
+      name: "validate-release-branch"
       run: |
         if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
           cd loki

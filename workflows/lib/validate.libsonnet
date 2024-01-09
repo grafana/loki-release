@@ -75,8 +75,8 @@ local setupValidationDeps = function(job) job {
 {
   validateReleaseBranch: job.new() + job.withSteps([
     common.extractBranchName,
-    step.new('validate release branch')
-    + step.withId('validate release branch')
+    step.new('validate-release-branch')
+    + step.withId('validate-release-branch')
     + step.withRun(|||
       if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
         cd loki
