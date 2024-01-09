@@ -27,12 +27,11 @@ export type ReleaseConfig = Record<string, BranchReleaseConfig>
 
 async function getBranchReleaseConfig(
   gh: GitHub,
-  baseBranch: string,
   releaseBranch: string
 ): Promise<BranchReleaseConfig> {
   const releaseConfig = await gh.getFileJson<ReleaseConfig>(
     RELEASE_CONFIG_PATH,
-    baseBranch
+    releaseBranch
   )
 
   const branchConfig = releaseConfig[releaseBranch]
@@ -62,7 +61,7 @@ export async function createReleasePR(
   log.info(
     `preparing release pr for sha ${shaToRelease} from ${releaseBranch} into ${baseBranch}`
   )
-  const releaseCfg = await getBranchReleaseConfig(gh, baseBranch, releaseBranch)
+  const releaseCfg = await getBranchReleaseConfig(gh, releaseBranch)
   const currentVersion = Version.parse(releaseCfg.currentVersion)
 
   log.debug(`building candidate PR`)

@@ -19,6 +19,7 @@ local lokiStep = common.lokiStep;
     + job.withSteps([
       common.fetchLokiRepo,
       common.setupGo,
+      common.googleAuth,
       step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
       step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
       lokiStep('parse image metadata')
@@ -40,10 +41,10 @@ local lokiStep = common.lokiStep;
         tags: 'grafana/%s:${{ steps.parse-metadata.outputs.version }}' % name,
         outputs: 'type=docker,dest=loki/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
-      step.new('upload artifacts', 'actions/upload-artifact@v3')
+      step.new('upload image artifact', 'google-github-actions/upload-cloud-storage@v1')
       + step.with({
-        name: '%s-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}' % name,
         path: 'loki/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        destination: 'loki-build-artifacts/${{ github.sha }}/images',
       }),
     ]),
 
@@ -70,15 +71,10 @@ local lokiStep = common.lokiStep;
           lokiStep('build artifacts')
           + step.withRun('make BUILD_IN_CONTAINER=false SKIP_ARM=true dist'),
 
-          lokiStep('pacakge artifacts')
-          + step.withRun(|||
-            tar -czf dist.tar.gz dist
-          |||),
-
           step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v1')
           + step.with({
-            path: 'loki/dist.tar.gz',
-            destination: 'loki-build-artifacts/${{ github.sha }}/dist.tar.gz',
+            path: 'loki/dist',
+            destination: 'loki-build-artifacts/${{ github.sha }}',
           })
           + step.withEnv({
             ACTIONS_STEP_DEBUG: 'true',
