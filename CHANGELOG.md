@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.4.1](https://github.com/grafana/loki-release/compare/v1.4.0...v1.4.1) (2024-01-11)
+
+
+### Features
+
+* add release-1.4.x config ([8ad11b5](https://github.com/grafana/loki-release/commit/8ad11b564ba5271eec54cc98029c7b2f3019978e))
+* handle first version of release branch ([88270f1](https://github.com/grafana/loki-release/commit/88270f1a28c3c09c93a2ef33658e4e64f3df45e7))
+* use release branch for release config ([7cefd17](https://github.com/grafana/loki-release/commit/7cefd1754778650bb97c4a2af888e0584424736d))
+* validate release branch release.json ([15170d9](https://github.com/grafana/loki-release/commit/15170d973960efc5f61cfc7db2ea5a4a6abb48ae))
+
+
+### Bug Fixes
+
+* bash logic ([9673296](https://github.com/grafana/loki-release/commit/9673296216774f85438d37bb1b23ab775dd7f2d1))
+* fix step name ([304fd36](https://github.com/grafana/loki-release/commit/304fd36cec61d13d597a3743fa6ecc431f7f91e3))
+* jq syntax ([673cfde](https://github.com/grafana/loki-release/commit/673cfde799ebe41441416c0f7f274753fb52beec))
+* no tag for first release ([c889af2](https://github.com/grafana/loki-release/commit/c889af2489a8c495a2d9a763ea15868965e56e57))
+* pull code ([f430468](https://github.com/grafana/loki-release/commit/f430468914d05e23349966b68152d180e22c7fae))
+
 ## [1.3.2](https://github.com/grafana/loki-release/compare/v1.3.1...v1.3.2) (2023-12-28)
 
 
