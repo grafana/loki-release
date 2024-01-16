@@ -6,6 +6,7 @@ import { Updater } from 'release-please/build/src/update'
 import { UpdateOptions } from 'release-please/build/src/updaters/default'
 import { ReleaseConfig } from './release'
 import { logger } from './util'
+import { Logger } from 'release-please'
 
 export function nextVersion(
   currentVersion: Version,
@@ -74,9 +75,16 @@ export function previousVersion(
 export class VersionUpdater implements Updater {
   version: Version
   releaseBranch: string
+  versioningStrategy: string
   sha: string
-  constructor(releaseBranch: string, sha: string, options: UpdateOptions) {
+  constructor(
+    releaseBranch: string,
+    sha: string,
+    versioningStrategy: string,
+    options: UpdateOptions
+  ) {
     this.version = options.version
+    this.versioningStrategy = versioningStrategy
     this.releaseBranch = releaseBranch
     this.sha = sha
   }
@@ -86,11 +94,28 @@ export class VersionUpdater implements Updater {
    * @param {string} content The initial content
    * @returns {string} The updated content
    */
-  updateContent(content: string): string {
-    const config: ReleaseConfig = JSON.parse(content)
+  updateContent(content: string | undefined, _logger?: Logger): string {
+    const log = _logger || logger()
+    const config: ReleaseConfig = content
+      ? JSON.parse(content)
+      : {
+          [this.releaseBranch]: {
+            strategy: this.versioningStrategy,
+            initialVersion: this.version.toString(),
+            currentVersion: this.version.toString(),
+            releases: {
+              [this.version.toString()]: this.sha
+            }
+          }
+        }
+
     const branchConfig = config[this.releaseBranch]
     if (!branchConfig) {
-      return content
+      const newContent = JSON.stringify(config, null, 2)
+      log.debug(
+        `unable to find branch config for ${branchConfig}, using default config ${newContent}`
+      )
+      return newContent
     }
 
     branchConfig.currentVersion = this.version.toString()
@@ -98,6 +123,8 @@ export class VersionUpdater implements Updater {
 
     config[this.releaseBranch] = branchConfig
 
-    return JSON.stringify(config, null, 2)
+    const newContent = JSON.stringify(config, null, 2)
+    log.debug(`updated release.json to: ${newContent}`)
+    return newContent
   }
 }

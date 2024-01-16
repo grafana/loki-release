@@ -105,9 +105,14 @@ describe('version', () => {
     }
     describe('updateContent', () => {
       it('does not change the content if branch config does not exist', () => {
-        const updater = new VersionUpdater('release-2.1.x', 'shaToRelease', {
-          version: new Version(1, 3, 2)
-        })
+        const updater = new VersionUpdater(
+          'release-2.1.x',
+          'shaToRelease',
+          'always-bump-patch',
+          {
+            version: new Version(1, 3, 2)
+          }
+        )
 
         const newContent = updater.updateContent(
           JSON.stringify(releaseConfig, null, 2)
@@ -118,9 +123,14 @@ describe('version', () => {
       })
 
       it('should update the release file with the new version, and the sha of the version to release', () => {
-        const updater = new VersionUpdater('release-1.3.x', 'shaToRelease', {
-          version: new Version(1, 3, 2)
-        })
+        const updater = new VersionUpdater(
+          'release-1.3.x',
+          'shaToRelease',
+          'always-bump-patch',
+          {
+            version: new Version(1, 3, 2)
+          }
+        )
 
         const newContent = updater.updateContent(
           JSON.stringify(releaseConfig, null, 2)
@@ -129,6 +139,29 @@ describe('version', () => {
         const updatedConfig: ReleaseConfig = JSON.parse(newContent)
         expect(updatedConfig['release-1.3.x'].currentVersion).toEqual('1.3.2')
         expect(updatedConfig['release-1.3.x'].releases['1.3.2']).toEqual(
+          'shaToRelease'
+        )
+      })
+
+      it('creates an entry for the release branch if one does not exist', () => {
+        const updater = new VersionUpdater(
+          'release-1.4.x',
+          'shaToRelease',
+          'always-bump-minor',
+          {
+            version: new Version(1, 4, 0)
+          }
+        )
+
+        const newContent = updater.updateContent(undefined)
+
+        const updatedConfig: ReleaseConfig = JSON.parse(newContent)
+        expect(updatedConfig['release-1.4.x'].strategy).toEqual(
+          'always-bump-minor'
+        )
+        expect(updatedConfig['release-1.4.x'].initialVersion).toEqual('1.4.0')
+        expect(updatedConfig['release-1.4.x'].currentVersion).toEqual('1.4.0')
+        expect(updatedConfig['release-1.4.x'].releases['1.4.0']).toEqual(
           'shaToRelease'
         )
       })

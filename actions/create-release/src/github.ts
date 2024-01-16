@@ -317,13 +317,18 @@ export class GitHubReleaser {
     ])
 
     this.logger.debug('building updates')
-    const updates = await this.buildUpdates(releaseBranch, shaToRelease, {
-      changelogEntry: releaseNotesBody,
-      newVersion: version,
-      versionsMap: {} as VersionsMap,
-      latestVersion: current,
-      commits
-    })
+    const updates = await this.buildUpdates(
+      releaseBranch,
+      shaToRelease,
+      versioningStrategy,
+      {
+        changelogEntry: releaseNotesBody,
+        newVersion: version,
+        versionsMap: {} as VersionsMap,
+        latestVersion: current,
+        commits
+      }
+    )
 
     return {
       title: pullRequestTitle,
@@ -340,6 +345,7 @@ export class GitHubReleaser {
   private buildUpdates = async (
     releaseBranch: string,
     shaToRelease: string,
+    versioningStrategy: string,
     options: BuildUpdatesOptions
   ): Promise<Update[]> => {
     const updates: Update[] = []
@@ -356,10 +362,15 @@ export class GitHubReleaser {
 
     updates.push({
       path: this.addPath(RELEASE_CONFIG_PATH),
-      createIfMissing: false,
-      updater: new VersionUpdater(releaseBranch, shaToRelease, {
-        version
-      })
+      createIfMissing: true,
+      updater: new VersionUpdater(
+        releaseBranch,
+        shaToRelease,
+        versioningStrategy,
+        {
+          version
+        }
+      )
     })
 
     return updates
