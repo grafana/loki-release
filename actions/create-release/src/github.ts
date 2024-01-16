@@ -22,7 +22,7 @@ import {
 } from './constants'
 import { GitHubActionsLogger } from './util'
 import { ReleasePullRequest } from 'release-please/build/src/release-pull-request'
-import { VersionUpdater, nextVersion } from './version'
+import { VersionUpdater, nextVersion, previousVersion } from './version'
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
 import { releaseBranchNameFromVersion } from './pull-request'
 import { DefaultChangelogNotes } from 'release-please/build/src/changelog-notes/default'
@@ -86,7 +86,8 @@ export class GitHubReleaser {
   findCommitsSinceLastRelease = async (
     releaseBranch: string,
     baseBranch: string,
-    currentRelease: Version,
+    lastRelease: Version,
+    tags: Record<string, GitHubTag>,
     commitSearchDepth = 500
   ): Promise<ConventionalCommit[]> => {
     const commitGenerator = this.github.mergeCommitIterator(releaseBranch, {
@@ -94,24 +95,17 @@ export class GitHubReleaser {
       backfillFiles: true
     })
 
-    const allTags = await this.getAllTags()
-
-    const currentVersionTag = new TagName(currentRelease)
+    const latestVersionTag = new TagName(lastRelease)
     this.logger.debug(
-      `looking for tag ${currentVersionTag.toString()} in ${
-        Object.keys(allTags).length
-      } tags: ${Object.keys(allTags).join(', ')}`
+      `looking for tag ${latestVersionTag.toString()} in ${
+        Object.keys(tags).length
+      } tags: ${Object.keys(tags).join(', ')}`
     )
 
-    const foundTag = allTags[currentVersionTag.toString()]
+    const foundTag = tags[latestVersionTag.toString()]
     let baseSha = foundTag?.sha
 
     if (!foundTag) {
-      // TODO: this isn't tested
-      // if we didn't find a tag for the current version, we'll assume
-      // this is the first release in this branch and compare to the
-      // base branch
-
       const {
         data: { commit: baseHeadRef }
       } = await this.octokit.repos.getBranch({
@@ -256,6 +250,8 @@ export class GitHubReleaser {
    * @param {string} releaseBranch The branch to create the release PR from
    * @param {Version} current The latest released version for this branch
    * @param {string} versioningStrategy The versioning strategy for this release branch
+   * @param {string} shaToRelease The sha of the commit to release
+   * @param {boolean} bumpVersion Whether or not to bump the version. Should be false when releasing the initial version for a branch (default: true)
    * @returns {Promise<ReleasePullRequest | undefined>} Resolves to a PullRequestRequest when there are commit to build a release from, otherwise undefined
    */
   buildCandidatePR = async (
@@ -263,12 +259,23 @@ export class GitHubReleaser {
     releaseBranch: string,
     current: Version,
     versioningStrategy: string,
-    shaToRelease: string
+    shaToRelease: string,
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types
+    bumpVersion: boolean = true
   ): Promise<ReleasePullRequest | undefined> => {
+    const allTags = await this.getAllTags()
+
+    let version = current
+    let previous = current
+    if (!bumpVersion) {
+      previous = previousVersion(current, allTags)
+    }
+
     const commits = await this.findCommitsSinceLastRelease(
       releaseBranch,
       baseBranch,
-      current
+      previous,
+      allTags
     )
 
     if (!commits || commits.length === 0) {
@@ -276,24 +283,27 @@ export class GitHubReleaser {
       return undefined
     }
 
-    const next = nextVersion(current, versioningStrategy, commits, this.github)
+    if (bumpVersion) {
+      version = nextVersion(current, versioningStrategy, commits, this.github)
+    }
+
     this.logger.info(
-      `building candidate PR for next version: ${next.toString()}`
+      `building candidate PR for next version: ${version.toString()}`
     )
 
-    const pullRequestTitle = PullRequestTitle.ofVersion(next)
-    const branchName = releaseBranchNameFromVersion(next)
+    const pullRequestTitle = PullRequestTitle.ofVersion(version)
+    const branchName = releaseBranchNameFromVersion(version)
     const changelogNotes = new DefaultChangelogNotes()
 
     const { owner, repo } = this.github.repository
 
-    const currentVersionTag = new TagName(current)
-    const nextVersionTag = new TagName(next)
+    const previousVersionTag = new TagName(previous)
+    const nextVersionTag = new TagName(version)
     const releaseNotesBody = await changelogNotes.buildNotes(commits, {
       owner,
       repository: repo,
-      version: next.toString(),
-      previousTag: currentVersionTag.toString(),
+      version: version.toString(),
+      previousTag: previousVersionTag.toString(),
       currentTag: nextVersionTag.toString(),
       targetBranch: baseBranch,
       commits
@@ -301,7 +311,7 @@ export class GitHubReleaser {
 
     const pullRequestBody = new PullRequestBody([
       {
-        version: next,
+        version,
         notes: releaseNotesBody
       }
     ])
@@ -309,7 +319,7 @@ export class GitHubReleaser {
     this.logger.debug('building updates')
     const updates = await this.buildUpdates(releaseBranch, shaToRelease, {
       changelogEntry: releaseNotesBody,
-      newVersion: next,
+      newVersion: version,
       versionsMap: {} as VersionsMap,
       latestVersion: current,
       commits
@@ -320,7 +330,7 @@ export class GitHubReleaser {
       body: pullRequestBody,
       labels: DEFAULT_LABELS,
       headRefName: branchName.toString(),
-      version: next,
+      version,
       draft: false,
       updates
     }

@@ -1,7 +1,7 @@
 import * as util from '../src/util'
 import { createSandbox } from 'sinon'
 import { Version } from 'release-please/build/src/version'
-import { nextVersion, VersionUpdater } from '../src/version'
+import { nextVersion, previousVersion, VersionUpdater } from '../src/version'
 import { ReleaseConfig } from '../src/release'
 import { GitHub } from 'release-please/build/src/github'
 import { NoOpLogger } from './helpers'
@@ -39,6 +39,45 @@ describe('version', () => {
       const current = new Version(1, 2, 3)
       const next = nextVersion(current, 'always-bump-patch', [], fakeGithub)
       expect(next).toEqual(new Version(1, 2, 4))
+    })
+  })
+
+  describe('previous version', () => {
+    it('finds the previous patch version', () => {
+      const previous = previousVersion(new Version(1, 2, 3), {
+        'v1.2.0': { name: 'v1.2.0', sha: 'abc123' },
+        'v1.2.1': { name: 'v1.2.1', sha: 'def456' },
+        'v1.2.2': { name: 'v1.2.2', sha: 'ghi789' }
+      })
+
+      expect(previous).toEqual(new Version(1, 2, 2))
+    })
+    it('finds the latest patch of the previous minor', () => {
+      const previous = previousVersion(new Version(1, 2, 0), {
+        'v1.1.1': { name: 'v1.1.1', sha: 'def456' },
+        'v1.1.2': { name: 'v1.1.2', sha: 'ghi789' },
+        'v1.2.0': { name: 'v1.2.0', sha: 'abc123' }
+      })
+
+      expect(previous).toEqual(new Version(1, 1, 2))
+    })
+
+    it('finds the latest patch and minor of the previous major', () => {
+      const previous = previousVersion(new Version(2, 0, 0), {
+        'v1.1.1': { name: 'v1.1.1', sha: 'def456' },
+        'v1.1.2': { name: 'v1.1.2', sha: 'ghi789' },
+        'v1.2.0': { name: 'v1.2.0', sha: 'abc123' },
+        'v1.2.1': { name: 'v1.2.1', sha: 'hjk123' },
+        'v2.0.0': { name: 'v1.2.0', sha: 'sdf123' }
+      })
+
+      expect(previous).toEqual(new Version(1, 2, 1))
+    })
+
+    it('returns the current version when no suitable previous version is found', () => {
+      const previous = previousVersion(new Version(2, 0, 0), {})
+
+      expect(previous).toEqual(new Version(2, 0, 0))
     })
   })
 

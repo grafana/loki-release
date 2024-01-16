@@ -76,7 +76,8 @@ export async function createReleasePR(
     releaseBranch,
     currentVersion,
     releaseCfg.strategy,
-    shaToRelease
+    shaToRelease,
+    releaseCfg.currentVersion !== null // don't bump the version if on the initial version
   )
 
   if (pr === undefined) {

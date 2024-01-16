@@ -13,11 +13,16 @@ import {
 } from './helpers'
 import { DEFAULT_LABELS } from '../src/constants'
 import { Octokit } from '@octokit/rest'
+import { GetResponseTypeFromEndpointMethod } from '@octokit/types'
 
 const sandbox = sinon.createSandbox()
 let gh: GitHub
 let octokit: Octokit
 let gitHubReleaser: GitHubReleaser
+
+type ReposGetBranchResponse = GetResponseTypeFromEndpointMethod<
+  typeof octokit.repos.getBranch
+>
 
 const happyPathCommits = [
   // This feature will be release in 1.3.2
@@ -30,12 +35,12 @@ const happyPathCommits = [
   // This commit updates the release notes, and was backported
   // from the release commit that actually tagged abc123 as v1.3.1
   {
-    sha: 'abc567',
+    sha: 'headOfMain',
     message: 'chore: release 1.3.1',
     files: [],
     pullRequest: {
-      headBranchName: 'release-please/branches/release-1.3.x',
-      baseBranchName: 'release-1.3.x',
+      headBranchName: 'release-please--branches--release-1.3.1',
+      baseBranchName: 'main',
       number: 123,
       title: 'chore: release 1.3.1',
       body: '',
@@ -64,6 +69,14 @@ describe('gitHubReleaser', () => {
     gh = await mockGitHub()
     octokit = mockOctokit()
     gitHubReleaser = new GitHubReleaser(gh, octokit, new NoOpLogger())
+
+    sandbox.stub(octokit.repos, 'getBranch').resolves({
+      data: {
+        commit: {
+          sha: 'headOfMain'
+        }
+      }
+    } as unknown as ReposGetBranchResponse)
   })
 
   afterEach(() => {
@@ -74,41 +87,40 @@ describe('gitHubReleaser', () => {
     it('returns all commits since the last release', async () => {
       mockCommits(sandbox, gh, happyPathCommits)
 
-      mockTags(sandbox, gh, [
-        {
-          name: 'v1.3.1',
-          sha: 'abc123'
-        }
-      ])
       const version = new Version(1, 3, 1)
       const commits = await gitHubReleaser.findCommitsSinceLastRelease(
         'release-1.3.x',
         'main',
-        version
+        version,
+        {
+          'v1.3.1': {
+            name: 'v1.3.1',
+            sha: 'abc123'
+          }
+        }
       )
       expect(commits).toHaveLength(2)
     })
 
-    it('throws an error if no tag for the previous version is found', async () => {
-      mockCommits(sandbox, gh, happyPathCommits)
-
-      mockTags(sandbox, gh, [
-        {
-          name: 'v1.2.1',
-          sha: 'abc123'
-        },
-        {
-          name: 'v1.3.2',
-          sha: 'abc123'
-        }
-      ])
+    it('uses head of base branch as commit to compare against when commit for tag not found', async () => {
+      mockCommits(sandbox, gh, happyPathCommits.slice(0, 2))
       const version = new Version(1, 3, 1)
-      const commits = gitHubReleaser.findCommitsSinceLastRelease(
+      const commits = await gitHubReleaser.findCommitsSinceLastRelease(
         'release-1.3.x',
         'main',
-        version
+        version,
+        {
+          'v1.2.1': {
+            name: 'v1.2.1',
+            sha: 'abc123'
+          },
+          'v1.3.2': {
+            name: 'v1.3.2',
+            sha: 'abc123'
+          }
+        }
       )
-      await expect(commits).rejects.toThrow()
+      expect(commits).toHaveLength(1)
     })
 
     it('returns an empty array if the no commits are found since the previous release', async () => {
@@ -128,35 +140,34 @@ describe('gitHubReleaser', () => {
       ]
       mockCommits(sandbox, gh, cms)
 
-      mockTags(sandbox, gh, [
-        {
-          name: 'v1.3.1',
-          sha: 'abc123'
-        }
-      ])
       const version = new Version(1, 3, 1)
       const commits = await gitHubReleaser.findCommitsSinceLastRelease(
         'release-1.3.x',
         'main',
-        version
+        version,
+        {
+          'v1.3.1': {
+            name: 'v1.3.1',
+            sha: 'abc123'
+          }
+        }
       )
       expect(commits).toHaveLength(0)
     })
 
     it('converts found commits to conventional commits', async () => {
       mockCommits(sandbox, gh, happyPathCommits)
-
-      mockTags(sandbox, gh, [
-        {
-          name: 'v1.3.1',
-          sha: 'abc123'
-        }
-      ])
       const version = new Version(1, 3, 1)
       const commits = await gitHubReleaser.findCommitsSinceLastRelease(
         'release-1.3.x',
         'main',
-        version
+        version,
+        {
+          'v1.3.1': {
+            name: 'v1.3.1',
+            sha: 'abc123'
+          }
+        }
       )
       expect(commits).toHaveLength(2)
 
@@ -185,17 +196,14 @@ describe('gitHubReleaser', () => {
   })
 
   describe('buildCandidatePR', () => {
-    beforeEach(() => {
+    it('returns undefined if there are no applicable commits to build a release from', async () => {
+      mockCommits(sandbox, gh, [])
       mockTags(sandbox, gh, [
         {
           name: 'v1.3.1',
           sha: 'abc123'
         }
       ])
-    })
-
-    it('returns undefined if there are no applicable commits to build a release from', async () => {
-      mockCommits(sandbox, gh, [])
       const pr = await gitHubReleaser.buildCandidatePR(
         'main',
         'release-1.3.x',
@@ -206,7 +214,13 @@ describe('gitHubReleaser', () => {
       expect(pr).toBeUndefined()
     })
 
-    it('builds a release pull request', async () => {
+    it('builds a release pull request, bumping the version by default', async () => {
+      mockTags(sandbox, gh, [
+        {
+          name: 'v1.3.1',
+          sha: 'abc123'
+        }
+      ])
       mockCommits(sandbox, gh, happyPathCommits)
       const pr = await gitHubReleaser.buildCandidatePR(
         'main',
@@ -230,6 +244,107 @@ describe('gitHubReleaser', () => {
 
 
 ## [1.3.2](https://github.com/fake-owner/fake-repo/compare/v1.3.1...v1.3.2) (${today})
+
+
+### Features
+
+* **loki:** some cool new feature ([xzy123](https://github.com/fake-owner/fake-repo/commit/xzy123))
+
+---
+This PR was generated with [Release Please](https://github.com/googleapis/release-please). See [documentation](https://github.com/googleapis/release-please#release-please).`)
+    })
+
+    it('uses the current version when bumpVersion is false', async () => {
+      const firstReleaseCommits = [
+        // This feature will be release in 1.3.0
+        {
+          sha: 'xzy123',
+          message: 'feat(loki): some cool new feature',
+          files: []
+        },
+
+        // This commit updates the release notes, and was backported
+        // from the release commit that actually tagged abc123 as v1.2.3
+        {
+          sha: 'abc567',
+          message: 'chore: release 1.2.3',
+          files: [],
+          pullRequest: {
+            headBranchName: 'release-please/branches/release-1.2.x',
+            baseBranchName: 'release-1.2.x',
+            number: 123,
+            title: 'chore: release 1.2.3',
+            body: '',
+            labels: [],
+            files: []
+          }
+        },
+
+        // This is the actual commit that was released as 1.2.3
+        {
+          sha: 'abc123',
+          message: 'bug: a bug fixed in 1.2.3',
+          files: []
+        },
+
+        // This commit updates the release notes, and was backported
+        // from the release commit that actually tagged def123 as v1.2.2
+        {
+          sha: 'def567',
+          message: 'chore: release 1.2.2',
+          files: [],
+          pullRequest: {
+            headBranchName: 'release-please/branches/release-1.2.x',
+            baseBranchName: 'release-1.2.x',
+            number: 123,
+            title: 'chore: release 1.2.2',
+            body: '',
+            labels: [],
+            files: []
+          }
+        },
+
+        // This commit was tagged as 1.2.2
+        {
+          sha: 'def123',
+          message: 'feat: this was released in 1.2.2',
+          files: []
+        }
+      ]
+      mockCommits(sandbox, gh, firstReleaseCommits)
+      mockTags(sandbox, gh, [
+        {
+          name: 'v1.2.3',
+          sha: 'abc123'
+        },
+        {
+          name: 'v1.2.2',
+          sha: 'def123'
+        }
+      ])
+      const pr = await gitHubReleaser.buildCandidatePR(
+        'main',
+        'release-1.3.x',
+        new Version(1, 3, 0),
+        'always-bump-patch',
+        'shaToRelease',
+        false
+      )
+
+      const today = new Date().toISOString().split('T')[0]
+
+      expect(pr).toBeDefined()
+      expect(pr?.version).toEqual(new Version(1, 3, 0))
+
+      expect(pr?.title.toString()).toEqual('chore: release 1.3.0')
+      expect(pr?.headRefName).toEqual('release-please--branches--release-1.3.0')
+
+      expect(pr?.body.toString())
+        .toEqual(`:robot: I have created a release *beep* *boop*
+---
+
+
+## [1.3.0](https://github.com/fake-owner/fake-repo/compare/v1.2.3...v1.3.0) (${today})
 
 
 ### Features

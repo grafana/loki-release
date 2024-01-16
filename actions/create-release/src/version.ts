@@ -1,7 +1,7 @@
 import { Version } from 'release-please/build/src/version'
 import { ConventionalCommit } from 'release-please/build/src/commit'
 import { buildVersioningStrategy } from 'release-please/build/src/factories/versioning-strategy-factory'
-import { GitHub } from 'release-please/build/src/github'
+import { GitHub, GitHubTag } from 'release-please/build/src/github'
 import { Updater } from 'release-please/build/src/update'
 import { UpdateOptions } from 'release-please/build/src/updaters/default'
 import { ReleaseConfig } from './release'
@@ -20,6 +20,55 @@ export function nextVersion(
     github
   })
   return versioningStrategy.bump(currentVersion, commits)
+}
+
+export function previousVersion(
+  currentVersion: Version,
+  tags: Record<string, GitHubTag>
+): Version {
+  const { major, minor, patch } = currentVersion
+
+  const previousPatch = new Version(major, minor, patch - 1)
+  let previousMinor = new Version(major, minor - 1, 0)
+  let previousMajor = new Version(major - 1, 0, 0)
+
+  let foundMinor = false
+  let foundMajor = false
+  for (const tag of Object.keys(tags)) {
+    const version = Version.parse(tag)
+    if (version.toString() === previousPatch.toString()) {
+      return previousPatch
+    }
+
+    if (version.minor === minor - 1) {
+      foundMinor = true
+      if (version.patch > previousMinor.patch) {
+        previousMinor = version
+      }
+    }
+
+    if (version.major === major - 1) {
+      foundMajor = true
+      if (version.minor > previousMajor.minor) {
+        previousMajor = version
+      }
+
+      if (
+        version.minor === previousMajor.minor &&
+        version.patch > previousMajor.patch
+      ) {
+        previousMajor = version
+      }
+    }
+  }
+
+  if (foundMinor) {
+    return previousMinor
+  }
+  if (foundMajor) {
+    return previousMajor
+  }
+  return currentVersion
 }
 
 export class VersionUpdater implements Updater {
