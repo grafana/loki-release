@@ -54,6 +54,7 @@ jobs:
         CUSTOM_TAG: "${{ steps.prepare.outputs.name }}"
         DEFAULT_BRANCH: "${{ steps.extract_branch.outputs.branch }}"
         GITHUB_TOKEN: "${{ secrets.GH_TOKEN }}"
+        SOURCE: "release"
     - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "create release"
       uses: "softprops/action-gh-release@v1"

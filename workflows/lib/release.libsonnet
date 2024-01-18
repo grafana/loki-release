@@ -80,6 +80,7 @@ local releaseStep = common.releaseStep;
                GITHUB_TOKEN: '${{ secrets.GH_TOKEN }}',
                CUSTOM_TAG: '${{ steps.prepare.outputs.name }}',
                DEFAULT_BRANCH: '${{ steps.extract_branch.outputs.branch }}',
+               SOURCE: 'release',  //TODO: needs to be configurable
              }),
 
              step.new('create release', 'softprops/action-gh-release@v1')
