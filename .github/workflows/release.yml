@@ -48,9 +48,6 @@ jobs:
         ls dist
       shell: "bash"
     - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
-      name: "setup git user"
-      uses: "fregante/setup-git-user@v2"
-    - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "create tag"
       run: |
         if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
@@ -58,6 +55,9 @@ jobs:
         else
           cd release
         fi
+        
+        git config user.name "GitHub Actions"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         
         RELEASE="${{ steps.prepare.outputs.name}}"
         git tag -s $RELEASE -m "tagging release $RELEASE"
