@@ -74,11 +74,15 @@ local releaseStep = common.releaseStep;
                ls dist
              |||),
 
-             step.new('create release')
+             step.new('Import GPG Key', 'crazy-max/ghaction-import-gpg@v1')
              + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
              + step.withEnv({
-               GH_TOKEN: '${{ secrets.GH_TOKEN }}',
-             })
+               GPG_PRIVATE_KEY: '${{ secrets.GPG_PRIVATE_KEY }}',
+               PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}',
+             }),
+
+             step.new('create tag')
+             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
              + step.withRun(|||
                if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
                  cd loki
@@ -86,11 +90,23 @@ local releaseStep = common.releaseStep;
                  cd release
                fi
 
-               gh release create ${{ steps.prepare.outputs.name }} \
-                 --title ${{ steps.prepare.outputs.name }} \
-                 --notes ${{ steps.prepare.outputs.notes }} \
-                 --target ${{ steps.prepare.outputs.sha }} \
-                 ../dist/*
+               git config user.name "GitHub Actions"
+               git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+               RELEASE="${{ steps.prepare.outputs.name}}"
+               git tag -s $RELEASE -m "tagging release $RELEASE"
+               git push origin $RELEASE
              |||),
+
+             step.new('create release', 'softprops/action-gh-release@v1')
+             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
+             + step.with({
+               name: '${{ steps.prepare.outputs.name }}',
+               tag_name: '${{ steps.prepare.outputs.name }}',
+               body: '${{ steps.prepare.outputs.notes }}',
+               target_commitish: '${{ steps.prepare.outputs.sha }}',
+               files: 'dist/*',
+               fail_on_unmatched_files: true,
+             }),
            ]),
 }

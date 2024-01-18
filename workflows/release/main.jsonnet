@@ -30,6 +30,12 @@ std.manifestYamlDoc({
         GH_TOKEN: {
           required: true,
         },
+        GPG_PRIVATE_KEY: {
+          required: true,
+        },
+        GPG_PASSPHRASE: {
+          required: true,
+        },
       },
     },
   },
