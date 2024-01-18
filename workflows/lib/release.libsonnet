@@ -42,8 +42,24 @@ local releaseStep = common.releaseStep;
                ACTIONS_STEP_DEBUG: 'true',
              }),
 
+             step.new('extract branch name')
+             + step.withId('extract_branch')
+             + step.withRun(|||
+               if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+                 cd loki
+                 echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+               else
+                 cd release
+                 echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+               fi
+             |||),
+
              step.new('create release', 'google-github-actions/release-please-action@v4')
-             + step.withId('create_release'),
+             + step.withId('create_release')
+             + step.with({
+               'target-branch': '${{ steps.extract_branch.outputs.branch }}',
+               'repo-url': '${{ inputs.release_repo }}',
+             }),
 
              step.new('download build artifacts')
              + step.withIf('${{ steps.create_release.outputs.release_created }}')

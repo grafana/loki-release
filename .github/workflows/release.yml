@@ -16,9 +16,23 @@ jobs:
       uses: "google-github-actions/setup-gcloud@v1"
       with:
         version: ">= 452.0.0"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+          cd loki
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        else
+          cd release
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
     - id: "create_release"
       name: "create release"
       uses: "google-github-actions/release-please-action@v4"
+      with:
+        repo-url: "${{ inputs.release_repo }}"
+        target-branch: "${{ steps.extract_branch.outputs.branch }}"
     - if: "${{ steps.create_release.outputs.release_created }}"
       name: "download build artifacts"
       run: |
