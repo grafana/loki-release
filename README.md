@@ -143,3 +143,10 @@ _TODO_: define validate
   with the correct branches
 
 - cool feature
+
+# Instructions
+
+First release of a new branch (ie. releasing 1.5.0 from release-1.5.x) needs a speical commit:
+```
+git commit --allow-empty -m "chore: release 1.5.0" -m "Release-As: 1.5.0"
+```

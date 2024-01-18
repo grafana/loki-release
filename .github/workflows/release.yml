@@ -41,7 +41,6 @@ jobs:
     - name: "create release"
       run: |
         npm install
-        echo "release-please release --token=\"${{ secrets.GH_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\""
         npm exec -- release-please release --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}"
       shell: "bash"
       working-directory: "release"

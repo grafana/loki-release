@@ -67,7 +67,6 @@ local releaseStep = common.releaseStep;
              releaseStep('create release')
              + step.withRun(|||
                npm install
-               echo "release-please release --token=\"${{ secrets.GH_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\""
                npm exec -- release-please release --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}"
              |||),
 
