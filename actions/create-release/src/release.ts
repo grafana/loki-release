@@ -5,9 +5,9 @@ import { PullRequest } from 'release-please/build/src/pull-request'
 import { GitHubActionsLogger, logger, suppressErrors } from './util'
 import { RELEASE_CONFIG_PATH } from './constants'
 import { Logger } from 'release-please/build/src/util/logger'
-import { DefaultBranchName } from './pull-request'
 import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
 import { GitHub } from 'release-please/build/src/github'
+import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
 
 type ReleaseVersion = string
 type ReleaseSha = string
@@ -121,8 +121,8 @@ export async function prepareRelease(
       continue
     }
 
-    const branchName = new DefaultBranchName(baseBranch)
-    const version = branchName.getVersion()
+    const prTitle = PullRequestTitle.parse(pullRequest.title)
+    const version = prTitle?.getVersion()
     if (version === undefined) {
       continue
     }
