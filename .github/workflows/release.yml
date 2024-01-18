@@ -16,20 +16,24 @@ jobs:
       uses: "google-github-actions/setup-gcloud@v1"
       with:
         version: ">= 452.0.0"
-    - name: "download build artifacts"
-      run: |
-        gsutil cp -r gs://loki-build-artifacts/${{ github.sha }}/dist .
-        ls dist
-      shell: "bash"
     - id: "create_release"
       name: "create release"
       uses: "google-github-actions/release-please-action@v4"
+    - if: "${{ steps.create_release.outputs.release_created }}"
+      name: "download build artifacts"
+      run: |
+        gsutil cp -r gs://loki-build-artifacts/${{ steps.create_release.outputs.sha }}/dist .
+        echo 'root'
+        ls
+        echo 'dist'
+        ls dist
+      shell: "bash"
     - if: "${{ steps.create_release.outputs.release_created }}"
       name: "upload artifacts"
       uses: "softprops/action-gh-release@v1"
       with:
         files: "dist/*"
-        target_commitish: "${{ fromJson(steps.create_release.outputs.pr).sha }}"
+        target_commitish: "${{ steps.create_release.outputs.sha }}"
 name: "create release"
 "on":
   workflow_call:

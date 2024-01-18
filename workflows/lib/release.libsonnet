@@ -49,22 +49,23 @@ local releaseStep = common.releaseStep;
                ACTIONS_STEP_DEBUG: 'true',
              }),
 
-             // exits with code 1 if the url does not match
-             // meaning there are no artifacts for that sha
-             // we need to handle this if we're going to run this pipeline on every merge to main
-             step.new('download build artifacts')
-             + step.withRun(|||
-               gsutil cp -r gs://loki-build-artifacts/${{ github.sha }}/dist .
-               ls dist
-             |||),
-
              step.new('create release', 'google-github-actions/release-please-action@v4')
              + step.withId('create_release'),
+
+             step.new('download build artifacts')
+             + step.withIf('${{ steps.create_release.outputs.release_created }}')
+             + step.withRun(|||
+               gsutil cp -r gs://loki-build-artifacts/${{ steps.create_release.outputs.sha }}/dist .
+               echo 'root'
+               ls
+               echo 'dist'
+               ls dist
+             |||),
 
              step.new('upload artifacts', 'softprops/action-gh-release@v1')
              + step.withIf('${{ steps.create_release.outputs.release_created }}')
              + step.with({
-               target_commitish: '${{ fromJson(steps.create_release.outputs.pr).sha }}',
+               target_commitish: '${{ steps.create_release.outputs.sha }}',
                files: 'dist/*',
              }),
            ]),
