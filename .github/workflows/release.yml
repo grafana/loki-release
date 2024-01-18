@@ -41,13 +41,13 @@ jobs:
       uses: "./release/actions/create-release"
       with:
         baseBranch: "${{ steps.extract_branch.outputs.branch }}"
-    - if: "${{ steps.prepare.outputs.createRelease }}"
+    - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "download build artifacts"
       run: |
         gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
         ls dist
       shell: "bash"
-    - if: "${{ steps.prepare.outputs.createRelease }}"
+    - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "create release"
       uses: "softprops/action-gh-release@v1"
       with:

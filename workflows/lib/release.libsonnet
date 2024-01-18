@@ -68,14 +68,14 @@ local releaseStep = common.releaseStep;
              // meaning there are no artifacts for that sha
              // we need to handle this if we're going to run this pipeline on every merge to main
              step.new('download build artifacts')
-             + step.withIf('${{ steps.prepare.outputs.createRelease }}')
+             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
              + step.withRun(|||
                gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
                ls dist
              |||),
 
              step.new('create release', 'softprops/action-gh-release@v1')
-             + step.withIf('${{ steps.prepare.outputs.createRelease }}')
+             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
              + step.with({
                name: '${{ steps.prepare.outputs.name }}',
                tag_name: '${{ steps.prepare.outputs.name }}',
