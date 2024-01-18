@@ -61,16 +61,30 @@ local releaseStep = common.releaseStep;
              // we need to handle this if we're going to run this pipeline on every merge to main
              releaseStep('download build artifacts')
              + step.withRun(|||
-               gsutil cp gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz .
-               tar -xzf dist.tar.gz dist
+               gsutil cp -r gs://loki-build-artifacts/${{ github.sha }}/dist .
                ls dist
+             |||),
+
+             step.new('extract branch name')
+             + step.withId('extract_branch')
+             + step.withRun(|||
+               if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+                 cd loki
+                 echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+               else
+                 cd release
+                 echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+               fi
              |||),
 
              releaseStep('create release')
              + step.withRun(|||
                npm install
-               echo "release-please release --token=\"${{ secrets.GH_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\""
-               npm exec -- release-please release --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}"
+               npm exec -- release-please github-release \
+                --token="${{ secrets.GH_TOKEN }}" \
+                --repo-url="${{ inputs.release_repo }}" \
+                --target-branch="${{ steps.extract_branch.outputs.branch }}" \
+                --dry-run
              |||),
 
              //TODO: add artifacts to release PR, which we need to get via the event

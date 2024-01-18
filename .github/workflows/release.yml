@@ -33,16 +33,29 @@ jobs:
         version: ">= 452.0.0"
     - name: "download build artifacts"
       run: |
-        gsutil cp gs://loki-build-artifacts/${{ github.sha }}/dist.tar.gz .
-        tar -xzf dist.tar.gz dist
+        gsutil cp -r gs://loki-build-artifacts/${{ github.sha }}/dist .
         ls dist
       shell: "bash"
       working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+          cd loki
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        else
+          cd release
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
     - name: "create release"
       run: |
         npm install
-        echo "release-please release --token=\"${{ secrets.GH_TOKEN }}\" --repo-url=\"${{ inputs.release_repo }}\""
-        npm exec -- release-please release --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}"
+        npm exec -- release-please github-release \
+         --token="${{ secrets.GH_TOKEN }}" \
+         --repo-url="${{ inputs.release_repo }}" \
+         --target-branch="${{ steps.extract_branch.outputs.branch }}" \
+         --dry-run
       shell: "bash"
       working-directory: "release"
 name: "create release"
