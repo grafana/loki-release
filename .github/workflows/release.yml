@@ -47,6 +47,14 @@ jobs:
         gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
         ls dist
       shell: "bash"
+    - name: "setup git user"
+      uses: "fregante/setup-git-user@v2"
+    - name: "create tag"
+      run: |
+        RELEASE="${{ steps.prepare.outputs.name}}"
+        git tag -s $RELEASE -m "tagging release $RELEASE"
+        git push origin $RELEASE
+      shell: "bash"
     - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "create release"
       uses: "softprops/action-gh-release@v1"
