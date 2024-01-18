@@ -74,22 +74,13 @@ local releaseStep = common.releaseStep;
                ls dist
              |||),
 
-             step.new('create tag')
+             step.new('create tag', 'anothrNick/github-tag-action@1.67.0')
              + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
-             + step.withRun(|||
-               if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
-                 cd loki
-               else
-                 cd release
-               fi
-
-               git config user.name "GitHub Actions"
-               git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-               RELEASE="${{ steps.prepare.outputs.name}}"
-               git tag -s $RELEASE -m "tagging release $RELEASE"
-               git push origin $RELEASE
-             |||),
+             + step.with({
+               GITHUB_TOKEN: '${{ secrets.GH_TOKEN }}',
+               CUSTOM_TAG: '${{ steps.prepare.outputs.name }}',
+               DEFAULT_BRANCH: '${{ steps.extract_branch.outputs.branch }}',
+             }),
 
              step.new('create release', 'softprops/action-gh-release@v1')
              + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
