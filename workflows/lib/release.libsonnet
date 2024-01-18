@@ -10,9 +10,7 @@ local releaseStep = common.releaseStep;
     + job.withSteps([
       common.fetchLokiRepo,
       common.fetchReleaseRepo,
-      common.setupNode,
 
-      //TODO: needs to be configurabe at workflow level
       step.new('extract branch name')
       + step.withId('extract_branch')
       + step.withRun(|||
@@ -25,20 +23,13 @@ local releaseStep = common.releaseStep;
         fi
       |||),
 
-      releaseStep('release please')
-      + step.withId('release')
-      + step.withRun(|||
-        echo "manifest file: ${manifest_file}"
-        echo "current dir: $(pwd)"
-
-        npm install
-        npm exec -- release-please release-pr --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --target-branch "${{ steps.extract_branch.outputs.branch }}" --label "backport main"
-      |||),
+      step.new('create release pr', 'google-github-actions/release-please-action@v4')
+      + step.with({
+        'target-branch': '${{ steps.extract_branch.outputs.branch }}',
+        'repo-url': '${{ inputs.release_repo }}',
+      }),
     ]),
 
-  //TODO: part of new workflow triggered by an issue comment
-  // how does it find merged PRs to release?
-  // it looks for Merged PRs with the `autorelease:pending` label
   release: job.new()
            + job.withSteps([
              common.fetchLokiRepo,

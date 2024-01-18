@@ -25,10 +25,6 @@ jobs:
       with:
         path: "release"
         repository: "grafana/loki-release"
-    - name: "setup node"
-      uses: "actions/setup-node@v4"
-      with:
-        node-version: 20
     - id: "extract_branch"
       name: "extract branch name"
       run: |
@@ -40,16 +36,11 @@ jobs:
           echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         fi
       shell: "bash"
-    - id: "release"
-      name: "release please"
-      run: |
-        echo "manifest file: ${manifest_file}"
-        echo "current dir: $(pwd)"
-        
-        npm install
-        npm exec -- release-please release-pr --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --target-branch "${{ steps.extract_branch.outputs.branch }}" --label "backport main"
-      shell: "bash"
-      working-directory: "release"
+    - name: "create release pr"
+      uses: "google-github-actions/release-please-action@v4"
+      with:
+        repo-url: "${{ inputs.release_repo }}"
+        target-branch: "${{ steps.extract_branch.outputs.branch }}"
   dist:
     needs:
     - "test"
