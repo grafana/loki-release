@@ -51,10 +51,7 @@ local lokiStep = common.lokiStep;
             + job.withSteps([
               common.fetchLokiRepo,
               common.googleAuth,
-              step.new('upload changelog')
-              + step.with({
-                path: 'loki',
-              })
+              lokiStep('upload changelog')
               + step.withRun(|||
                 mkdir -p dist
                 cp CHANGELOG.md dist/

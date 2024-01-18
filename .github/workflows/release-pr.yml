@@ -79,8 +79,7 @@ jobs:
         mkdir -p dist
         cp CHANGELOG.md dist/
       shell: "bash"
-      with:
-        path: "loki"
+      working-directory: "loki"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "upload build artifacts"
