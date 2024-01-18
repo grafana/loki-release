@@ -4,29 +4,37 @@ jobs:
   release:
     runs-on: "ubuntu-latest"
     steps:
+    - name: "pull loki code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "loki"
+        ref: "prepare-release-please"
+        repository: "grafana/loki"
+    - name: "pull release code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "release"
+        repository: "grafana/loki-release"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-    - name: "pull release code"
-      uses: "actions/checkout@v3"
-      with:
-        path: "release"
-        repository: "grafana/loki-release"
     - name: "Set up Cloud SDK"
       uses: "google-github-actions/setup-gcloud@v1"
       with:
         version: ">= 452.0.0"
-    - name: "checkout"
-      uses: "actions/checkout@v3"
-      with:
-        repository: "${{ inputs.release_repo }}"
     - id: "extract_branch"
       name: "extract branch name"
       run: |
-        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+          cd loki
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        else
+          cd release
+          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
     - id: "prepare"
       name: "prepare release"
@@ -40,21 +48,20 @@ jobs:
         ls dist
       shell: "bash"
     - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
-      name: "create tag"
-      uses: "mathieudutour/github-tag-action@v6.1"
-      with:
-        custom_tag: "${{ steps.prepare.outputs.name }}"
-        github_token: "${{ secrets.GH_TOKEN }}"
-    - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "create release"
-      uses: "softprops/action-gh-release@v1"
-      with:
-        body: "${{ steps.prepare.outputs.notes }}"
-        fail_on_unmatched_files: true
-        files: "dist/*"
-        name: "${{ steps.prepare.outputs.name }}"
-        tag_name: "${{ steps.prepare.outputs.name }}"
-        target_commitish: "${{ steps.prepare.outputs.sha }}"
+      run: |
+        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+          cd loki
+        else
+          cd release
+        fi
+        
+        gh release create ${{ steps.prepare.outputs.name }} \
+          --title ${{ steps.prepare.outputs.name }} \
+          --notes ${{ steps.prepare.outputs.notes }} \
+          --target ${{ steps.prepare.outputs.sha }} \
+          ../dist/*
+      shell: "bash"
 name: "create release"
 "on":
   workflow_call:

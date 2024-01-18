@@ -37,23 +37,25 @@ local releaseStep = common.releaseStep;
 
   release: job.new()
            + job.withSteps([
-             common.googleAuth,
+             common.fetchLokiRepo,
              common.fetchReleaseRepo,
+             common.googleAuth,
 
              step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
              + step.with({
                version: '>= 452.0.0',
              }),
 
-             step.new('checkout', 'actions/checkout@v3')
-             + step.with({
-               repository: '${{ inputs.release_repo }}',
-             }),
-
              step.new('extract branch name')
              + step.withId('extract_branch')
              + step.withRun(|||
-               echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+               if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+                 cd loki
+                 echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+               else
+                 cd release
+                 echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+               fi
              |||),
 
              step.new('prepare release', './release/actions/create-release')
@@ -72,22 +74,20 @@ local releaseStep = common.releaseStep;
                ls dist
              |||),
 
-             step.new('create tag', 'mathieudutour/github-tag-action@v6.1')
+             step.new('create release')
              + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
-             + step.with({
-               github_token: '${{ secrets.GH_TOKEN }}',
-               custom_tag: '${{ steps.prepare.outputs.name }}',
-             }),
+             + step.withRun(|||
+               if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+                 cd loki
+               else
+                 cd release
+               fi
 
-             step.new('create release', 'softprops/action-gh-release@v1')
-             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
-             + step.with({
-               name: '${{ steps.prepare.outputs.name }}',
-               tag_name: '${{ steps.prepare.outputs.name }}',
-               body: '${{ steps.prepare.outputs.notes }}',
-               target_commitish: '${{ steps.prepare.outputs.sha }}',
-               files: 'dist/*',
-               fail_on_unmatched_files: true,
-             }),
+               gh release create ${{ steps.prepare.outputs.name }} \
+                 --title ${{ steps.prepare.outputs.name }} \
+                 --notes ${{ steps.prepare.outputs.notes }} \
+                 --target ${{ steps.prepare.outputs.sha }} \
+                 ../dist/*
+             |||),
            ]),
 }
