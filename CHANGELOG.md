@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.2](https://github.com/grafana/loki-release/compare/v1.5.1...v1.5.2) (2024-01-18)
+
+
+### Features
+
+* conditionally create release ([ea53455](https://github.com/grafana/loki-release/commit/ea534553427abe4f568ce1c49e0381e1ef3d1b0f))
+* custom action just for prepping the release ([2e14c0e](https://github.com/grafana/loki-release/commit/2e14c0efc60a0fe72bf92528f047401a7c6c1879))
+
+
+### Bug Fixes
+
+* build the correct action ([81e90e6](https://github.com/grafana/loki-release/commit/81e90e63a7c4233f49a9641f8feb2a221fc010bf))
+* compile action ([f763ca5](https://github.com/grafana/loki-release/commit/f763ca590126d255e5c36dc28a7c3bb7d5a936fa))
+* convert json boolean ([7fe0489](https://github.com/grafana/loki-release/commit/7fe0489181f85d6c745e8f201848c259bc73e98e))
+
 ## [1.5.1](https://github.com/grafana/loki-release/compare/v1.5.0...v1.5.1) (2024-01-18)
 
 
