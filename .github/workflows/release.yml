@@ -4,21 +4,6 @@ jobs:
   release:
     runs-on: "ubuntu-latest"
     steps:
-    - name: "pull loki code"
-      uses: "actions/checkout@v3"
-      with:
-        path: "loki"
-        ref: "prepare-release-please"
-        repository: "grafana/loki"
-    - name: "pull release code"
-      uses: "actions/checkout@v3"
-      with:
-        path: "release"
-        repository: "grafana/loki-release"
-    - name: "setup node"
-      uses: "actions/setup-node@v4"
-      with:
-        node-version: 16
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -36,28 +21,15 @@ jobs:
         gsutil cp -r gs://loki-build-artifacts/${{ github.sha }}/dist .
         ls dist
       shell: "bash"
-      working-directory: "release"
-    - id: "extract_branch"
-      name: "extract branch name"
-      run: |
-        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
-          cd loki
-          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        else
-          cd release
-          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        fi
-      shell: "bash"
-    - name: "create release"
-      run: |
-        npm install
-        npm exec -- release-please github-release \
-         --token="${{ secrets.GH_TOKEN }}" \
-         --repo-url="${{ inputs.release_repo }}" \
-         --target-branch="${{ steps.extract_branch.outputs.branch }}" \
-         --dry-run
-      shell: "bash"
-      working-directory: "release"
+    - id: "create_release"
+      name: "create release"
+      uses: "google-github-actions/release-please-action@v4"
+    - if: "${{ steps.create_release.outputs.release_created }}"
+      name: "upload artifacts"
+      uses: "softprops/action-gh-release@v1"
+      with:
+        files: "dist/*"
+        target_commitish: "${{ fromJson(steps.create_release.outputs.pr).sha }}"
 name: "create release"
 "on":
   workflow_call:
