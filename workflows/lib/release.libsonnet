@@ -10,6 +10,7 @@ local releaseStep = common.releaseStep;
     + job.withSteps([
       common.fetchLokiRepo,
       common.fetchReleaseRepo,
+      common.setupNode,
 
       step.new('extract branch name')
       + step.withId('extract_branch')
@@ -23,11 +24,15 @@ local releaseStep = common.releaseStep;
         fi
       |||),
 
-      step.new('create release pr', 'google-github-actions/release-please-action@v4')
-      + step.with({
-        'target-branch': '${{ steps.extract_branch.outputs.branch }}',
-        'repo-url': '${{ inputs.release_repo }}',
-      }),
+      releaseStep('release please')
+      + step.withId('release')
+      + step.withRun(|||
+        npm install
+        npm exec -- release-please release-pr \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}"
+      |||),
     ]),
 
   release: job.new()
@@ -39,9 +44,6 @@ local releaseStep = common.releaseStep;
              step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
              + step.with({
                version: '>= 452.0.0',
-             })
-             + step.withEnv({
-               ACTIONS_STEP_DEBUG: 'true',
              }),
 
              step.new('extract branch name')
@@ -56,28 +58,30 @@ local releaseStep = common.releaseStep;
                fi
              |||),
 
-             step.new('create release', 'google-github-actions/release-please-action@v4')
-             + step.withId('create_release')
+             step.new('prepare release', './release/actions/create-release')
+             + step.withId('prepare')
              + step.with({
-               'target-branch': '${{ steps.extract_branch.outputs.branch }}',
-               'repo-url': '${{ inputs.release_repo }}',
+               baseBranch: '${{ steps.extract_branch.outputs.branch }}',
              }),
 
+             // exits with code 1 if the url does not match
+             // meaning there are no artifacts for that sha
+             // we need to handle this if we're going to run this pipeline on every merge to main
              step.new('download build artifacts')
-             + step.withIf('${{ steps.create_release.outputs.release_created }}')
+             + step.withIf('${{ steps.prepare.outputs.createRelease }}')
              + step.withRun(|||
-               gsutil cp -r gs://loki-build-artifacts/${{ steps.create_release.outputs.sha }}/dist .
-               echo 'root'
-               ls
-               echo 'dist'
+               gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
                ls dist
              |||),
 
-             step.new('upload artifacts', 'softprops/action-gh-release@v1')
-             + step.withIf('${{ steps.create_release.outputs.release_created }}')
+             step.new('create release', 'softprops/action-gh-release@v1')
              + step.with({
-               target_commitish: '${{ steps.create_release.outputs.sha }}',
+               name: '${{ steps.prepare.outputs.name }}',
+               tag_name: '${{ steps.prepare.outputs.name }}',
+               body: '${{ steps.prepare.outputs.notes }}',
+               target_commitish: '${{ steps.prepare.outputs.sha }}',
                files: 'dist/*',
+               fail_on_unmatched_files: true,
              }),
            ]),
 }

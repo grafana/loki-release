@@ -21,9 +21,7 @@ jobs:
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "Set up Cloud SDK"
+    - name: "Set up Cloud SDK"
       uses: "google-github-actions/setup-gcloud@v1"
       with:
         version: ">= 452.0.0"
@@ -38,27 +36,26 @@ jobs:
           echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
         fi
       shell: "bash"
-    - id: "create_release"
-      name: "create release"
-      uses: "google-github-actions/release-please-action@v4"
+    - id: "prepare"
+      name: "prepare release"
+      uses: "./release/actions/create-release"
       with:
-        repo-url: "${{ inputs.release_repo }}"
-        target-branch: "${{ steps.extract_branch.outputs.branch }}"
-    - if: "${{ steps.create_release.outputs.release_created }}"
+        baseBranch: "${{ steps.extract_branch.outputs.branch }}"
+    - if: "${{ steps.prepare.outputs.createRelease }}"
       name: "download build artifacts"
       run: |
-        gsutil cp -r gs://loki-build-artifacts/${{ steps.create_release.outputs.sha }}/dist .
-        echo 'root'
-        ls
-        echo 'dist'
+        gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
         ls dist
       shell: "bash"
-    - if: "${{ steps.create_release.outputs.release_created }}"
-      name: "upload artifacts"
+    - name: "create release"
       uses: "softprops/action-gh-release@v1"
       with:
+        body: "${{ steps.prepare.outputs.notes }}"
+        fail_on_unmatched_files: true
         files: "dist/*"
-        target_commitish: "${{ steps.create_release.outputs.sha }}"
+        name: "${{ steps.prepare.outputs.name }}"
+        tag_name: "${{ steps.prepare.outputs.name }}"
+        target_commitish: "${{ steps.prepare.outputs.sha }}"
 name: "create release"
 "on":
   workflow_call:
