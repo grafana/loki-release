@@ -74,8 +74,11 @@ local releaseStep = common.releaseStep;
                ls dist
              |||),
 
-             step.new('setup git user', 'fregante/setup-git-user@v2'),
+             step.new('setup git user', 'fregante/setup-git-user@v2')
+             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}'),
+
              step.new('create tag')
+             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
              + step.withRun(|||
                RELEASE="${{ steps.prepare.outputs.name}}"
                git tag -s $RELEASE -m "tagging release $RELEASE"
