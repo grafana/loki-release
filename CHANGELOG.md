@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.1](https://github.com/grafana/loki-release/compare/v1.5.0...v1.5.1) (2024-01-18)
+
+
+### Features
+
+* create release first ([07cd4b3](https://github.com/grafana/loki-release/commit/07cd4b3087aa1e20f61912616a1437bddc82f4ba))
+* release from release branch ([98f71c5](https://github.com/grafana/loki-release/commit/98f71c53a5290825e604fc20633bf5592cd95e89))
+* return to using native release-pleae action ([2bbbfd4](https://github.com/grafana/loki-release/commit/2bbbfd4b49ca44cfc9fa0c2e655ec77184f25862))
+* use correct target branch in release ([d72b0f7](https://github.com/grafana/loki-release/commit/d72b0f72b0144fcb234ae9bea8d678dc7e34b732))
+
+
+### Bug Fixes
+
+* pull both repos for release action ([043dd18](https://github.com/grafana/loki-release/commit/043dd18feefb8d9f611843343e16b179aa0d01d5))
+
 ## [1.5.0](https://github.com/grafana/loki-release/compare/v1.5.0...v1.5.0) (2024-01-18)
 
 
