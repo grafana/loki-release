@@ -80,6 +80,12 @@ local releaseStep = common.releaseStep;
              step.new('create tag')
              + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
              + step.withRun(|||
+               if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+                 cd loki
+               else
+                 cd release
+               fi
+
                RELEASE="${{ steps.prepare.outputs.name}}"
                git tag -s $RELEASE -m "tagging release $RELEASE"
                git push origin $RELEASE
