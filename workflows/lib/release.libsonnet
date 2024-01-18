@@ -10,7 +10,6 @@ local releaseStep = common.releaseStep;
     + job.withSteps([
       common.fetchLokiRepo,
       common.fetchReleaseRepo,
-      common.setupGo,
       common.setupNode,
 
       //TODO: needs to be configurabe at workflow level

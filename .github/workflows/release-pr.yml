@@ -25,11 +25,6 @@ jobs:
       with:
         path: "release"
         repository: "grafana/loki-release"
-    - name: "setup go"
-      uses: "actions/setup-go@v4"
-      with:
-        cache-dependency-path: "loki/go.sum"
-        go-version-file: "loki/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
