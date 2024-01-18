@@ -37,8 +37,6 @@ local releaseStep = common.releaseStep;
 
   release: job.new()
            + job.withSteps([
-             common.fetchLokiRepo,
-             common.fetchReleaseRepo,
              common.googleAuth,
 
              step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
@@ -46,16 +44,15 @@ local releaseStep = common.releaseStep;
                version: '>= 452.0.0',
              }),
 
+             step.new('checkout', 'actions/checkout@v3')
+             + step.with({
+               repository: '${{ inputs.release_repo }}',
+             }),
+
              step.new('extract branch name')
              + step.withId('extract_branch')
              + step.withRun(|||
-               if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
-                 cd loki
-                 echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-               else
-                 cd release
-                 echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-               fi
+               echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
              |||),
 
              step.new('prepare release', './release/actions/create-release')
@@ -74,13 +71,11 @@ local releaseStep = common.releaseStep;
                ls dist
              |||),
 
-             step.new('create tag', 'anothrNick/github-tag-action@1.67.0')
+             step.new('create tag', 'mathieudutour/github-tag-action@v6.1')
              + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
-             + step.withEnv({
-               GITHUB_TOKEN: '${{ secrets.GH_TOKEN }}',
-               CUSTOM_TAG: '${{ steps.prepare.outputs.name }}',
-               DEFAULT_BRANCH: '${{ steps.extract_branch.outputs.branch }}',
-               SOURCE: 'release',  //TODO: needs to be configurable
+             + step.with({
+               github_token: '${{ secrets.GH_TOKEN }}',
+               custom_tag: '${{ steps.prepare.outputs.name }}',
              }),
 
              step.new('create release', 'softprops/action-gh-release@v1')
