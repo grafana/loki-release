@@ -33,11 +33,7 @@ std.manifestYamlDoc({
       },
     },
   },
-  permissions: {
-    contents: 'write',
-    'pull-requests': 'write',
-    issues: 'write',
-  },
+  permissions: 'write-all',
   concurrency: {
     group: 'create-release-${{ github.sha }}',
   },

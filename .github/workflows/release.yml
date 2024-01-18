@@ -83,7 +83,4 @@ name: "create release"
         required: true
       GH_TOKEN:
         required: true
-permissions:
-  contents: "write"
-  issues: "write"
-  pull-requests: "write"
+permissions: "write-all"
