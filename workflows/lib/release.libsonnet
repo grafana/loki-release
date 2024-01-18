@@ -33,7 +33,7 @@ local releaseStep = common.releaseStep;
         echo "current dir: $(pwd)"
 
         npm install
-        npm exec -- release-please release-pr --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --target-branch "${{ steps.extract_branch.outputs.branch }}" --labels "backport main"
+        npm exec -- release-please release-pr --token="${{ secrets.GH_TOKEN }}" --repo-url="${{ inputs.release_repo }}" --target-branch "${{ steps.extract_branch.outputs.branch }}" --label "backport main"
       |||),
     ]),
 
