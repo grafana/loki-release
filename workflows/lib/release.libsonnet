@@ -75,6 +75,7 @@ local releaseStep = common.releaseStep;
              |||),
 
              step.new('create release', 'softprops/action-gh-release@v1')
+             + step.withIf('${{ steps.prepare.outputs.createRelease }}')
              + step.with({
                name: '${{ steps.prepare.outputs.name }}',
                tag_name: '${{ steps.prepare.outputs.name }}',

@@ -47,7 +47,8 @@ jobs:
         gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
         ls dist
       shell: "bash"
-    - name: "create release"
+    - if: "${{ steps.prepare.outputs.createRelease }}"
+      name: "create release"
       uses: "softprops/action-gh-release@v1"
       with:
         body: "${{ steps.prepare.outputs.notes }}"
