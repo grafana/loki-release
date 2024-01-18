@@ -68,46 +68,26 @@ jobs:
         path: "loki"
         ref: "prepare-release-please"
         repository: "grafana/loki"
-    - name: "setup go"
-      uses: "actions/setup-go@v4"
-      with:
-        cache-dependency-path: "loki/go.sum"
-        go-version-file: "loki/go.mod"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-    - name: "install dependencies"
+    - name: "upload changelog"
       run: |
-        go install github.com/mitchellh/gox@9f71238
-        go install github.com/bufbuild/buf/cmd/buf@v1.4.0
-        go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
-        go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
-        
-        sudo apt update
-        sudo apt install -qy musl gnupg ragel \
-          file zip unzip jq gettext \
-          protobuf-compiler libprotobuf-dev \
-          libsystemd-dev jq
+        mkdir -p dist
+        cp CHANGELOG.md dist/
       shell: "bash"
-    - name: "build artifacts"
-      run: "make BUILD_IN_CONTAINER=false SKIP_ARM=true dist"
-      shell: "bash"
-      working-directory: "loki"
-    - name: "pacakge artifacts"
-      run: |
-        tar -czf dist.tar.gz dist
-      shell: "bash"
-      working-directory: "loki"
+      with:
+        path: "loki"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "upload build artifacts"
       uses: "google-github-actions/upload-cloud-storage@v1"
       with:
-        destination: "loki-build-artifacts/${{ github.sha }}/dist.tar.gz"
-        path: "loki/dist.tar.gz"
+        destination: "loki-build-artifacts/${{ github.sha }}"
+        path: "loki/dist"
   lint:
     runs-on: "ubuntu-latest"
     steps:

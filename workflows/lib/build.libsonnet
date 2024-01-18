@@ -47,6 +47,28 @@ local lokiStep = common.lokiStep;
       }),
     ]),
 
+  distTemp: job.new()
+            + job.withSteps([
+              common.fetchLokiRepo,
+              common.googleAuth,
+              step.new('upload changelog')
+              + step.with({
+                path: 'loki',
+              })
+              + step.withRun(|||
+                mkdir -p dist
+                cp CHANGELOG.md dist/
+              |||),
+              step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v1')
+              + step.with({
+                path: 'loki/dist',
+                destination: 'loki-build-artifacts/${{ github.sha }}',
+              })
+              + step.withEnv({
+                ACTIONS_STEP_DEBUG: 'true',
+              }),
+            ]),
+
   dist: job.new()
         + job.withSteps([
           common.fetchLokiRepo,

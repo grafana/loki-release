@@ -46,7 +46,8 @@ std.manifestYamlDoc({
     check: validate.check + alwaysGreen,
 
     local validationSteps = ['test', 'lint', 'check'],
-    dist: build.dist + job.withNeeds(validationSteps),
+    dist: build.distTemp + job.withNeeds(validationSteps),
+    // dist: build.dist + job.withNeeds(validationSteps),
     // 'loki-image': build.image('loki', 'cmd/loki')
     //               + job.withNeeds(validationSteps),
     'loki-image': build.image('loki', 'cmd/loki')
