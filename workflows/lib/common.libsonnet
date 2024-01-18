@@ -67,7 +67,7 @@
 
   setupNode: $.step.new('setup node', 'actions/setup-node@v4')
              + $.step.with({
-               'node-version': 16,
+               'node-version': 20,
              }),
 
   makeTarget: function(target) 'make BUILD_IN_CONTAINER=false %s' % target,

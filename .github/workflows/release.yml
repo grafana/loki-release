@@ -18,7 +18,7 @@ jobs:
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
-        node-version: 16
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
