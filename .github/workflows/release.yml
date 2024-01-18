@@ -4,6 +4,17 @@ jobs:
   release:
     runs-on: "ubuntu-latest"
     steps:
+    - name: "pull loki code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "loki"
+        ref: "prepare-release-please"
+        repository: "grafana/loki"
+    - name: "pull release code"
+      uses: "actions/checkout@v3"
+      with:
+        path: "release"
+        repository: "grafana/loki-release"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"

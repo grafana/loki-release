@@ -32,6 +32,8 @@ local releaseStep = common.releaseStep;
 
   release: job.new()
            + job.withSteps([
+             common.fetchLokiRepo,
+             common.fetchReleaseRepo,
              common.googleAuth,
 
              step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
