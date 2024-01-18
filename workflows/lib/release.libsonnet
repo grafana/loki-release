@@ -76,6 +76,9 @@ local releaseStep = common.releaseStep;
 
              step.new('create release')
              + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
+             + step.withEnv({
+               GH_TOKEN: '${{ secrets.GH_TOKEN }}',
+             })
              + step.withRun(|||
                if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
                  cd loki

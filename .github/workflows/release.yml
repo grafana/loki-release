@@ -47,7 +47,9 @@ jobs:
         gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
         ls dist
       shell: "bash"
-    - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
+    - env:
+        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+      if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "create release"
       run: |
         if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
