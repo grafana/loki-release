@@ -47,14 +47,14 @@ jobs:
         gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
         ls dist
       shell: "bash"
-    - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
-      name: "create tag"
-      uses: "anothrNick/github-tag-action@1.67.0"
-      with:
+    - env:
         CUSTOM_TAG: "${{ steps.prepare.outputs.name }}"
         DEFAULT_BRANCH: "${{ steps.extract_branch.outputs.branch }}"
         GITHUB_TOKEN: "${{ secrets.GH_TOKEN }}"
         SOURCE: "release"
+      if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
+      name: "create tag"
+      uses: "anothrNick/github-tag-action@1.67.0"
     - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "create release"
       uses: "softprops/action-gh-release@v1"

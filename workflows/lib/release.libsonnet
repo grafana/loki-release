@@ -76,7 +76,7 @@ local releaseStep = common.releaseStep;
 
              step.new('create tag', 'anothrNick/github-tag-action@1.67.0')
              + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
-             + step.with({
+             + step.withEnv({
                GITHUB_TOKEN: '${{ secrets.GH_TOKEN }}',
                CUSTOM_TAG: '${{ steps.prepare.outputs.name }}',
                DEFAULT_BRANCH: '${{ steps.extract_branch.outputs.branch }}',
