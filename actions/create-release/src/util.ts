@@ -57,23 +57,3 @@ export const logger = (() => {
     return log
   }
 })()
-
-export const suppressErrors = (log: Logger): Logger => {
-  return {
-    error: (...args: any[]) => {
-      log.info(args)
-    },
-    warn: (...args: any[]) => {
-      log.warn(args)
-    },
-    info: (...args: any[]) => {
-      log.info(args)
-    },
-    debug: (...args: any[]) => {
-      log.debug(args)
-    },
-    trace: (...args: any[]) => {
-      log.trace(args)
-    }
-  }
-}
