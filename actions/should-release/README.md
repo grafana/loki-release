@@ -1,4 +1,3 @@
-# install-binary
+# should release
 
-This was forked from [giantswarm/install-binary-action](https://github.com/giantswarm/install-binary-action).
-It was converted to typescript and adapted to be handled non gzipped downloads.
+a small github action that determines if there is an eligable `release-please` release that should be released
