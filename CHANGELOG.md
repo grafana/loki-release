@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.4](https://github.com/grafana/loki-release/compare/v1.5.3...v1.5.4) (2024-01-19)
+
+
+### Features
+
+* reafactor custom code to remove unused code paths ([7073399](https://github.com/grafana/loki-release/commit/70733992950da4203146a3122629c3eb501767d4))
+* rename to should-release ([b352a0e](https://github.com/grafana/loki-release/commit/b352a0edce6e68dce1c47b94ea1919fa1f06afd6))
+
+
+### Bug Fixes
+
+* missed test in rename ([60d6562](https://github.com/grafana/loki-release/commit/60d6562aaacb60c792bcdbb6008288001075c2c5))
+
 ## [1.5.3](https://github.com/grafana/loki-release/compare/v1.5.2...v1.5.3) (2024-01-19)
 
 
