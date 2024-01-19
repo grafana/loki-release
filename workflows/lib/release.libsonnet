@@ -26,7 +26,9 @@ local releaseLibStep = common.releaseLibStep;
           --token="${{ secrets.GH_TOKEN }}" \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --pull-request-footer "sha-to-release: ${{ github.sha }}"
+          --pull-request-header "this is a test" \
+          --pull-request-footer "sha-to-release: ${{ github.sha }}" \
+          --debug
       |||),
     ]),
 
