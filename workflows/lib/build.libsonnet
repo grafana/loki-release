@@ -39,13 +39,13 @@ local releaseStep = common.releaseStep;
         file: 'release/%s/Dockerfile' % path,
         platforms: '${{ matrix.platform }}',
         tags: 'grafana/%s:${{ steps.parse-metadata.outputs.version }}' % name,
-        outputs: 'type=docker,dest=release/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        outputs: 'type=docker,dest=release/images/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
       step.new('upload artifacts', 'actions/upload-artifact@v3')
       + step.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
       + step.with({
         name: '%s-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}' % name,
-        path: 'release/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        path: 'release/images/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
     ]),
 

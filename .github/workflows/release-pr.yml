@@ -324,7 +324,7 @@ jobs:
       with:
         context: "release"
         file: "release/cmd/loki/Dockerfile"
-        outputs: "type=docker,dest=release/dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "grafana/loki:${{ steps.parse-metadata.outputs.version }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"
@@ -332,7 +332,7 @@ jobs:
       uses: "actions/upload-artifact@v3"
       with:
         name: "loki-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
-        path: "release/dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
     strategy:
       fail-fast: true
       matrix:
@@ -379,7 +379,7 @@ jobs:
       with:
         context: "release"
         file: "release/clients/cmd/promtail/Dockerfile"
-        outputs: "type=docker,dest=release/dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "grafana/promtail:${{ steps.parse-metadata.outputs.version }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"
@@ -387,7 +387,7 @@ jobs:
       uses: "actions/upload-artifact@v3"
       with:
         name: "promtail-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
-        path: "release/dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
     strategy:
       fail-fast: true
       matrix:
