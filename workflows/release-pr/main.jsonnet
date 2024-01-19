@@ -18,6 +18,12 @@ std.manifestYamlDoc({
           required: false,
           type: 'string',
         },
+        skip_validation: {
+          description: 'skip validation steps',
+          default: false,
+          required: false,
+          type: 'boolean',
+        },
       },
       secrets: {
         GCS_SERVICE_ACCOUNT_KEY: {
@@ -36,27 +42,13 @@ std.manifestYamlDoc({
   concurrency: {
     group: 'create-release-pr-${{ github.sha }}',
   },
-  jobs: {
-    // test: validate.test,
-    test: validate.test + alwaysGreen,
-    // lint: validate.lint,
-    lint: validate.lint + alwaysGreen,
-    // check: validate.check,
-    check: validate.check + alwaysGreen,
-
+  jobs: validate {
     local validationSteps = ['test', 'lint', 'check'],
-    dist: build.distTemp + job.withNeeds(validationSteps),
-    // dist: build.dist + job.withNeeds(validationSteps),
-    // 'loki-image': build.image('loki', 'cmd/loki')
-    //               + job.withNeeds(validationSteps),
+    dist: build.dist + job.withNeeds(validationSteps),
     'loki-image': build.image('loki', 'cmd/loki')
-                  + job.withNeeds(validationSteps)
-                  + alwaysGreen,
-    // 'promtail-image': build.image('promtail', 'clients/cmd/promtail')
-    //                   + job.withNeeds(validationSteps),
+                  + job.withNeeds(validationSteps),
     'promtail-image': build.image('promtail', 'clients/cmd/promtail')
-                      + job.withNeeds(validationSteps)
-                      + alwaysGreen,
+                      + job.withNeeds(validationSteps),
 
     local buildSteps = ['dist', 'loki-image', 'promtail-image'],
     'create-release-pr': release.createReleasePR + job.withNeeds(buildSteps),

@@ -31,7 +31,6 @@ local releaseLibStep = common.releaseLibStep;
 
   release: job.new()
            + job.withSteps([
-
              common.fetchReleaseRepo,
              common.fetchReleaseLib,
              common.setupNode,

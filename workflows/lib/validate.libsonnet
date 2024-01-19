@@ -74,14 +74,18 @@ local setupValidationDeps = function(job) job {
 
 {
   test: setupValidationDeps(
-    job.new() + job.withSteps([
+    job.new()
+    + job.withIf('${{ !fromJSON(inputs.skip_validation) }}')
+    + job.withSteps([
       releaseStep('test')
       + step.withRun(common.makeTarget('test')),
     ])
   ),
 
   lint: setupValidationDeps(
-    job.new() + job.withSteps([
+    job.new()
+    + job.withIf('${{ !fromJSON(inputs.skip_validation) }}')
+    + job.withSteps([
       releaseStep('lint')
       + step.withRun(common.makeTarget('lint')),
       releaseStep('lint jsonnet')
@@ -90,7 +94,9 @@ local setupValidationDeps = function(job) job {
   ),
 
   check: setupValidationDeps(
-    job.new() + job.withSteps([
+    job.new()
+    + job.withIf('${{ !fromJSON(inputs.skip_validation) }}')
+    + job.withSteps([
       releaseStep('check generated files')
       + step.withRun(common.makeTarget('check-generated-files')),
       releaseStep('check mod')

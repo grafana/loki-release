@@ -15,6 +15,7 @@ jobs:
     uses: ./.github/workflows/release-pr.yml
     with:
       release_repo: grafana/loki-release
+      skip_validation: false
     secrets:
       GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}'
       GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'

@@ -24,3 +24,7 @@ check-example-config-doc:
 
 documentation-helm-reference-check:
 	echo "documentation helm reference check"
+
+dist:
+	mkdir -p dist
+	cp CHANGELOG.md dist/
