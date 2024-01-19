@@ -74,11 +74,17 @@ local releaseStep = common.releaseStep;
                ls dist
              |||),
 
-             step.new('Import GPG Key', 'crazy-max/ghaction-import-gpg@v1')
+             step.new('Import GPG Key', 'crazy-max/ghaction-import-gpg@v6')
              + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
-             + step.withEnv({
-               GPG_PRIVATE_KEY: '${{ secrets.GPG_PRIVATE_KEY }}',
-               PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}',
+             + step.with({
+               gpg_private_key: '${{ secrets.GPG_PRIVATE_KEY }}',
+               passphrase: '${{ secrets.GPG_PASSPHRASE }}',
+               git_user_signingkey: true,
+               git_commit_gpgsign: true,
+               git_tag_gpgsign: true,
+               git_comitter_name: 'GitHub Actions',
+               git_comitter_email: '41898282+github-actions[bot]@users.noreply.github.com',
+               workdir: 'release',  //TODO: needs to be configurable
              }),
 
              step.new('create tag')
@@ -89,9 +95,6 @@ local releaseStep = common.releaseStep;
                else
                  cd release
                fi
-
-               git config user.name "GitHub Actions"
-               git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
                RELEASE="${{ steps.prepare.outputs.name}}"
                git tag -s $RELEASE -m "tagging release $RELEASE"
@@ -106,6 +109,7 @@ local releaseStep = common.releaseStep;
                body: '${{ steps.prepare.outputs.notes }}',
                target_commitish: '${{ steps.prepare.outputs.sha }}',
                files: 'dist/*',
+               repository: '${{ inputs.release_repo }}',
                fail_on_unmatched_files: true,
              }),
            ]),

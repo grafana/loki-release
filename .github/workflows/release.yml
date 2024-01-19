@@ -47,12 +47,18 @@ jobs:
         gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
         ls dist
       shell: "bash"
-    - env:
-        GPG_PRIVATE_KEY: "${{ secrets.GPG_PRIVATE_KEY }}"
-        PASSPHRASE: "${{ secrets.GPG_PASSPHRASE }}"
-      if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
+    - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "Import GPG Key"
-      uses: "crazy-max/ghaction-import-gpg@v1"
+      uses: "crazy-max/ghaction-import-gpg@v6"
+      with:
+        git_comitter_email: "41898282+github-actions[bot]@users.noreply.github.com"
+        git_comitter_name: "GitHub Actions"
+        git_commit_gpgsign: true
+        git_tag_gpgsign: true
+        git_user_signingkey: true
+        gpg_private_key: "${{ secrets.GPG_PRIVATE_KEY }}"
+        passphrase: "${{ secrets.GPG_PASSPHRASE }}"
+        workdir: "release"
     - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "create tag"
       run: |
@@ -61,9 +67,6 @@ jobs:
         else
           cd release
         fi
-        
-        git config user.name "GitHub Actions"
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         
         RELEASE="${{ steps.prepare.outputs.name}}"
         git tag -s $RELEASE -m "tagging release $RELEASE"
@@ -77,6 +80,7 @@ jobs:
         fail_on_unmatched_files: true
         files: "dist/*"
         name: "${{ steps.prepare.outputs.name }}"
+        repository: "${{ inputs.release_repo }}"
         tag_name: "${{ steps.prepare.outputs.name }}"
         target_commitish: "${{ steps.prepare.outputs.sha }}"
 name: "create release"
