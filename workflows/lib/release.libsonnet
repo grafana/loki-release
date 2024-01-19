@@ -63,15 +63,15 @@ local releaseLibStep = common.releaseLibStep;
                ls dist
              |||),
 
-             releaseStep('release please')
-             + step.withId('release')
-             + step.withRun(|||
-               npm install
-               npm exec -- release-please github-release \
-                 --token="${{ secrets.GH_TOKEN }}" \
-                 --repo-url="${{ inputs.release_repo }}" \
-                 --target-branch "${{ steps.extract_branch.outputs.branch }}"
-             |||),
+             // releaseStep('release please')
+             // + step.withId('release')
+             // + step.withRun(|||
+             //   npm install
+             //   npm exec -- release-please github-release \
+             //     --token="${{ secrets.GH_TOKEN }}" \
+             //     --repo-url="${{ inputs.release_repo }}" \
+             //     --target-branch "${{ steps.extract_branch.outputs.branch }}"
+             // |||),
 
              releaseStep('upload artifacts')
              + step.withId('upload')
@@ -79,7 +79,7 @@ local releaseLibStep = common.releaseLibStep;
                GH_TOKEN: '${{ secrets.GH_TOKEN }}',
              })
              + step.withRun(|||
-               gh release upload ${{ steps.release.outputs.name }} dist/*
+               gh release upload ${{ steps.prepare.outputs.name }} dist/*
              |||),
 
              // step.new('Import GPG Key', 'crazy-max/ghaction-import-gpg@v6')
