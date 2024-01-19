@@ -64,6 +64,7 @@ local releaseLibStep = common.releaseLibStep;
              |||),
 
              releaseStep('release please')
+             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
              + step.withId('release')
              + step.withRun(|||
                npm install
@@ -75,6 +76,7 @@ local releaseLibStep = common.releaseLibStep;
              |||),
 
              releaseStep('upload artifacts')
+             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
              + step.withId('upload')
              + step.withEnv({
                GH_TOKEN: '${{ secrets.GH_TOKEN }}',

@@ -47,6 +47,7 @@ jobs:
       shell: "bash"
       working-directory: "release"
     - id: "release"
+      if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "release please"
       run: |
         npm install
@@ -60,6 +61,7 @@ jobs:
     - env:
         GH_TOKEN: "${{ secrets.GH_TOKEN }}"
       id: "upload"
+      if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
       name: "upload artifacts"
       run: |
         gh release upload ${{ steps.prepare.outputs.name }} dist/*
