@@ -1,5 +1,5 @@
 import { createSandbox, SinonStub } from 'sinon'
-import { prepareRelease } from '../src/release'
+import { shouldRelease } from '../src/release'
 
 import * as github from '../src/github'
 
@@ -111,7 +111,7 @@ describe('release', () => {
         }
       ])
 
-      const release = await prepareRelease('main', log)
+      const release = await shouldRelease('main', log)
       expect(release).toBeDefined()
       expect(release?.name).toEqual('v1.3.2')
     })
