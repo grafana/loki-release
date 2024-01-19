@@ -23,12 +23,11 @@ local releaseLibStep = common.releaseLibStep;
       + step.withRun(|||
         npm install
         npm exec -- release-please release-pr \
-          --token="${{ secrets.GH_TOKEN }}" \
-          --repo-url="${{ inputs.release_repo }}" \
-          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --pull-request-footer "sha-to-release: ${{ github.sha }}" \
           --release-type simple \
-          --debug
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}"
       |||),
     ]),
 
@@ -72,10 +71,11 @@ local releaseLibStep = common.releaseLibStep;
              + step.withRun(|||
                npm install
                npm exec -- release-please github-release \
-                 --token="${{ secrets.GH_TOKEN }}" \
+                 --draft \
+                 --release-type simple \
                  --repo-url="${{ inputs.release_repo }}" \
                  --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-                 --draft
+                 --token="${{ secrets.GH_TOKEN }}"
              |||),
 
              releaseStep('upload artifacts')

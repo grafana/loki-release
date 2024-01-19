@@ -52,10 +52,11 @@ jobs:
       run: |
         npm install
         npm exec -- release-please github-release \
-          --token="${{ secrets.GH_TOKEN }}" \
+          --draft \
+          --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --draft
+          --token="${{ secrets.GH_TOKEN }}"
       shell: "bash"
       working-directory: "release"
     - env:

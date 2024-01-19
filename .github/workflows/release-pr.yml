@@ -139,12 +139,11 @@ jobs:
       run: |
         npm install
         npm exec -- release-please release-pr \
-          --token="${{ secrets.GH_TOKEN }}" \
-          --repo-url="${{ inputs.release_repo }}" \
-          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --pull-request-footer "sha-to-release: ${{ github.sha }}" \
           --release-type simple \
-          --debug
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}"
       shell: "bash"
       working-directory: "lib"
   dist:
