@@ -38,26 +38,28 @@
     withNeeds: function(needs) {
       needs: needs,
     },
+    withIf: function(_if) {
+      'if': _if,
+    },
   },
-
-  lokiStep: function(name, uses=null) $.step.new(name, uses) +
-                                      $.step.withWorkingDirectory('loki'),
 
   releaseStep: function(name, uses=null) $.step.new(name, uses) +
                                          $.step.withWorkingDirectory('release'),
 
-  fetchLokiRepo:
-    $.step.new('pull loki code', 'actions/checkout@v3')
-    + $.step.with({
-      repository: 'grafana/loki',
-      ref: 'prepare-release-please',
-      path: 'loki',
-    }),
+  releaseLibStep: function(name, uses=null) $.step.new(name, uses) +
+                                            $.step.withWorkingDirectory('lib'),
+
   fetchReleaseRepo:
-    $.step.new('pull release code', 'actions/checkout@v3')
+    $.step.new('pull code to release', 'actions/checkout@v3')
+    + $.step.with({
+      repository: '${{ inputs.release_repo }}',
+      path: 'release',
+    }),
+  fetchReleaseLib:
+    $.step.new('pull release library code', 'actions/checkout@v3')
     + $.step.with({
       repository: 'grafana/loki-release',
-      path: 'release',
+      path: 'lib',
     }),
   setupGo: $.step.new('setup go', 'actions/setup-go@v4')
            + $.step.with({
@@ -67,7 +69,7 @@
 
   setupNode: $.step.new('setup node', 'actions/setup-node@v4')
              + $.step.with({
-               'node-version': 16,
+               'node-version': 20,
              }),
 
   makeTarget: function(target) 'make BUILD_IN_CONTAINER=false %s' % target,

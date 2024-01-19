@@ -1,7 +1,7 @@
 local common = import 'common.libsonnet';
 local job = common.job;
 local step = common.step;
-local lokiStep = common.lokiStep;
+local releaseStep = common.releaseStep;
 
 {
   image: function(name, path)
@@ -16,12 +16,13 @@ local lokiStep = common.lokiStep;
         ],
       },
     })
+    + job.withIf('${{ inputs.release_repo }} == grafana/loki')
     + job.withSteps([
-      common.fetchLokiRepo,
+      common.fetchReleaseRepo,
       common.setupGo,
       step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
       step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
-      lokiStep('parse image metadata')
+      releaseStep('parse image metadata')
       + step.withId('parse-metadata')
       + step.withRun(|||
         mkdir -p dist
@@ -34,22 +35,41 @@ local lokiStep = common.lokiStep;
       ||| % path),
       step.new('Build and export', 'docker/build-push-action@v5')
       + step.with({
-        context: 'loki',
-        file: 'loki/%s/Dockerfile' % path,
+        context: 'release',
+        file: 'release/%s/Dockerfile' % path,
         platforms: '${{ matrix.platform }}',
         tags: 'grafana/%s:${{ steps.parse-metadata.outputs.version }}' % name,
-        outputs: 'type=docker,dest=loki/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        outputs: 'type=docker,dest=release/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
       step.new('upload artifacts', 'actions/upload-artifact@v3')
       + step.with({
         name: '%s-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}' % name,
-        path: 'loki/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        path: 'release/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
     ]),
 
+  distTemp: job.new()
+            + job.withSteps([
+              common.fetchReleaseRepo,
+              common.googleAuth,
+              releaseStep('upload changelog')
+              + step.withRun(|||
+                mkdir -p dist
+                cp CHANGELOG.md dist/
+              |||),
+              step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v1')
+              + step.with({
+                path: 'release/dist',
+                destination: 'loki-build-artifacts/${{ github.sha }}',  //TODO: make bucket configurable
+              })
+              + step.withEnv({
+                ACTIONS_STEP_DEBUG: 'true',
+              }),
+            ]),
+
   dist: job.new()
         + job.withSteps([
-          common.fetchLokiRepo,
+          common.fetchReleaseRepo,
           common.setupGo,
           common.googleAuth,
 
@@ -67,18 +87,18 @@ local lokiStep = common.lokiStep;
               libsystemd-dev jq
           |||),
 
-          lokiStep('build artifacts')
+          releaseStep('build artifacts')
           + step.withRun('make BUILD_IN_CONTAINER=false SKIP_ARM=true dist'),
 
-          lokiStep('pacakge artifacts')
+          releaseStep('pacakge artifacts')
           + step.withRun(|||
             tar -czf dist.tar.gz dist
           |||),
 
           step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v1')
           + step.with({
-            path: 'loki/dist.tar.gz',
-            destination: 'loki-build-artifacts/${{ github.sha }}/dist.tar.gz',
+            path: 'release/dist.tar.gz',
+            destination: 'loki-build-artifacts/${{ github.sha }}/dist.tar.gz',  //TODO: make bucket configurable
           })
           + step.withEnv({
             ACTIONS_STEP_DEBUG: 'true',
