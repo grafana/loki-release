@@ -194,6 +194,7 @@ jobs:
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/dist.tar.gz"
         path: "release/dist.tar.gz"
+        process_gcloudignore: false
   lint:
     if: "${{ !fromJSON(inputs.skip_validation) }}"
     runs-on: "ubuntu-latest"
@@ -285,7 +286,7 @@ jobs:
       shell: "bash"
       working-directory: "release"
   loki-image:
-    if: "${{ inputs.release_repo }} == grafana/loki"
+    if: "${{ inputs.release_repo == 'grafana/loki' }}"
     needs:
     - "test"
     - "lint"
@@ -339,7 +340,7 @@ jobs:
         - "linux/arm64"
         - "linux/arm"
   promtail-image:
-    if: "${{ inputs.release_repo }} == grafana/loki"
+    if: "${{ inputs.release_repo == 'grafana/loki' }}"
     needs:
     - "test"
     - "lint"

@@ -16,7 +16,7 @@ local releaseStep = common.releaseStep;
         ],
       },
     })
-    + job.withIf('${{ inputs.release_repo }} == grafana/loki')
+    + job.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
     + job.withSteps([
       common.fetchReleaseRepo,
       common.setupGo,
@@ -80,6 +80,7 @@ local releaseStep = common.releaseStep;
           + step.with({
             path: 'release/dist.tar.gz',
             destination: 'loki-build-artifacts/${{ github.sha }}/dist.tar.gz',  //TODO: make bucket configurable
+            process_gcloudignore: false,
           }),
         ]),
 }
