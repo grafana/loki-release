@@ -7,7 +7,7 @@ import { GitHub } from 'release-please/build/src/github'
 import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
 import { Version } from 'release-please/build/src/version'
-import { NoOpLogger, mockGitHub } from './helpers'
+import { mockGitHub } from './helpers'
 import { DefaultChangelogNotes } from 'release-please/build/src/changelog-notes/default'
 import { parseConventionalCommits } from 'release-please/build/src/commit'
 
@@ -60,8 +60,6 @@ const commits = parseConventionalCommits([
   }
 ])
 
-const log = new NoOpLogger()
-
 describe('release', () => {
   beforeEach(async () => {
     fakeGitHub = await mockGitHub()
@@ -111,7 +109,7 @@ describe('release', () => {
         }
       ])
 
-      const release = await shouldRelease('main', log)
+      const release = await shouldRelease('main')
       expect(release).toBeDefined()
       expect(release?.name).toEqual('v1.3.2')
     })

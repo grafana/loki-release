@@ -2,20 +2,15 @@ import { createGitHubInstance, findMergedReleasePullRequests } from './github'
 import { Version } from 'release-please/build/src/version'
 
 import { PullRequest } from 'release-please/build/src/pull-request'
-import { GitHubActionsLogger, logger } from './util'
-import { Logger } from 'release-please/build/src/util/logger'
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
 
+import { error, info, warning } from '@actions/core'
+
 export async function shouldRelease(
-  baseBranch: string,
-  log: Logger = new GitHubActionsLogger()
+  baseBranch: string
 ): Promise<ReleaseMeta | undefined> {
   const gh = await createGitHubInstance(baseBranch)
-  const mergedReleasePRs = await findMergedReleasePullRequests(
-    baseBranch,
-    gh,
-    log
-  )
+  const mergedReleasePRs = await findMergedReleasePullRequests(baseBranch, gh)
 
   const candidateReleases: ReleaseMeta[] = []
   for (const pullRequest of mergedReleasePRs) {
@@ -31,7 +26,7 @@ export async function shouldRelease(
     }
 
     const release = await prepareSingleRelease(pullRequest, version)
-    log.info(`release: ${release}`)
+    info(`release: ${release}`)
 
     if (release !== undefined) {
       candidateReleases.push({
@@ -45,7 +40,7 @@ export async function shouldRelease(
   }
 
   if (candidateReleases.length > 1) {
-    log.warn(
+    warning(
       'More than one release candidate found, only releasing the first one. Rerun job to release the next.'
     )
   }
@@ -62,9 +57,8 @@ async function prepareSingleRelease(
   mergedPullRequest: PullRequest,
   version: Version
 ): Promise<ReleaseMeta | undefined> {
-  const log = logger()
   if (!mergedPullRequest.sha) {
-    log.error('Pull request should have been merged')
+    error('Pull request should have been merged')
     return
   }
 

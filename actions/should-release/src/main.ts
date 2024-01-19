@@ -1,6 +1,5 @@
-import { getInput, setFailed, setOutput } from '@actions/core'
+import { getInput, info, setFailed, setOutput } from '@actions/core'
 import { shouldRelease } from './release'
-import { logger } from './util'
 
 /**
  * The main function for the action.
@@ -10,13 +9,12 @@ export async function run(): Promise<void> {
   try {
     const baseBranch = getInput('baseBranch')
 
-    const log = logger()
-    log.info(`baseBranch:            ${baseBranch}`)
+    info(`baseBranch:            ${baseBranch}`)
 
     const release = await shouldRelease(baseBranch)
 
     if (release === undefined) {
-      log.info('nothing to release')
+      info('nothing to release')
       setOutput('shouldRelease', false)
       return
     }

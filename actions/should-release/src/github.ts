@@ -1,14 +1,13 @@
 import { GitHub, OctokitAPIs } from 'release-please/build/src/github'
 
-import { getInput } from '@actions/core'
-import { Logger } from 'release-please/build/src/util/logger'
+import { getInput, info, debug } from '@actions/core'
 import { PullRequest } from 'release-please/build/src/pull-request'
 import {
   DEFAULT_RELEASE_LABELS,
   GITHUB_API_URL,
   GITHUB_GRAPHQL_URL
 } from './constants'
-import { GitHubActionsLogger } from './util'
+import { Logger } from 'release-please'
 
 export interface ProxyOption {
   host: string
@@ -30,8 +29,7 @@ export interface GitHubCreateOptions {
 //TODO: copied from release-please, needs tests
 export async function findMergedReleasePullRequests(
   baseBranch: string,
-  github: GitHub,
-  logger: Logger = new GitHubActionsLogger()
+  github: GitHub
 ): Promise<PullRequest[]> {
   // Find merged release pull requests
   const mergedPullRequests: PullRequest[] = []
@@ -47,7 +45,7 @@ export async function findMergedReleasePullRequests(
       continue
     }
 
-    logger.debug(
+    debug(
       `Found merged pull request #${pullRequest.number}: '${pullRequest.title}' without labeles ${DEFAULT_RELEASE_LABELS} in ${pullRequest.labels}`
     )
 
@@ -56,9 +54,7 @@ export async function findMergedReleasePullRequests(
     })
   }
 
-  logger.info(
-    `found ${mergedPullRequests.length} merged release pull requests.`
-  )
+  info(`found ${mergedPullRequests.length} merged release pull requests.`)
   return mergedPullRequests
 }
 
