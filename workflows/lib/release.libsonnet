@@ -20,10 +20,14 @@ local releaseLibStep = common.releaseLibStep;
 
       releaseLibStep('release please')
       + step.withId('release')
+      + step.withEnv({
+        SHA: '${{ github.sha }}',
+      })
+      //TODO make bucket configurable
       + step.withRun(|||
         npm install
         npm exec -- release-please release-pr \
-          --pull-request-footer "sha-to-release: ${{ github.sha }}" \
+          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \

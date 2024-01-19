@@ -134,12 +134,14 @@ jobs:
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - id: "release"
+    - env:
+        SHA: "${{ github.sha }}"
+      id: "release"
       name: "release please"
       run: |
         npm install
         npm exec -- release-please release-pr \
-          --pull-request-footer "sha-to-release: ${{ github.sha }}" \
+          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \

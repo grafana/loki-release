@@ -4,7 +4,7 @@ import { PullRequest } from 'release-please/build/src/pull-request'
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
 import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
 
-import { error, info, warning } from '@actions/core'
+import { error, warning } from '@actions/core'
 import { CheckpointLogger } from 'release-please/build/src/util/logger'
 
 export async function shouldRelease(
@@ -21,7 +21,6 @@ export async function shouldRelease(
     }
 
     const release = await prepareSingleRelease(pullRequest)
-    info(`release: ${release}`)
 
     if (release !== undefined) {
       candidateReleases.push({
@@ -48,6 +47,9 @@ type ReleaseMeta = {
   sha?: string | undefined
 }
 
+const footerPattern =
+  /^Merging this PR will release the \[artifacts\]\(.*\) of (?<sha>\S+)$/
+
 async function prepareSingleRelease(
   pullRequest: PullRequest
 ): Promise<ReleaseMeta | undefined> {
@@ -72,7 +74,7 @@ async function prepareSingleRelease(
   }
 
   const footer = pullRequestBody.footer
-  const match = footer?.match(/^sha-to-release:\s*(?<sha>\S+)$/)
+  const match = footer?.match(footerPattern)
   if (!match?.groups?.sha) {
     return
   }

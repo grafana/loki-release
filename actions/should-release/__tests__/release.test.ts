@@ -16,10 +16,12 @@ const sandbox = createSandbox()
 let findMergedReleasePullRequests: SinonStub
 let fakeGitHub: GitHub
 let defaultPRNotes: string
-let defaultPRBody: PullRequestBody
 let defaultPRTitle: string
 
 const defaultNextVersion = Version.parse('1.3.2')
+
+const footer =
+  'Merging this PR will release the [artifacts](https://loki-build-artifacts.storage.googleapis.com/def456) of def456'
 
 const commits = parseConventionalCommits([
   // This feature will be release in 1.3.2
@@ -104,7 +106,7 @@ describe('release', () => {
               }
             ],
             {
-              footer: `sha-to-release: def456`
+              footer
             }
           ).toString(),
           labels: [],
@@ -133,7 +135,7 @@ describe('release', () => {
               }
             ],
             {
-              footer: `sha-to-release: def456`
+              footer
             }
           ).toString(),
           labels: [],
