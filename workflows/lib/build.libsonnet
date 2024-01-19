@@ -72,15 +72,10 @@ local releaseStep = common.releaseStep;
           releaseStep('build artifacts')
           + step.withRun('make BUILD_IN_CONTAINER=false SKIP_ARM=true dist'),
 
-          releaseStep('pacakge artifacts')
-          + step.withRun(|||
-            tar -czf dist.tar.gz dist
-          |||),
-
           step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v1')
           + step.with({
-            path: 'release/dist.tar.gz',
-            destination: 'loki-build-artifacts/${{ github.sha }}/dist.tar.gz',  //TODO: make bucket configurable
+            path: 'release/dist',
+            destination: 'loki-build-artifacts/${{ github.sha }}',  //TODO: make bucket configurable
             process_gcloudignore: false,
           }),
         ]),

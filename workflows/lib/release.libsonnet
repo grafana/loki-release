@@ -25,7 +25,8 @@ local releaseLibStep = common.releaseLibStep;
         npm exec -- release-please release-pr \
           --token="${{ secrets.GH_TOKEN }}" \
           --repo-url="${{ inputs.release_repo }}" \
-          --target-branch "${{ steps.extract_branch.outputs.branch }}"
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --pull-request-footer "sha-to-release: ${{ github.sha }}"
       |||),
     ]),
 

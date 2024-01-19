@@ -80,13 +80,6 @@ describe('release', () => {
       commits
     })
 
-    defaultPRBody = new PullRequestBody([
-      {
-        version: defaultNextVersion,
-        notes: defaultPRNotes
-      }
-    ])
-
     defaultPRTitle = PullRequestTitle.ofVersion(defaultNextVersion).toString()
   })
 
@@ -103,7 +96,17 @@ describe('release', () => {
           sha: 'abc123',
           number: 42,
           title: defaultPRTitle,
-          body: defaultPRBody.toString(),
+          body: new PullRequestBody(
+            [
+              {
+                version: defaultNextVersion,
+                notes: defaultPRNotes
+              }
+            ],
+            {
+              footer: `sha-to-release: def456`
+            }
+          ).toString(),
           labels: [],
           files: []
         }
@@ -112,6 +115,63 @@ describe('release', () => {
       const release = await shouldRelease('main')
       expect(release).toBeDefined()
       expect(release?.name).toEqual('v1.3.2')
+    })
+
+    it('parses the sha to release from the pull request footer', async () => {
+      findMergedReleasePullRequests.resolves([
+        {
+          headBranchName: `release-please--branches--release-1.3.x`,
+          baseBranchName: 'release-1.3.x',
+          sha: 'abc123',
+          number: 42,
+          title: defaultPRTitle,
+          body: new PullRequestBody(
+            [
+              {
+                version: defaultNextVersion,
+                notes: defaultPRNotes
+              }
+            ],
+            {
+              footer: `sha-to-release: def456`
+            }
+          ).toString(),
+          labels: [],
+          files: []
+        }
+      ])
+
+      const release = await shouldRelease('main')
+      expect(release).toBeDefined()
+      expect(release?.sha).toEqual('def456')
+    })
+
+    it('returns undefined if it cannot parse a sha from the footer', async () => {
+      findMergedReleasePullRequests.resolves([
+        {
+          headBranchName: `release-please--branches--release-1.3.x`,
+          baseBranchName: 'release-1.3.x',
+          sha: 'abc123',
+          number: 42,
+          title: defaultPRTitle,
+          body: new PullRequestBody(
+            [
+              {
+                version: defaultNextVersion,
+                notes: defaultPRNotes
+              }
+            ],
+            {
+              footer: `not a valid footer`
+            }
+          ).toString(),
+          labels: [],
+          files: []
+        }
+      ])
+
+      const release = await shouldRelease('main')
+      expect(release).not.toBeDefined()
     })
   })
 })

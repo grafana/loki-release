@@ -141,7 +141,8 @@ jobs:
         npm exec -- release-please release-pr \
           --token="${{ secrets.GH_TOKEN }}" \
           --repo-url="${{ inputs.release_repo }}" \
-          --target-branch "${{ steps.extract_branch.outputs.branch }}"
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --pull-request-footer "sha-to-release: ${{ github.sha }}"
       shell: "bash"
       working-directory: "lib"
   dist:
@@ -184,16 +185,11 @@ jobs:
       run: "make BUILD_IN_CONTAINER=false SKIP_ARM=true dist"
       shell: "bash"
       working-directory: "release"
-    - name: "pacakge artifacts"
-      run: |
-        tar -czf dist.tar.gz dist
-      shell: "bash"
-      working-directory: "release"
     - name: "upload build artifacts"
       uses: "google-github-actions/upload-cloud-storage@v1"
       with:
-        destination: "loki-build-artifacts/${{ github.sha }}/dist.tar.gz"
-        path: "release/dist.tar.gz"
+        destination: "loki-build-artifacts/${{ github.sha }}"
+        path: "release/dist"
         process_gcloudignore: false
   lint:
     if: "${{ !fromJSON(inputs.skip_validation) }}"
