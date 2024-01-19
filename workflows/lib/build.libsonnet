@@ -16,7 +16,6 @@ local releaseStep = common.releaseStep;
         ],
       },
     })
-    + job.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
     + job.withSteps([
       common.fetchReleaseRepo,
       common.setupGo,
@@ -34,6 +33,7 @@ local releaseStep = common.releaseStep;
         echo "version=${version}" >> $GITHUB_OUTPUT
       ||| % path),
       step.new('Build and export', 'docker/build-push-action@v5')
+      + step.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
       + step.with({
         context: 'release',
         file: 'release/%s/Dockerfile' % path,
@@ -42,6 +42,7 @@ local releaseStep = common.releaseStep;
         outputs: 'type=docker,dest=release/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
       step.new('upload artifacts', 'actions/upload-artifact@v3')
+      + step.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
       + step.with({
         name: '%s-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}' % name,
         path: 'release/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,

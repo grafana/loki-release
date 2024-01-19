@@ -286,7 +286,6 @@ jobs:
       shell: "bash"
       working-directory: "release"
   loki-image:
-    if: "${{ inputs.release_repo == 'grafana/loki' }}"
     needs:
     - "test"
     - "lint"
@@ -319,7 +318,8 @@ jobs:
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - name: "Build and export"
+    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+      name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
@@ -327,7 +327,8 @@ jobs:
         outputs: "type=docker,dest=release/dist/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "grafana/loki:${{ steps.parse-metadata.outputs.version }}"
-    - name: "upload artifacts"
+    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+      name: "upload artifacts"
       uses: "actions/upload-artifact@v3"
       with:
         name: "loki-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
@@ -340,7 +341,6 @@ jobs:
         - "linux/arm64"
         - "linux/arm"
   promtail-image:
-    if: "${{ inputs.release_repo == 'grafana/loki' }}"
     needs:
     - "test"
     - "lint"
@@ -373,7 +373,8 @@ jobs:
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - name: "Build and export"
+    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+      name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
@@ -381,7 +382,8 @@ jobs:
         outputs: "type=docker,dest=release/dist/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "grafana/promtail:${{ steps.parse-metadata.outputs.version }}"
-    - name: "upload artifacts"
+    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+      name: "upload artifacts"
       uses: "actions/upload-artifact@v3"
       with:
         name: "promtail-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}"
