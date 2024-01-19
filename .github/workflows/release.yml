@@ -42,20 +42,21 @@ jobs:
     - if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
       name: "download build artifacts"
       run: |
-        gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
+        gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/dist .
         ls dist
       shell: "bash"
       working-directory: "release"
     - id: "release"
-      if: "${{ fromJSON(steps.prepare.should_release.shouldRelease) }}"
+      if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
       name: "release please"
       run: |
         npm install
         npm exec -- release-please github-release \
-          --token="${{ secrets.GH_TOKEN }}" \
+          --draft \
+          --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --draft
+          --token="${{ secrets.GH_TOKEN }}"
       shell: "bash"
       working-directory: "release"
     - env:

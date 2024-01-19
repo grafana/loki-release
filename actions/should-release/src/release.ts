@@ -1,10 +1,11 @@
 import { createGitHubInstance, findMergedReleasePullRequests } from './github'
-import { Version } from 'release-please/build/src/version'
 
 import { PullRequest } from 'release-please/build/src/pull-request'
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
+import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
 
-import { error, info, warning } from '@actions/core'
+import { error, warning } from '@actions/core'
+import { CheckpointLogger } from 'release-please/build/src/util/logger'
 
 export async function shouldRelease(
   baseBranch: string
@@ -19,14 +20,7 @@ export async function shouldRelease(
       continue
     }
 
-    const prTitle = PullRequestTitle.parse(pullRequest.title)
-    const version = prTitle?.getVersion()
-    if (version === undefined) {
-      continue
-    }
-
-    const release = await prepareSingleRelease(pullRequest, version)
-    info(`release: ${release}`)
+    const release = await prepareSingleRelease(pullRequest)
 
     if (release !== undefined) {
       candidateReleases.push({
@@ -53,17 +47,40 @@ type ReleaseMeta = {
   sha?: string | undefined
 }
 
+const footerPattern =
+  /^Merging this PR will release the \[artifacts\]\(.*\) of (?<sha>\S+)$/
+
 async function prepareSingleRelease(
-  mergedPullRequest: PullRequest,
-  version: Version
+  pullRequest: PullRequest
 ): Promise<ReleaseMeta | undefined> {
-  if (!mergedPullRequest.sha) {
+  if (!pullRequest.sha) {
     error('Pull request should have been merged')
+    return
+  }
+
+  const prTitle = PullRequestTitle.parse(pullRequest.title)
+  const version = prTitle?.getVersion()
+  if (version === undefined) {
+    return
+  }
+
+  const pullRequestBody = PullRequestBody.parse(
+    pullRequest.body,
+    new CheckpointLogger()
+  )
+  if (!pullRequestBody) {
+    error('Could not parse pull request body as a release PR')
+    return
+  }
+
+  const footer = pullRequestBody.footer
+  const match = footer?.match(footerPattern)
+  if (!match?.groups?.sha) {
     return
   }
 
   return {
     name: `v${version.toString()}`,
-    sha: mergedPullRequest.sha
+    sha: match.groups.sha
   }
 }

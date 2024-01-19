@@ -16,7 +16,6 @@ local releaseStep = common.releaseStep;
         ],
       },
     })
-    + job.withIf('${{ inputs.release_repo }} == grafana/loki')
     + job.withSteps([
       common.fetchReleaseRepo,
       common.setupGo,
@@ -34,17 +33,19 @@ local releaseStep = common.releaseStep;
         echo "version=${version}" >> $GITHUB_OUTPUT
       ||| % path),
       step.new('Build and export', 'docker/build-push-action@v5')
+      + step.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
       + step.with({
         context: 'release',
         file: 'release/%s/Dockerfile' % path,
         platforms: '${{ matrix.platform }}',
         tags: 'grafana/%s:${{ steps.parse-metadata.outputs.version }}' % name,
-        outputs: 'type=docker,dest=release/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        outputs: 'type=docker,dest=release/images/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
       step.new('upload artifacts', 'actions/upload-artifact@v3')
+      + step.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
       + step.with({
         name: '%s-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}' % name,
-        path: 'release/dist/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        path: 'release/images/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
     ]),
 
@@ -71,15 +72,11 @@ local releaseStep = common.releaseStep;
           releaseStep('build artifacts')
           + step.withRun('make BUILD_IN_CONTAINER=false SKIP_ARM=true dist'),
 
-          releaseStep('pacakge artifacts')
-          + step.withRun(|||
-            tar -czf dist.tar.gz dist
-          |||),
-
           step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v1')
           + step.with({
-            path: 'release/dist.tar.gz',
-            destination: 'loki-build-artifacts/${{ github.sha }}/dist.tar.gz',  //TODO: make bucket configurable
+            path: 'release/dist',
+            destination: 'loki-build-artifacts/${{ github.sha }}',  //TODO: make bucket configurable
+            process_gcloudignore: false,
           }),
         ]),
 }

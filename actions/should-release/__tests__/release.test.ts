@@ -16,10 +16,12 @@ const sandbox = createSandbox()
 let findMergedReleasePullRequests: SinonStub
 let fakeGitHub: GitHub
 let defaultPRNotes: string
-let defaultPRBody: PullRequestBody
 let defaultPRTitle: string
 
 const defaultNextVersion = Version.parse('1.3.2')
+
+const footer =
+  'Merging this PR will release the [artifacts](https://loki-build-artifacts.storage.googleapis.com/def456) of def456'
 
 const commits = parseConventionalCommits([
   // This feature will be release in 1.3.2
@@ -80,13 +82,6 @@ describe('release', () => {
       commits
     })
 
-    defaultPRBody = new PullRequestBody([
-      {
-        version: defaultNextVersion,
-        notes: defaultPRNotes
-      }
-    ])
-
     defaultPRTitle = PullRequestTitle.ofVersion(defaultNextVersion).toString()
   })
 
@@ -103,7 +98,17 @@ describe('release', () => {
           sha: 'abc123',
           number: 42,
           title: defaultPRTitle,
-          body: defaultPRBody.toString(),
+          body: new PullRequestBody(
+            [
+              {
+                version: defaultNextVersion,
+                notes: defaultPRNotes
+              }
+            ],
+            {
+              footer
+            }
+          ).toString(),
           labels: [],
           files: []
         }
@@ -112,6 +117,63 @@ describe('release', () => {
       const release = await shouldRelease('main')
       expect(release).toBeDefined()
       expect(release?.name).toEqual('v1.3.2')
+    })
+
+    it('parses the sha to release from the pull request footer', async () => {
+      findMergedReleasePullRequests.resolves([
+        {
+          headBranchName: `release-please--branches--release-1.3.x`,
+          baseBranchName: 'release-1.3.x',
+          sha: 'abc123',
+          number: 42,
+          title: defaultPRTitle,
+          body: new PullRequestBody(
+            [
+              {
+                version: defaultNextVersion,
+                notes: defaultPRNotes
+              }
+            ],
+            {
+              footer
+            }
+          ).toString(),
+          labels: [],
+          files: []
+        }
+      ])
+
+      const release = await shouldRelease('main')
+      expect(release).toBeDefined()
+      expect(release?.sha).toEqual('def456')
+    })
+
+    it('returns undefined if it cannot parse a sha from the footer', async () => {
+      findMergedReleasePullRequests.resolves([
+        {
+          headBranchName: `release-please--branches--release-1.3.x`,
+          baseBranchName: 'release-1.3.x',
+          sha: 'abc123',
+          number: 42,
+          title: defaultPRTitle,
+          body: new PullRequestBody(
+            [
+              {
+                version: defaultNextVersion,
+                notes: defaultPRNotes
+              }
+            ],
+            {
+              footer: `not a valid footer`
+            }
+          ).toString(),
+          labels: [],
+          files: []
+        }
+      ])
+
+      const release = await shouldRelease('main')
+      expect(release).not.toBeDefined()
     })
   })
 })
