@@ -1,5 +1,39 @@
 # Changelog
 
+## [1.5.3](https://github.com/grafana/loki-release/compare/v1.5.2...v1.5.3) (2024-01-19)
+
+
+### Features
+
+* add GPG key and passphrase ([32cc695](https://github.com/grafana/loki-release/commit/32cc69564c89428681420c50842025be7e084d94))
+* change GH token ([1d84a20](https://github.com/grafana/loki-release/commit/1d84a20011a4b4e3e26433dc1e1553498287affa))
+* conditionally create tag ([a37a955](https://github.com/grafana/loki-release/commit/a37a9556c8a9cd97b05a1320f803ca94fbf556bf))
+* create release tag ([c2f799b](https://github.com/grafana/loki-release/commit/c2f799b9d9fb528b46826da521ec3a3ecdfa279e))
+* create release w/ release-please, remove lokiStep ([21a070f](https://github.com/grafana/loki-release/commit/21a070ff9f104fd110db3ac6aafaa96a8b8cab79))
+* fix email/gpg mismatch ([594ff7b](https://github.com/grafana/loki-release/commit/594ff7b6c1a31d68ec64a070d390fcc6a45b481a))
+* get version from PR title ([7745394](https://github.com/grafana/loki-release/commit/7745394c1e69bdb3552a7c66cb36ce51fd1ed5df))
+* give release write-all permission ([27d4a81](https://github.com/grafana/loki-release/commit/27d4a81a78c3c8615327fe365e244fe8d559b9c7))
+* give workflow write-all permission ([db91e71](https://github.com/grafana/loki-release/commit/db91e71b5b4092026031d1c126364fa25e3dd1fe))
+* guard creating release and uploading artifacts ([243f2b9](https://github.com/grafana/loki-release/commit/243f2b9496d7d0a5de7a4a0ad1f1fc1c94655afb))
+* keep release a draft until assets are uploaded ([e133e94](https://github.com/grafana/loki-release/commit/e133e94a425dec6f807787f3c316203fa43a3c41))
+* manually setup github user ([4661ec0](https://github.com/grafana/loki-release/commit/4661ec023db3a3269d48d11e20e864655b71cd14))
+* switch create tag actions ([c239916](https://github.com/grafana/loki-release/commit/c239916786e9052d515944d924f0336d50d3aaee))
+* try create tag action ([3415973](https://github.com/grafana/loki-release/commit/3415973ed819021565ffbf16f2737947c7dc501c))
+* try creating release again ([5500b1b](https://github.com/grafana/loki-release/commit/5500b1b25a711edec56dd368a917499647916297))
+* try upload again ([ee86be7](https://github.com/grafana/loki-release/commit/ee86be793aa70c4c709e7f3355e7c7a49055ae8b))
+* update GPG action ([9f196f1](https://github.com/grafana/loki-release/commit/9f196f10d9d5ec8766df7e401e32b0181ec98326))
+* use gh to create release ([2ce1492](https://github.com/grafana/loki-release/commit/2ce1492254e3eb31b0acdf4762501f390de84bb0))
+* why is this the hard part? ([ad1862c](https://github.com/grafana/loki-release/commit/ad1862c71582e1bbc3cb7b5d46aa958115602fe4))
+
+
+### Bug Fixes
+
+* args set via env ([8e3d65c](https://github.com/grafana/loki-release/commit/8e3d65c1f0ce129c237ff29f268d0e04c35dcd48))
+* building of action ([a3b0662](https://github.com/grafana/loki-release/commit/a3b0662853b113d359d25a5ad4f496b96ba374ca))
+* need to be in a repo to tag ([9e6705e](https://github.com/grafana/loki-release/commit/9e6705ed7161cae9b62d19d01126b4f919420276))
+* set GH_TOKEN ([169b01a](https://github.com/grafana/loki-release/commit/169b01a2883eae5031f60e651d6a89ae852aa9b2))
+* set source dir for create tag action ([3a93adb](https://github.com/grafana/loki-release/commit/3a93adbfe3aba0e28349753b60b91e488ed4766c))
+
 ## [1.5.2](https://github.com/grafana/loki-release/compare/v1.5.1...v1.5.2) (2024-01-18)
 
 
