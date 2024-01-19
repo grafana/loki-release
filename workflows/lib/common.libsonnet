@@ -38,26 +38,28 @@
     withNeeds: function(needs) {
       needs: needs,
     },
+    withIf: function(_if) {
+      'if': _if,
+    },
   },
-
-  lokiStep: function(name, uses=null) $.step.new(name, uses) +
-                                      $.step.withWorkingDirectory('loki'),
 
   releaseStep: function(name, uses=null) $.step.new(name, uses) +
                                          $.step.withWorkingDirectory('release'),
 
-  fetchLokiRepo:
+  releaseLibStep: function(name, uses=null) $.step.new(name, uses) +
+                                            $.step.withWorkingDirectory('lib'),
+
+  fetchReleaseRepo:
     $.step.new('pull loki code', 'actions/checkout@v3')
     + $.step.with({
-      repository: 'grafana/loki',
-      ref: 'prepare-release-please',
-      path: 'loki',
+      repository: '${{ inputs.release_repo }}',
+      path: 'release',
     }),
-  fetchReleaseRepo:
+  fetchReleaseLib:
     $.step.new('pull release code', 'actions/checkout@v3')
     + $.step.with({
       repository: 'grafana/loki-release',
-      path: 'release',
+      path: 'lib',
     }),
   setupGo: $.step.new('setup go', 'actions/setup-go@v4')
            + $.step.with({

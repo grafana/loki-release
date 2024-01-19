@@ -17,13 +17,12 @@ jobs:
     - name: "pull loki code"
       uses: "actions/checkout@v3"
       with:
-        path: "loki"
-        ref: "prepare-release-please"
-        repository: "grafana/loki"
+        path: "release"
+        repository: "${{ inputs.release_repo }}"
     - name: "pull release code"
       uses: "actions/checkout@v3"
       with:
-        path: "release"
+        path: "lib"
         repository: "grafana/loki-release"
     - name: "setup node"
       uses: "actions/setup-node@v4"
@@ -32,14 +31,9 @@ jobs:
     - id: "extract_branch"
       name: "extract branch name"
       run: |
-        if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
-          cd loki
-          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        else
-          cd release
-          echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        fi
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
+      working-directory: "release"
     - id: "release"
       name: "release please"
       run: |
@@ -49,7 +43,7 @@ jobs:
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}"
       shell: "bash"
-      working-directory: "release"
+      working-directory: "lib"
   dist:
     needs:
     - "test"
@@ -60,9 +54,8 @@ jobs:
     - name: "pull loki code"
       uses: "actions/checkout@v3"
       with:
-        path: "loki"
-        ref: "prepare-release-please"
-        repository: "grafana/loki"
+        path: "release"
+        repository: "${{ inputs.release_repo }}"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -74,14 +67,14 @@ jobs:
         mkdir -p dist
         cp CHANGELOG.md dist/
       shell: "bash"
-      working-directory: "loki"
+      working-directory: "release"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "upload build artifacts"
       uses: "google-github-actions/upload-cloud-storage@v1"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}"
-        path: "loki/dist"
+        path: "release/dist"
   lint:
     runs-on: "ubuntu-latest"
     steps:
@@ -89,6 +82,7 @@ jobs:
       run: "echo \"always green\""
       shell: "bash"
   loki-image:
+    if: "${{ inputs.release_repo }} == grafana/loki"
     needs:
     - "test"
     - "lint"
@@ -106,6 +100,7 @@ jobs:
         - "linux/arm64"
         - "linux/arm"
   promtail-image:
+    if: "${{ inputs.release_repo }} == grafana/loki"
     needs:
     - "test"
     - "lint"
