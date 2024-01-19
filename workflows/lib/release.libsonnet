@@ -82,8 +82,6 @@ local releaseStep = common.releaseStep;
                git_user_signingkey: true,
                git_commit_gpgsign: true,
                git_tag_gpgsign: true,
-               git_committer_name: 'GitHub Actions',
-               git_committer_email: '41898282+github-actions[bot]@users.noreply.github.com',
                workdir: 'release',  //TODO: needs to be configurable (we should probably create release and libs directories)
              }),
 
