@@ -82,32 +82,32 @@ local releaseStep = common.releaseStep;
                git_user_signingkey: true,
                git_commit_gpgsign: true,
                git_tag_gpgsign: true,
-               git_comitter_name: 'GitHub Actions',
-               git_comitter_email: '41898282+github-actions[bot]@users.noreply.github.com',
-               workdir: 'release',  //TODO: needs to be configurable
+               git_committer_name: 'GitHub Actions',
+               git_committer_email: '41898282+github-actions[bot]@users.noreply.github.com',
+               workdir: 'release',  //TODO: needs to be configurable (we should probably create release and libs directories)
              }),
 
-             step.new('create tag')
-             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
-             + step.withRun(|||
-               if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
-                 cd loki
-               else
-                 cd release
-               fi
+             // step.new('create tag')
+             // + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
+             // + step.withRun(|||
+             //   if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
+             //     cd loki
+             //   else
+             //     cd release
+             //   fi
 
-               RELEASE="${{ steps.prepare.outputs.name}}"
-               git tag -s $RELEASE -m "tagging release $RELEASE"
-               git push origin $RELEASE
-             |||),
+             //   RELEASE="${{ steps.prepare.outputs.name}}"
+             //   git tag -s $RELEASE -m "tagging release $RELEASE"
+             //   git push origin $RELEASE
+             // |||),
 
              step.new('create release', 'softprops/action-gh-release@v1')
              + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
              + step.with({
-               name: '${{ steps.prepare.outputs.name }}',
+               token: '${{ secrets.GH_TOKEN }}',
                tag_name: '${{ steps.prepare.outputs.name }}',
                body: '${{ steps.prepare.outputs.notes }}',
-               target_commitish: '${{ steps.prepare.outputs.sha }}',
+               // target_commitish: '${{ steps.prepare.outputs.sha }}',
                files: 'dist/*',
                repository: '${{ inputs.release_repo }}',
                fail_on_unmatched_files: true,
