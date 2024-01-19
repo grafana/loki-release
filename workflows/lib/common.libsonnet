@@ -50,13 +50,13 @@
                                             $.step.withWorkingDirectory('lib'),
 
   fetchReleaseRepo:
-    $.step.new('pull loki code', 'actions/checkout@v3')
+    $.step.new('pull code to release', 'actions/checkout@v3')
     + $.step.with({
       repository: '${{ inputs.release_repo }}',
       path: 'release',
     }),
   fetchReleaseLib:
-    $.step.new('pull release code', 'actions/checkout@v3')
+    $.step.new('pull release library code', 'actions/checkout@v3')
     + $.step.with({
       repository: 'grafana/loki-release',
       path: 'lib',

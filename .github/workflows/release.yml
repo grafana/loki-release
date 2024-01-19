@@ -4,12 +4,12 @@ jobs:
   release:
     runs-on: "ubuntu-latest"
     steps:
-    - name: "pull loki code"
+    - name: "pull code to release"
       uses: "actions/checkout@v3"
       with:
         path: "release"
         repository: "${{ inputs.release_repo }}"
-    - name: "pull release code"
+    - name: "pull release library code"
       uses: "actions/checkout@v3"
       with:
         path: "lib"
