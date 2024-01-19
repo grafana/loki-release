@@ -18,8 +18,8 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        cache-dependency-path: "loki/go.sum"
-        go-version-file: "loki/go.mod"
+        cache-dependency-path: "release/go.sum"
+        go-version-file: "release/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
@@ -159,8 +159,8 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        cache-dependency-path: "loki/go.sum"
-        go-version-file: "loki/go.mod"
+        cache-dependency-path: "release/go.sum"
+        go-version-file: "release/go.mod"
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -211,8 +211,8 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        cache-dependency-path: "loki/go.sum"
-        go-version-file: "loki/go.mod"
+        cache-dependency-path: "release/go.sum"
+        go-version-file: "release/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
@@ -300,8 +300,8 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        cache-dependency-path: "loki/go.sum"
-        go-version-file: "loki/go.mod"
+        cache-dependency-path: "release/go.sum"
+        go-version-file: "release/go.mod"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -354,8 +354,8 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        cache-dependency-path: "loki/go.sum"
-        go-version-file: "loki/go.mod"
+        cache-dependency-path: "release/go.sum"
+        go-version-file: "release/go.mod"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -409,8 +409,8 @@ jobs:
     - name: "setup go"
       uses: "actions/setup-go@v4"
       with:
-        cache-dependency-path: "loki/go.sum"
-        go-version-file: "loki/go.mod"
+        cache-dependency-path: "release/go.sum"
+        go-version-file: "release/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
