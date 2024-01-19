@@ -34,12 +34,12 @@ jobs:
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - id: "prepare"
-      name: "prepare release"
-      uses: "./lib/actions/create-release"
+    - id: "should_release"
+      name: "should a release be created?"
+      uses: "./lib/actions/should-release"
       with:
         baseBranch: "${{ steps.extract_branch.outputs.branch }}"
-    - if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
+    - if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
       name: "download build artifacts"
       run: |
         gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
@@ -47,7 +47,7 @@ jobs:
       shell: "bash"
       working-directory: "release"
     - id: "release"
-      if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
+      if: "${{ fromJSON(steps.prepare.should_release.shouldRelease) }}"
       name: "release please"
       run: |
         npm install
@@ -61,11 +61,11 @@ jobs:
     - env:
         GH_TOKEN: "${{ secrets.GH_TOKEN }}"
       id: "upload"
-      if: "${{ fromJSON(steps.prepare.outputs.createRelease) }}"
+      if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
       name: "upload artifacts"
       run: |
-        gh release upload ${{ steps.prepare.outputs.name }} dist/*
-        gh release edit ${{ steps.prepare.outputs.name }} --draft=false
+        gh release upload ${{ steps.should_release.outputs.name }} dist/*
+        gh release edit ${{ steps.should_release.outputs.name }} --draft=false
       shell: "bash"
       working-directory: "release"
 name: "create release"

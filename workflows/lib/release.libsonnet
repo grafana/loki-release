@@ -48,8 +48,8 @@ local releaseLibStep = common.releaseLibStep;
                echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
              |||),
 
-             step.new('prepare release', './lib/actions/create-release')
-             + step.withId('prepare')
+             step.new('should a release be created?', './lib/actions/should-release')
+             + step.withId('should_release')
              + step.with({
                baseBranch: '${{ steps.extract_branch.outputs.branch }}',
              }),
@@ -58,14 +58,14 @@ local releaseLibStep = common.releaseLibStep;
              // meaning there are no artifacts for that sha
              // we need to handle this if we're going to run this pipeline on every merge to main
              releaseStep('download build artifacts')
-             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
+             + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.withRun(|||
                gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
                ls dist
              |||),
 
              releaseStep('release please')
-             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
+             + step.withIf('${{ fromJSON(steps.prepare.should_release.shouldRelease) }}')
              + step.withId('release')
              + step.withRun(|||
                npm install
@@ -77,14 +77,14 @@ local releaseLibStep = common.releaseLibStep;
              |||),
 
              releaseStep('upload artifacts')
-             + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
+             + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.withId('upload')
              + step.withEnv({
                GH_TOKEN: '${{ secrets.GH_TOKEN }}',
              })
              + step.withRun(|||
-               gh release upload ${{ steps.prepare.outputs.name }} dist/*
-               gh release edit ${{ steps.prepare.outputs.name }} --draft=false
+               gh release upload ${{ steps.should_release.outputs.name }} dist/*
+               gh release edit ${{ steps.should_release.outputs.name }} --draft=false
              |||),
            ]),
 }

@@ -11,7 +11,7 @@
     "format:write": "prettier --write **/*.ts",
     "jsonnetfmt": "jsonnetfmt -i -n 2 ./workflows/**/*.{jsonnet,libsonnet}",
     "lint": "npx eslint . -c .eslintrc.yml",
-    "package": "for p in install-binary create-release; do ncc build actions/${p}/src/index.ts --license licenses.txt --out actions/${p}/dist; done",
+    "package": "for p in install-binary should-release; do ncc build actions/${p}/src/index.ts --license licenses.txt --out actions/${p}/dist; done",
     "prepare": "husky install",
     "test": "jest",
     "workflows": "for w in release release-pr; do jsonnet -S workflows/${w}/main.jsonnet > .github/workflows/${w}.yml; done"
