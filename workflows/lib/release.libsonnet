@@ -59,12 +59,12 @@ local releaseLibStep = common.releaseLibStep;
              releaseStep('download build artifacts')
              + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.withRun(|||
-               gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
+               gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/dist .
                ls dist
              |||),
 
              releaseStep('release please')
-             + step.withIf('${{ fromJSON(steps.prepare.should_release.shouldRelease) }}')
+             + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.withId('release')
              + step.withRun(|||
                npm install
