@@ -46,23 +46,30 @@ jobs:
         ls dist
       shell: "bash"
       working-directory: "release"
+    - id: "release"
+      name: "release please"
+      run: |
+        npm install
+        npm exec -- release-please github-release \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --draft
+      shell: "bash"
+      working-directory: "release"
     - env:
         GH_TOKEN: "${{ secrets.GH_TOKEN }}"
       id: "upload"
       name: "upload artifacts"
       run: |
         gh release upload ${{ steps.prepare.outputs.name }} dist/*
+        gh release edit ${{ steps.prepare.outputs.name }} --draft=false
       shell: "bash"
       working-directory: "release"
 name: "create release"
 "on":
   workflow_call:
     inputs:
-      release_pr_workflow:
-        default: "release-pr.yml"
-        description: "workflow file that created the release pr"
-        required: false
-        type: "string"
       release_repo:
         default: "grafana/loki"
         description: "repo to make release in"
@@ -73,8 +80,6 @@ name: "create release"
         required: true
       GH_TOKEN:
         required: true
-      GPG_PASSPHRASE:
-        required: true
-      GPG_PRIVATE_KEY:
-        required: true
-permissions: "write-all"
+permissions:
+  contents: "write"
+  pull-requests: "write"

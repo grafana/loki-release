@@ -139,5 +139,4 @@ name: "create release PR"
         required: true
 permissions:
   contents: "write"
-  issues: "write"
   pull-requests: "write"

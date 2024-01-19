@@ -16,12 +16,6 @@ std.manifestYamlDoc({
           required: false,
           type: 'string',
         },
-        release_pr_workflow: {
-          description: 'workflow file that created the release pr',
-          default: 'release-pr.yml',
-          required: false,
-          type: 'string',
-        },
       },
       secrets: {
         GCS_SERVICE_ACCOUNT_KEY: {
@@ -30,16 +24,13 @@ std.manifestYamlDoc({
         GH_TOKEN: {
           required: true,
         },
-        GPG_PRIVATE_KEY: {
-          required: true,
-        },
-        GPG_PASSPHRASE: {
-          required: true,
-        },
       },
     },
   },
-  permissions: 'write-all',
+  permissions: {
+    contents: 'write',
+    'pull-requests': 'write',
+  },
   concurrency: {
     group: 'create-release-${{ github.sha }}',
   },

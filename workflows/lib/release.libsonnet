@@ -63,15 +63,16 @@ local releaseLibStep = common.releaseLibStep;
                ls dist
              |||),
 
-             // releaseStep('release please')
-             // + step.withId('release')
-             // + step.withRun(|||
-             //   npm install
-             //   npm exec -- release-please github-release \
-             //     --token="${{ secrets.GH_TOKEN }}" \
-             //     --repo-url="${{ inputs.release_repo }}" \
-             //     --target-branch "${{ steps.extract_branch.outputs.branch }}"
-             // |||),
+             releaseStep('release please')
+             + step.withId('release')
+             + step.withRun(|||
+               npm install
+               npm exec -- release-please github-release \
+                 --token="${{ secrets.GH_TOKEN }}" \
+                 --repo-url="${{ inputs.release_repo }}" \
+                 --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+                 --draft
+             |||),
 
              releaseStep('upload artifacts')
              + step.withId('upload')
@@ -80,45 +81,7 @@ local releaseLibStep = common.releaseLibStep;
              })
              + step.withRun(|||
                gh release upload ${{ steps.prepare.outputs.name }} dist/*
+               gh release edit ${{ steps.prepare.outputs.name }} --draft=false
              |||),
-
-             // step.new('Import GPG Key', 'crazy-max/ghaction-import-gpg@v6')
-             // + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
-             // + step.with({
-             //   gpg_private_key: '${{ secrets.GPG_PRIVATE_KEY }}',
-             //   passphrase: '${{ secrets.GPG_PASSPHRASE }}',
-             //   git_user_signingkey: true,
-             //   git_commit_gpgsign: true,
-             //   git_tag_gpgsign: true,
-             //   workdir: 'release',  //TODO: needs to be configurable (we should probably create release and libs directories)
-             // }),
-
-             // step.new('create tag')
-             // + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
-             // + step.withRun(|||
-             //   if [[ "${{ inputs.release_repo }}" == "grafana/loki" ]]; then
-             //     cd loki
-             //   else
-             //     cd release
-             //   fi
-
-             //   RELEASE="${{ steps.prepare.outputs.name}}"
-             //   git tag -s $RELEASE -m "tagging release $RELEASE"
-             //   git push origin $RELEASE
-             // |||),
-
-             //TODO: do we need to refetch the repo to get the latest tag?
-
-             // step.new('create release', 'softprops/action-gh-release@v1')
-             // + step.withIf('${{ fromJSON(steps.prepare.outputs.createRelease) }}')
-             // + step.with({
-             //   token: '${{ secrets.GH_TOKEN }}',
-             //   tag_name: '${{ fromJSON(steps.prepare.outputs.name) }}',
-             //   body: '${{ steps.prepare.outputs.notes }}',
-             //   // target_commitish: '${{ steps.prepare.outputs.sha }}',
-             //   files: 'dist/*',
-             //   repository: '${{ inputs.release_repo }}',
-             //   fail_on_unmatched_files: true,
-             // }),
            ]),
 }
