@@ -4,6 +4,13 @@ local step = common.step;
 local releaseStep = common.releaseStep;
 local releaseLibStep = common.releaseLibStep;
 
+// DO NOT MODIFY THIS FOOTER TEMPLATE
+// This template is matched by the should-release action to detect the correct
+// sha to release and pull aritfacts from. If you need to change this, make sure
+// to change it in both places.
+//TODO: make bucket configurable
+local pullRequestFooter = 'Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}';
+
 {
   createReleasePR:
     job.new()
@@ -27,12 +34,12 @@ local releaseLibStep = common.releaseLibStep;
       + step.withRun(|||
         npm install
         npm exec -- release-please release-pr \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --pull-request-footer "%s" \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}"
-      |||),
+      ||| % pullRequestFooter),
     ]),
 
   release: job.new()
