@@ -4,6 +4,13 @@ local step = common.step;
 local releaseStep = common.releaseStep;
 local releaseLibStep = common.releaseLibStep;
 
+// DO NOT MODIFY THIS FOOTER TEMPLATE
+// This template is matched by the should-release action to detect the correct
+// sha to release and pull aritfacts from. If you need to change this, make sure
+// to change it in both places.
+//TODO: make bucket configurable
+local pullRequestFooter = 'Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}';
+
 {
   createReleasePR:
     job.new()
@@ -20,13 +27,19 @@ local releaseLibStep = common.releaseLibStep;
 
       releaseLibStep('release please')
       + step.withId('release')
+      + step.withEnv({
+        SHA: '${{ github.sha }}',
+      })
+      //TODO make bucket configurable
       + step.withRun(|||
         npm install
         npm exec -- release-please release-pr \
-          --token="${{ secrets.GH_TOKEN }}" \
+          --pull-request-footer "%s" \
+          --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
-          --target-branch "${{ steps.extract_branch.outputs.branch }}"
-      |||),
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}"
+      ||| % pullRequestFooter),
     ]),
 
   release: job.new()
@@ -59,20 +72,21 @@ local releaseLibStep = common.releaseLibStep;
              releaseStep('download build artifacts')
              + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.withRun(|||
-               gsutil cp -r gs://loki-build-artifacts/${{ steps.prepare.outputs.sha }}/dist .
+               gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/dist .
                ls dist
              |||),
 
              releaseStep('release please')
-             + step.withIf('${{ fromJSON(steps.prepare.should_release.shouldRelease) }}')
+             + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.withId('release')
              + step.withRun(|||
                npm install
                npm exec -- release-please github-release \
-                 --token="${{ secrets.GH_TOKEN }}" \
+                 --draft \
+                 --release-type simple \
                  --repo-url="${{ inputs.release_repo }}" \
                  --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-                 --draft
+                 --token="${{ secrets.GH_TOKEN }}"
              |||),
 
              releaseStep('upload artifacts')

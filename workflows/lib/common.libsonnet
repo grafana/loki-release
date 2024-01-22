@@ -63,8 +63,8 @@
     }),
   setupGo: $.step.new('setup go', 'actions/setup-go@v4')
            + $.step.with({
-             'go-version-file': 'loki/go.mod',
-             'cache-dependency-path': 'loki/go.sum',
+             'go-version-file': 'release/go.mod',
+             'cache-dependency-path': 'release/go.sum',
            }),
 
   setupNode: $.step.new('setup node', 'actions/setup-node@v4')
