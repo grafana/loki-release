@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.1](https://github.com/grafana/loki-release/compare/v1.6.0...v1.6.1) (2024-01-22)
+
+
+### Features
+
+* cool new feature ([a36504d](https://github.com/grafana/loki-release/commit/a36504d85b88d14dfad908e7c3e04107d88d1de4))
+
+
+### Bug Fixes
+
+* specify versioning strategy on command line ([0c74114](https://github.com/grafana/loki-release/commit/0c74114013b577b56167cf8e15662fae6358cbaf))
+
 ## [1.6.0](https://github.com/grafana/loki-release/compare/v1.6.0...v1.6.0) (2024-01-19)
 
 
