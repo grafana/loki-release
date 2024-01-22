@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/grafana/loki-release/compare/v1.6.1...v1.6.2) (2024-01-22)
+
+
+### Bug Fixes
+
+* backport token ([243f526](https://github.com/grafana/loki-release/commit/243f5265fcc6d45a679ac9bfe5beec05d6565af6))
+
 ## [1.6.1](https://github.com/grafana/loki-release/compare/v1.6.0...v1.6.1) (2024-01-22)
 
 
