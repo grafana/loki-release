@@ -35,7 +35,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       + step.withRun(|||
         npm install
         npm exec -- release-please release-pr \
-          --label '"backport main","autorelease: pending","type/docs"' \
+          --label "backport main,autorelease: pending,type/docs" \
           --pull-request-footer "%s" \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
