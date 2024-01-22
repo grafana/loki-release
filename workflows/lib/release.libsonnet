@@ -31,7 +31,8 @@ local releaseLibStep = common.releaseLibStep;
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --token="${{ secrets.GH_TOKEN }}"
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "always-bump-patch"
       |||),
     ]),
 
