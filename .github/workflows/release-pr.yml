@@ -141,6 +141,7 @@ jobs:
       run: |
         npm install
         npm exec -- release-please release-pr \
+          --label '"backport main","autorelease: pending","type/docs"' \
           --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
