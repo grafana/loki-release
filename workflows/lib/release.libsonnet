@@ -32,6 +32,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       })
       //TODO make bucket configurable
       //TODO make a type/release in the backport action
+      //TODO backport action should not bring over autorelease: pending label
       + step.withRun(|||
         npm install
         npm exec -- release-please release-pr \
