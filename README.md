@@ -150,3 +150,5 @@ First release of a new branch (ie. releasing 1.5.0 from release-1.5.x) needs a s
 ```
 git commit --allow-empty -m "chore: release 1.5.0" -m "Release-As: 1.5.0"
 ```
+
+cool new feature
