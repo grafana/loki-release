@@ -156,3 +156,5 @@ git commit --allow-empty -m "chore: release 1.5.0" -m "Release-As: 1.5.0"
 cool new feature
 
 cool feature again
+
+coolest feature yet
