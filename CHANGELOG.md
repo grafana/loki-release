@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.2](https://github.com/grafana/loki-release/compare/v1.7.1...v1.7.2) (2024-01-23)
+
+
+### Features
+
+* coolest feature yet ([a91e222](https://github.com/grafana/loki-release/commit/a91e222d2f490e107e520859fed99069cbab4fff))
+
 ## [1.7.1](https://github.com/grafana/loki-release/compare/v1.7.0...v1.7.1) (2024-01-23)
 
 
