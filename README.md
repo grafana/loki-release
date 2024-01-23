@@ -139,16 +139,20 @@ _TODO_: define validate
 
 - there is no longer a need to announce, since we have a long running PR
 
-- the cron job needs to use the GitHub api to call the prepare release pipline
+- the cron job needs to use the GitHub api to call the prepare release pipeline
   with the correct branches
 
 - cool feature
 
 # Instructions
 
-First release of a new branch (ie. releasing 1.5.0 from release-1.5.x) needs a speical commit:
+First release of a new branch (ie. releasing 1.5.0 from release-1.5.x) needs a
+special commit:
+
 ```
 git commit --allow-empty -m "chore: release 1.5.0" -m "Release-As: 1.5.0"
 ```
 
 cool new feature
+
+cool feature again
