@@ -73,42 +73,35 @@ local setupValidationDeps = function(job) job {
 
 
 {
+  local validationMakeStep = function(name, target)
+    releaseStep(name)
+    + step.withIf('${{ !fromJSON(inputs.skip_validation) }}')
+    + step.withRun(common.makeTarget(target)),
+
   test: setupValidationDeps(
     job.new()
-    + job.withIf('${{ !fromJSON(inputs.skip_validation) }}')
     + job.withSteps([
-      releaseStep('test')
-      + step.withRun(common.makeTarget('test')),
+      validationMakeStep('test', 'test'),
     ])
   ),
 
   lint: setupValidationDeps(
     job.new()
-    + job.withIf('${{ !fromJSON(inputs.skip_validation) }}')
     + job.withSteps([
-      releaseStep('lint')
-      + step.withRun(common.makeTarget('lint')),
-      releaseStep('lint jsonnet')
-      + step.withRun(common.makeTarget('lint-jsonnet')),
+      validationMakeStep('lint', 'lint'),
+      validationMakeStep('lint jsonnet', 'lint-jsonnet'),
     ])
   ),
 
   check: setupValidationDeps(
     job.new()
-    + job.withIf('${{ !fromJSON(inputs.skip_validation) }}')
     + job.withSteps([
-      releaseStep('check generated files')
-      + step.withRun(common.makeTarget('check-generated-files')),
-      releaseStep('check mod')
-      + step.withRun(common.makeTarget('check-mod')),
-      releaseStep('shellcheck')
-      + step.withRun(common.makeTarget('lint-scripts')),
-      releaseStep('check docs')
-      + step.withRun(common.makeTarget('check-doc')),
-      releaseStep('validate example configs')
-      + step.withRun(common.makeTarget('check-example-config-doc')),
-      releaseStep('check helm reference doc')
-      + step.withRun(common.makeTarget('documentation-helm-reference-check')),
+      validationMakeStep('check generated files', 'check-generated-files'),
+      validationMakeStep('check mod', 'check-mod'),
+      validationMakeStep('shellcheck', 'lint-scripts'),
+      validationMakeStep('check docs', 'check-doc'),
+      validationMakeStep('validate example configs', 'check-example-config-doc'),
+      validationMakeStep('check helm reference doc', 'documentation-helm-reference-check'),
     ])
   ),
 }
