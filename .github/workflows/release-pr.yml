@@ -5,17 +5,17 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "release"
         repository: "${{ inputs.release_repo }}"
     - name: "pull release library code"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "lib"
         repository: "grafana/loki-release"
     - name: "setup go"
-      uses: "actions/setup-go@v4"
+      uses: "actions/setup-go@v5"
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
@@ -120,12 +120,12 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "release"
         repository: "${{ inputs.release_repo }}"
     - name: "pull release library code"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "lib"
         repository: "grafana/loki-release"
@@ -164,12 +164,12 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "release"
         repository: "${{ inputs.release_repo }}"
     - name: "setup go"
-      uses: "actions/setup-go@v4"
+      uses: "actions/setup-go@v5"
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
@@ -206,17 +206,17 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "release"
         repository: "${{ inputs.release_repo }}"
     - name: "pull release library code"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "lib"
         repository: "grafana/loki-release"
     - name: "setup go"
-      uses: "actions/setup-go@v4"
+      uses: "actions/setup-go@v5"
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
@@ -301,12 +301,12 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "release"
         repository: "${{ inputs.release_repo }}"
     - name: "setup go"
-      uses: "actions/setup-go@v4"
+      uses: "actions/setup-go@v5"
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
@@ -356,12 +356,12 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "release"
         repository: "${{ inputs.release_repo }}"
     - name: "setup go"
-      uses: "actions/setup-go@v4"
+      uses: "actions/setup-go@v5"
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
@@ -407,17 +407,17 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "release"
         repository: "${{ inputs.release_repo }}"
     - name: "pull release library code"
-      uses: "actions/checkout@v3"
+      uses: "actions/checkout@v4"
       with:
         path: "lib"
         repository: "grafana/loki-release"
     - name: "setup go"
-      uses: "actions/setup-go@v4"
+      uses: "actions/setup-go@v5"
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
