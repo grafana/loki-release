@@ -24,6 +24,12 @@ std.manifestYamlDoc({
           required: false,
           type: 'boolean',
         },
+        versioning_strategy: {
+          description: 'release please versioning strategy to use',
+          default: 'always-bump-patch',
+          required: false,
+          type: 'string',
+        },
       },
       secrets: {
         GCS_SERVICE_ACCOUNT_KEY: {
