@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/grafana/loki-release/compare/v1.7.1...v1.8.0) (2024-01-25)
+
+
+### Miscellaneous Chores
+
+* prepare 1.8.0 ([b4ca769](https://github.com/grafana/loki-release/commit/b4ca769572bb647e8cfb98b1ebb13110be2732b6))
+
 ## [1.7.1](https://github.com/grafana/loki-release/compare/v1.7.0...v1.7.1) (2024-01-23)
 
 ### Features
