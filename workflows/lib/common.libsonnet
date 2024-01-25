@@ -50,18 +50,18 @@
                                             $.step.withWorkingDirectory('lib'),
 
   fetchReleaseRepo:
-    $.step.new('pull code to release', 'actions/checkout@v3')
+    $.step.new('pull code to release', 'actions/checkout@v4')
     + $.step.with({
       repository: '${{ inputs.release_repo }}',
       path: 'release',
     }),
   fetchReleaseLib:
-    $.step.new('pull release library code', 'actions/checkout@v3')
+    $.step.new('pull release library code', 'actions/checkout@v4')
     + $.step.with({
       repository: 'grafana/loki-release',
       path: 'lib',
     }),
-  setupGo: $.step.new('setup go', 'actions/setup-go@v4')
+  setupGo: $.step.new('setup go', 'actions/setup-go@v5')
            + $.step.with({
              'go-version-file': 'release/go.mod',
              'cache-dependency-path': 'release/go.sum',
