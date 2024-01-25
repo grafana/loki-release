@@ -14,6 +14,7 @@ jobs:
     uses: ./.github/workflows/release.yml
     with:
       release_repo: grafana/loki-release
+      versioning_strategy: always-bump-patch
     secrets:
       GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}'
       GH_TOKEN: '${{ secrets.GH_TOKEN }}'

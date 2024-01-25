@@ -78,6 +78,11 @@ name: "create release"
         description: "repo to make release in"
         required: false
         type: "string"
+      versioning_strategy:
+        default: "always-bump-patch"
+        description: "release please versioning strategy to use"
+        required: false
+        type: "string"
     secrets:
       GCS_SERVICE_ACCOUNT_KEY:
         required: true
