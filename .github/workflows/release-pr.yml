@@ -141,12 +141,14 @@ jobs:
       run: |
         npm install
         npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --label "backport main,autorelease: pending,type/docs" \
           --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-          --versioning-strategy "always-bump-patch"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
       shell: "bash"
       working-directory: "lib"
   dist:
@@ -495,6 +497,11 @@ name: "create release PR"
         description: "skip validation steps"
         required: false
         type: "boolean"
+      versioning_strategy:
+        default: "always-bump-patch"
+        description: "release please versioning strategy to use"
+        required: false
+        type: "string"
     secrets:
       GCS_SERVICE_ACCOUNT_KEY:
         required: true
