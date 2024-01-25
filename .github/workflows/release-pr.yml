@@ -317,7 +317,7 @@ jobs:
     - id: "parse-metadata"
       name: "parse image metadata"
       run: |
-        mkdir -p dist
+        mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
@@ -372,7 +372,7 @@ jobs:
     - id: "parse-metadata"
       name: "parse image metadata"
       run: |
-        mkdir -p dist
+        mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT

@@ -24,7 +24,7 @@ local releaseStep = common.releaseStep;
       releaseStep('parse image metadata')
       + step.withId('parse-metadata')
       + step.withRun(|||
-        mkdir -p dist
+        mkdir -p images
 
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
