@@ -32,16 +32,18 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       })
       //TODO make bucket configurable
       //TODO make a type/release in the backport action
+      //TODO backport action should not bring over autorelease: pending label
       + step.withRun(|||
         npm install
         npm exec -- release-please release-pr \
+          --consider-all-branches \
           --label "backport main,autorelease: pending,type/docs" \
           --pull-request-footer "%s" \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-          --versioning-strategy "always-bump-patch"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
       ||| % pullRequestFooter),
     ]),
 

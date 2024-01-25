@@ -20,8 +20,6 @@ jobs:
       - name: Run backport
         uses: ./actions/backport
         with:
-          metricsWriteAPIKey: ${{secrets.GRAFANA_MISC_STATS_API_KEY}}
           token: ${{secrets.GH_TOKEN}}
           labelsToAdd: "backport"
-          title: "[{{base}}] {{originalTitle}}"
-
+          title: "chore: [{{base}}] {{originalTitle}}"
