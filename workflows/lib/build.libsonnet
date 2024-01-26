@@ -4,16 +4,16 @@ local step = common.step;
 local releaseStep = common.releaseStep;
 
 {
-  image: function(name, path)
+  image: function(name, path, context='release', platform=[
+    'linux/amd64',
+    'linux/arm64',
+    'linux/arm',
+  ])
     job.new()
     + job.withStrategy({
       'fail-fast': true,
       matrix: {
-        platform: [
-          'linux/amd64',
-          'linux/arm64',
-          'linux/arm',
-        ],
+        platform: platform,
       },
     })
     + job.withSteps([
@@ -35,17 +35,18 @@ local releaseStep = common.releaseStep;
       step.new('Build and export', 'docker/build-push-action@v5')
       + step.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
       + step.with({
-        context: 'release',
+        context: context,
         file: 'release/%s/Dockerfile' % path,
         platforms: '${{ matrix.platform }}',
         tags: 'grafana/%s:${{ steps.parse-metadata.outputs.version }}' % name,
         outputs: 'type=docker,dest=release/images/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
-      step.new('upload artifacts', 'actions/upload-artifact@v3')
+      step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
       + step.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
       + step.with({
-        name: '%s-image-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}' % name,
         path: 'release/images/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        destination: 'loki-build-artifacts/${{ github.sha }}/images',  //TODO: make bucket configurable
+        process_gcloudignore: false,
       }),
     ]),
 
@@ -72,7 +73,7 @@ local releaseStep = common.releaseStep;
           releaseStep('build artifacts')
           + step.withRun('make BUILD_IN_CONTAINER=false SKIP_ARM=true dist'),
 
-          step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v1')
+          step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v2')
           + step.with({
             path: 'release/dist',
             destination: 'loki-build-artifacts/${{ github.sha }}',  //TODO: make bucket configurable

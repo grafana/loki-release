@@ -51,12 +51,30 @@ std.manifestYamlDoc({
   jobs: validate {
     local validationSteps = ['test', 'lint', 'check'],
     dist: build.dist + job.withNeeds(validationSteps),
-    'loki-image': build.image('loki', 'cmd/loki')
-                  + job.withNeeds(validationSteps),
-    'promtail-image': build.image('promtail', 'clients/cmd/promtail')
-                      + job.withNeeds(validationSteps),
+    fluentd: build.image('fluentd', 'clients/cmd/fluentd', platform=['linux/amd64']) + job.withNeeds(validationSteps),
+    'fluent-bit': build.image('fluent-bit', 'clients/cmd/fluent-bit', platform=['linux/amd64']) + job.withNeeds(validationSteps),
+    logstash: build.image('logstash', 'clients/cmd/logstash', platform=['linux/amd64']) + job.withNeeds(validationSteps),
+    logcli: build.image('logcli', 'cmd/logcli') + job.withNeeds(validationSteps),
+    'loki-canary': build.image('loki-canary', 'cmd/loki-canary') + job.withNeeds(validationSteps),
+    'loki-canary-boringcrypto': build.image('loki-canary-boringcrypto', 'cmd/loki-canary-boringcrypto') + job.withNeeds(validationSteps),
+    'loki-image': build.image('loki', 'cmd/loki') + job.withNeeds(validationSteps),
+    'loki-operator': build.image('loki-operator', 'operator', 'operator') + job.withNeeds(validationSteps),
+    promtail: build.image('promtail', 'clients/cmd/promtail') + job.withNeeds(validationSteps),
+    querytee: build.image('querytee', 'cmd/querytee', platform=['linux/amd64']) + job.withNeeds(validationSteps),
 
-    local buildSteps = ['dist', 'loki-image', 'promtail-image'],
+    local buildSteps = [
+      'dist',
+      'fluentd',
+      'fluent-bit',
+      'logstash',
+      'logcli',
+      'loki-canary',
+      'loki-canary-boringcrypto',
+      'loki-image',
+      'loki-operator',
+      'promtail',
+      'querytee',
+    ],
     'create-release-pr': release.createReleasePR + job.withNeeds(buildSteps),
   },
 }, false, false)
