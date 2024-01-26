@@ -772,7 +772,7 @@ jobs:
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
-        context: "operator"
+        context: "release/operator"
         file: "release/operator/Dockerfile"
         outputs: "type=docker,dest=release/images/loki-operator-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
@@ -789,8 +789,6 @@ jobs:
       matrix:
         platform:
         - "linux/amd64"
-        - "linux/arm64"
-        - "linux/arm"
   promtail:
     needs:
     - "test"

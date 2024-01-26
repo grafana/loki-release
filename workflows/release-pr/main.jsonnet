@@ -58,7 +58,7 @@ std.manifestYamlDoc({
     'loki-canary': build.image('loki-canary', 'cmd/loki-canary') + job.withNeeds(validationSteps),
     'loki-canary-boringcrypto': build.image('loki-canary-boringcrypto', 'cmd/loki-canary-boringcrypto') + job.withNeeds(validationSteps),
     'loki-image': build.image('loki', 'cmd/loki') + job.withNeeds(validationSteps),
-    'loki-operator': build.image('loki-operator', 'operator', 'operator') + job.withNeeds(validationSteps),
+    'loki-operator': build.image('loki-operator', 'operator', context='release/operator', platform=['linux/amd64']) + job.withNeeds(validationSteps),
     promtail: build.image('promtail', 'clients/cmd/promtail') + job.withNeeds(validationSteps),
     querytee: build.image('querytee', 'cmd/querytee', platform=['linux/amd64']) + job.withNeeds(validationSteps),
 
