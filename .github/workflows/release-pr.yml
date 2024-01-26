@@ -227,6 +227,12 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -281,6 +287,12 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -426,6 +438,12 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -482,6 +500,12 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -536,6 +560,12 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -592,6 +622,12 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -648,6 +684,12 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -704,6 +746,12 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -760,6 +808,12 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -816,6 +870,12 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - env:
+        ACTIONS_STEP_DEBUG: "true"
+      name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"

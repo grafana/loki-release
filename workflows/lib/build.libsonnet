@@ -19,6 +19,8 @@ local releaseStep = common.releaseStep;
     + job.withSteps([
       common.fetchReleaseRepo,
       common.setupGo,
+      common.googleAuth,
+
       step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
       step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
       releaseStep('parse image metadata')
