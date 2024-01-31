@@ -245,7 +245,7 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."clients/cmd/fluent-bit"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
@@ -305,7 +305,7 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."clients/cmd/fluentd"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
@@ -456,7 +456,7 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."cmd/logcli"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
@@ -518,7 +518,7 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."clients/cmd/logstash"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
@@ -578,7 +578,7 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."cmd/loki-canary"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
@@ -640,7 +640,7 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."cmd/loki-canary-boringcrypto"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
@@ -702,7 +702,7 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."cmd/loki"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
@@ -764,7 +764,7 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."operator"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
@@ -824,7 +824,7 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."clients/cmd/promtail"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
@@ -886,7 +886,7 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         
-        version=$(jq -r '."cmd/querytee"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"

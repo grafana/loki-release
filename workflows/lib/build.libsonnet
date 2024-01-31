@@ -37,7 +37,7 @@ local releaseStep = common.releaseStep;
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
 
-        version=$(jq -r '."%s"' .release-please-manifest.json)
+        version=$(jq -r '."."' .release-please-manifest.json)
         echo "version=${version}" >> $GITHUB_OUTPUT
       ||| % path),
       step.new('Build and export', 'docker/build-push-action@v5')
