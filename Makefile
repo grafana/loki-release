@@ -7,6 +7,15 @@ lint:
 lint-jsonnet:
 	echo "linting jsonnet"
 
+loki:
+	go build -o cmd/loki/loki cmd/loki/main.go
+
+loki-image:
+	docker build -t trevorwhitney075/loki -f cmd/loki/Dockerfile .
+
+clean:
+	rm cmd/loki/loki
+
 check-generated-files:
 	echo "checking generated files"
 

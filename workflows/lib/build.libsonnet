@@ -4,11 +4,17 @@ local step = common.step;
 local releaseStep = common.releaseStep;
 
 {
-  image: function(name, path, context='release', platform=[
-    'linux/amd64',
-    'linux/arm64',
-    'linux/arm',
-  ])
+  image: function(
+    name,
+    path,
+    context='release',
+    condition="${{ inputs.release_repo == 'grafana/loki' }}",
+    platform=[
+      'linux/amd64',
+      'linux/arm64',
+      'linux/arm',
+    ]
+        )
     job.new()
     + job.withStrategy({
       'fail-fast': true,
@@ -35,16 +41,16 @@ local releaseStep = common.releaseStep;
         echo "version=${version}" >> $GITHUB_OUTPUT
       ||| % path),
       step.new('Build and export', 'docker/build-push-action@v5')
-      + step.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
+      + step.withIf(condition)
       + step.with({
         context: context,
         file: 'release/%s/Dockerfile' % path,
         platforms: '${{ matrix.platform }}',
-        tags: 'grafana/%s:${{ steps.parse-metadata.outputs.version }}' % name,
+        tags: '${{ inputs.image_prefix }}/%s:${{ steps.parse-metadata.outputs.version }}' % [name],
         outputs: 'type=docker,dest=release/images/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
       }),
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
-      + step.withIf("${{ inputs.release_repo == 'grafana/loki' }}")
+      + step.withIf(condition)
       + step.with({
         path: 'release/images/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
         destination: 'loki-build-artifacts/${{ github.sha }}/images',  //TODO: make bucket configurable

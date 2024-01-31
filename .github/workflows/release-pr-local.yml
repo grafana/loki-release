@@ -17,6 +17,7 @@ jobs:
       release_repo: grafana/loki-release
       skip_validation: false
       versioning_strategy: always-bump-patch
+      image_prefix: trevorwhitney075
     secrets:
       GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}'
       GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
