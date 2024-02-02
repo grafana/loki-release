@@ -161,7 +161,7 @@ jobs:
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
       shell: "bash"
       working-directory: "lib"
   dist:
@@ -246,23 +246,23 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - env:
-        SHA: "${{ github.sha }}"
-      id: "version"
+    - id: "version"
       name: "get release version"
       run: |
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --dry-run \
+          --dry-run-output release.json \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --dry-run \
-        --dry-run-output release.json \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"
@@ -322,23 +322,23 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - env:
-        SHA: "${{ github.sha }}"
-      id: "version"
+    - id: "version"
       name: "get release version"
       run: |
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --dry-run \
+          --dry-run-output release.json \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --dry-run \
-        --dry-run-output release.json \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"
@@ -489,23 +489,23 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - env:
-        SHA: "${{ github.sha }}"
-      id: "version"
+    - id: "version"
       name: "get release version"
       run: |
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --dry-run \
+          --dry-run-output release.json \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --dry-run \
-        --dry-run-output release.json \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"
@@ -567,23 +567,23 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - env:
-        SHA: "${{ github.sha }}"
-      id: "version"
+    - id: "version"
       name: "get release version"
       run: |
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --dry-run \
+          --dry-run-output release.json \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --dry-run \
-        --dry-run-output release.json \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"
@@ -643,23 +643,23 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - env:
-        SHA: "${{ github.sha }}"
-      id: "version"
+    - id: "version"
       name: "get release version"
       run: |
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --dry-run \
+          --dry-run-output release.json \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --dry-run \
-        --dry-run-output release.json \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"
@@ -721,23 +721,23 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - env:
-        SHA: "${{ github.sha }}"
-      id: "version"
+    - id: "version"
       name: "get release version"
       run: |
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --dry-run \
+          --dry-run-output release.json \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --dry-run \
-        --dry-run-output release.json \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"
@@ -799,23 +799,23 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - env:
-        SHA: "${{ github.sha }}"
-      id: "version"
+    - id: "version"
       name: "get release version"
       run: |
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --dry-run \
+          --dry-run-output release.json \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --dry-run \
-        --dry-run-output release.json \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - if: "${{ true }}"
@@ -877,23 +877,23 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - env:
-        SHA: "${{ github.sha }}"
-      id: "version"
+    - id: "version"
       name: "get release version"
       run: |
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --dry-run \
+          --dry-run-output release.json \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --dry-run \
-        --dry-run-output release.json \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"
@@ -953,23 +953,23 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - env:
-        SHA: "${{ github.sha }}"
-      id: "version"
+    - id: "version"
       name: "get release version"
       run: |
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --dry-run \
+          --dry-run-output release.json \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --dry-run \
-        --dry-run-output release.json \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"
@@ -1031,23 +1031,23 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - env:
-        SHA: "${{ github.sha }}"
-      id: "version"
+    - id: "version"
       name: "get release version"
       run: |
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --dry-run \
+          --dry-run-output release.json \
           --release-type simple \
           --repo-url="${{ inputs.release_repo }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-        --dry-run \
-        --dry-run-output release.json \
-        --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - if: "${{ inputs.release_repo == 'grafana/loki' }}"

@@ -2,7 +2,6 @@ local common = import 'common.libsonnet';
 local job = common.job;
 local step = common.step;
 local releaseStep = common.releaseStep;
-local release = import 'release.libsonnet';
 
 {
   image: function(
@@ -40,13 +39,24 @@ local release = import 'release.libsonnet';
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       |||),
 
-
       releaseStep('get release version')
       + step.withId('version')
-      + step.withEnv({
-        SHA: '${{ github.sha }}',
-      })
-      + release.releasePleasePR(true),
+      + step.withRun(|||
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+
+        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        echo "version=${version}" >> $GITHUB_OUTPUT
+      |||),
 
       step.new('Build and export', 'docker/build-push-action@v5')
       + step.withIf(condition)
