@@ -25,6 +25,7 @@ local releaseStep = common.releaseStep;
     + job.withSteps([
       common.fetchReleaseRepo,
       common.setupGo,
+      common.setupNode,
       common.googleAuth,
 
       step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
@@ -57,8 +58,8 @@ local releaseStep = common.releaseStep;
         jq . release.json
         jq .[0] release.json
         jq ' .[0] | .version' release.json
-        jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" release.json'
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" release.json')"
+        jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json
+        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
         echo "version=${version}" >> $GITHUB_OUTPUT
       |||),
 
