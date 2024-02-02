@@ -54,7 +54,8 @@ local releaseStep = common.releaseStep;
           --versioning-strategy "${{ inputs.versioning_strategy }}"
 
         if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" results.json')
+        cat release.json
+        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" release.json')
         echo "version=${version}" >> $GITHUB_OUTPUT
       |||),
 
