@@ -55,7 +55,8 @@ local releaseStep = common.releaseStep;
 
         if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
         cat release.json
-        version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" release.json')
+        jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" release.json'
+        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)" release.json')"
         echo "version=${version}" >> $GITHUB_OUTPUT
       |||),
 
