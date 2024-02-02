@@ -2,6 +2,7 @@ local common = import 'common.libsonnet';
 local job = common.job;
 local step = common.step;
 local releaseStep = common.releaseStep;
+local release = import 'release.libsonnet';
 
 {
   image: function(
@@ -29,30 +30,37 @@ local releaseStep = common.releaseStep;
 
       step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
       step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
-      releaseStep('parse image metadata')
-      + step.withId('parse-metadata')
+
+      releaseStep('parse image platform')
+      + step.withId('platform')
       + step.withRun(|||
         mkdir -p images
 
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+      |||),
 
-        version=$(jq -r '."."' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
-      ||| % path),
+
+      releaseStep('get release version')
+      + step.withId('version')
+      + step.withEnv({
+        SHA: '${{ github.sha }}',
+      })
+      + release.releasePleasePR(true),
+
       step.new('Build and export', 'docker/build-push-action@v5')
       + step.withIf(condition)
       + step.with({
         context: context,
         file: 'release/%s/Dockerfile' % path,
         platforms: '${{ matrix.platform }}',
-        tags: '${{ inputs.image_prefix }}/%s:${{ steps.parse-metadata.outputs.version }}' % [name],
-        outputs: 'type=docker,dest=release/images/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        tags: '${{ inputs.image_prefix }}/%s:${{ steps.version.outputs.version }}' % [name],
+        outputs: 'type=docker,dest=release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
       }),
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
       + step.withIf(condition)
       + step.with({
-        path: 'release/images/%s-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar' % name,
+        path: 'release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
         destination: 'loki-build-artifacts/${{ github.sha }}/images',  //TODO: make bucket configurable
         process_gcloudignore: false,
       }),

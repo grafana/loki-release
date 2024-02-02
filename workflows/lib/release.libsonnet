@@ -12,6 +12,29 @@ local releaseLibStep = common.releaseLibStep;
 local pullRequestFooter = 'Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}';
 
 {
+  releasePleasePR:: function(dryRun=false)
+    //TODO make bucket configurable
+    //TODO make a type/release in the backport action
+    //TODO backport action should not bring over autorelease: pending label
+    step.withRun((|||
+                    npm install
+                    npm exec -- release-please release-pr \
+                      --consider-all-branches \
+                      --label "backport main,autorelease: pending,type/docs" \
+                      --pull-request-footer "%s" \
+                      --release-type simple \
+                      --repo-url="${{ inputs.release_repo }}" \
+                      --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+                      --token="${{ secrets.GH_TOKEN }}" \
+                  ||| % pullRequestFooter) +
+                 if dryRun then |||
+                   --dry-run \
+                   --dry-run-output release.json \
+                   --versioning-strategy "${{ inputs.versioning_strategy }}"
+                 |||
+                 else |||
+                   --versioning-strategy "${{ inputs.versioning_strategy }}"
+                 |||),
   createReleasePR:
     job.new()
     + job.withSteps([
@@ -30,21 +53,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       + step.withEnv({
         SHA: '${{ github.sha }}',
       })
-      //TODO make bucket configurable
-      //TODO make a type/release in the backport action
-      //TODO backport action should not bring over autorelease: pending label
-      + step.withRun(|||
-        npm install
-        npm exec -- release-please release-pr \
-          --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "%s" \
-          --release-type simple \
-          --repo-url="${{ inputs.release_repo }}" \
-          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --token="${{ secrets.GH_TOKEN }}" \
-          --versioning-strategy "${{ inputs.versioning_strategy }}"
-      ||| % pullRequestFooter),
+      + $.releasePleasePR(),
     ]),
 
   release: job.new()

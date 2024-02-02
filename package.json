@@ -65,7 +65,7 @@
     "@actions/tool-cache": "^2.0.1",
     "chalk": "^4.0.0",
     "figures": "^3.0.0",
-    "release-please": "trevorwhitney/release-please#multi-branch-release"
+    "release-please": "trevorwhitney/release-please#dry-run-output"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.6.3",
