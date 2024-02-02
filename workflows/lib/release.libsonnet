@@ -18,12 +18,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       common.fetchReleaseRepo,
       common.fetchReleaseLib,
       common.setupNode,
-
-      releaseStep('extract branch name')
-      + step.withId('extract_branch')
-      + step.withRun(|||
-        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      |||),
+      common.extractBranchName,
 
       releaseLibStep('release please')
       + step.withId('release')

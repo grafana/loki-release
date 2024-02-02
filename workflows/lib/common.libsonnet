@@ -88,4 +88,10 @@
               + $.step.with({
                 credentials_json: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
               }),
+
+  extractBranchName: $.releaseStep('extract branch name')
+                     + $.step.withId('extract_branch')
+                     + $.step.withRun(|||
+                       echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+                     |||),
 }

@@ -40,6 +40,7 @@ local releaseStep = common.releaseStep;
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       |||),
 
+      common.extractBranchName,
       releaseStep('get release version')
       + step.withId('version')
       + step.withRun(|||

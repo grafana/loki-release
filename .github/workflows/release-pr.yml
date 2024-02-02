@@ -250,6 +250,12 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
     - id: "version"
       name: "get release version"
       run: |
@@ -332,6 +338,12 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "version"
@@ -509,6 +521,12 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
     - id: "version"
       name: "get release version"
       run: |
@@ -595,6 +613,12 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
     - id: "version"
       name: "get release version"
       run: |
@@ -677,6 +701,12 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "version"
@@ -765,6 +795,12 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
     - id: "version"
       name: "get release version"
       run: |
@@ -849,6 +885,12 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "version"
@@ -937,6 +979,12 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
     - id: "version"
       name: "get release version"
       run: |
@@ -1019,6 +1067,12 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "version"
@@ -1105,6 +1159,12 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "version"
