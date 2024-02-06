@@ -16,6 +16,11 @@ std.manifestYamlDoc({
           required: false,
           type: 'string',
         },
+        docker_username: {
+          description: 'username to login to docker with',
+          required: true,
+          type: 'string',
+        },
       },
       secrets: {
         GCS_SERVICE_ACCOUNT_KEY: {
@@ -24,6 +29,9 @@ std.manifestYamlDoc({
         GH_TOKEN: {
           required: true,
         },
+        DOCKER_PASSWORD: {
+          required: true,
+        }
       },
     },
   },

@@ -49,6 +49,14 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
              common.fetchReleaseLib,
              common.setupNode,
              common.googleAuth,
+            
+             step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
+             step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
+             step.new('docker login', 'docker/login-action@v3')
+             + step.with({
+              username: "${{ inputs.docker_username }}",
+              password: "${{ secrets.DOCKER_PASSWORD }}"
+             }),
 
              step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
              + step.with({
@@ -102,5 +110,16 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
              |||),
 
              //TODO: push the images here
+             releaseStep('push docker images')
+             + step.withRun(|||
+              for image in `ls dist/images/*.tar`; do
+                echo "Found image ${image}"
+                tag="$(tar xfO ${image} manifest.json | jq -r '.[0] | .RepoTags[0]')"
+
+                echo "Importing and pushing ${tag}"
+                docker import -i ${image}
+                docker push ${tag}
+              done
+             |||)
            ]),
 }
