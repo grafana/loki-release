@@ -42,7 +42,6 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       ||| % pullRequestFooter),
     ]),
 
-  //TODO: docker push the images
   release: job.new()
            + job.withSteps([
              common.fetchReleaseRepo,
@@ -82,7 +81,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
              + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.withRun(|||
                gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/dist .
-               ls dist
+               gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/images .
              |||),
 
              releaseStep('release please')
@@ -109,10 +108,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                gh release edit ${{ steps.should_release.outputs.name }} --draft=false
              |||),
 
-             //TODO: push the images here
              releaseStep('push docker images')
              + step.withRun(|||
-              for image in `ls dist/images/*.tar`; do
+              for image in `ls images/*.tar`; do
                 echo "Found image ${image}"
                 tag="$(tar xfO ${image} manifest.json | jq -r '.[0] | .RepoTags[0]')"
 
