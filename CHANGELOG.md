@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.8.0](https://github.com/grafana/loki-release/compare/v1.7.1...v1.8.0) (2024-02-06)
+
+
+### Features
+
+* build all the images ([cc8ce7a](https://github.com/grafana/loki-release/commit/cc8ce7a2e7160f59c0d4b17676043d562dad0f5f))
+* build images in test workflow ([53e8601](https://github.com/grafana/loki-release/commit/53e8601b5a9ba374aca28f9698fa72c627dfe33f))
+* bump actions to latest node 20 versions ([#59](https://github.com/grafana/loki-release/issues/59)) ([3f75548](https://github.com/grafana/loki-release/commit/3f755480e578c19c7b0e2128f8c492b72cd874ae))
+* create images dir ([86c832c](https://github.com/grafana/loki-release/commit/86c832c24d293afd7b3954ec3ff7ab9c7e50ee20))
+* guard pushing images on should release ([eaa75a8](https://github.com/grafana/loki-release/commit/eaa75a829a2cd7ffef9b0200cc0bcc2f5ff11e63))
+* push the images ([931bcba](https://github.com/grafana/loki-release/commit/931bcba124f9e1b5d06121c2c572fcffd8cc5e20))
+* skip steps not jobs ([#58](https://github.com/grafana/loki-release/issues/58)) ([2fa7aa5](https://github.com/grafana/loki-release/commit/2fa7aa569fe30d8c9ce2a80b12bdb7b7f70844aa))
+* user release-please to get the version ([1a2420f](https://github.com/grafana/loki-release/commit/1a2420ffd279c43a82f38c704f1db3b2c6be6707))
+
+
+### Bug Fixes
+
+* add google auth to image steps ([85cba30](https://github.com/grafana/loki-release/commit/85cba30090373b064159f82c09cd209ae809d2bc))
+* attempt to fix jq parsing of version ([d598df2](https://github.com/grafana/loki-release/commit/d598df26c929eddccdcef11f45927a7e16eca022))
+* clean target ([287ce46](https://github.com/grafana/loki-release/commit/287ce4633dff71bf435ad3ec5b19eca3be285fbd))
+* dry run output filename ([679c235](https://github.com/grafana/loki-release/commit/679c235d351e28abac6c39d77cbb0658a346b1a2))
+* extract branch name in build flow ([aafcdde](https://github.com/grafana/loki-release/commit/aafcddeef79be11790151614387cf20c32a1dacc))
+* image version logic ([ddf4234](https://github.com/grafana/loki-release/commit/ddf4234c473aa28bda890e2f2bc7edeebfa44ebd))
+* jq syntax error ([bd84c39](https://github.com/grafana/loki-release/commit/bd84c3951aea9896580b19f2a0ec31d2c032a9d1))
+* limit operator to amd64 image ([be93744](https://github.com/grafana/loki-release/commit/be937442802b255e7be3767b0f752000400cb37f))
+* need to fetch images before upload ([3a46a60](https://github.com/grafana/loki-release/commit/3a46a60f7ee7e1733a504d3a037f9e664015a669))
+* version extraction ([81cca0d](https://github.com/grafana/loki-release/commit/81cca0dcdebc1907aeb5189363ef92609c996203))
+
 ## [1.7.1](https://github.com/grafana/loki-release/compare/v1.7.0...v1.7.1) (2024-01-23)
 
 ### Features
