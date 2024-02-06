@@ -42,6 +42,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       ||| % pullRequestFooter),
     ]),
 
+  //TODO: docker push the images
   release: job.new()
            + job.withSteps([
              common.fetchReleaseRepo,
@@ -99,5 +100,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                gh release upload ${{ steps.should_release.outputs.name }} dist/*
                gh release edit ${{ steps.should_release.outputs.name }} --draft=false
              |||),
+
+             //TODO: push the images here
            ]),
 }
