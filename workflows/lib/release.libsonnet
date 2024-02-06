@@ -116,7 +116,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                  tag="$(tar xfO ${image} manifest.json | jq -r '.[0] | .RepoTags[0]')"
 
                  echo "Importing and pushing ${tag}"
-                 docker import -i ${image}
+                 docker load -i ${image}
                  docker push ${tag}
                done
              |||),
