@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/grafana/loki-release/compare/v1.8.0...v1.8.1) (2024-02-06)
+
+
+### Bug Fixes
+
+* use docker load instead of import ([9485994](https://github.com/grafana/loki-release/commit/948599450cde01cc182dd9d09e820a938664026c))
+
 ## [1.8.0](https://github.com/grafana/loki-release/compare/v1.7.1...v1.8.0) (2024-02-06)
 
 
