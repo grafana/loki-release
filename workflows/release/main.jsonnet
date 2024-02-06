@@ -31,7 +31,7 @@ std.manifestYamlDoc({
         },
         DOCKER_PASSWORD: {
           required: true,
-        }
+        },
       },
     },
   },

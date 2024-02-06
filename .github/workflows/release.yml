@@ -78,7 +78,8 @@ jobs:
         gh release edit ${{ steps.should_release.outputs.name }} --draft=false
       shell: "bash"
       working-directory: "release"
-    - name: "push docker images"
+    - if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
+      name: "push docker images"
       run: |
         for image in `ls images/*.tar`; do
           echo "Found image ${image}"
