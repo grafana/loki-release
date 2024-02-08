@@ -24805,7 +24805,8 @@ async function run() {
             (0, core_1.info)(command);
             (0, child_process_1.exec)(command, { cwd: imageDir }, (err, stdout, stderr) => {
                 if (err != null) {
-                    throw err;
+                    // throw err
+                    (0, core_1.error)(err.message);
                 }
                 (0, core_1.info)(stdout);
                 (0, core_1.error)(stderr);
