@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.5](https://github.com/grafana/loki-release/compare/v1.8.4...v1.8.5) (2024-02-08)
+
+
+### Features
+
+* always run push, incease step log level ([c768bdd](https://github.com/grafana/loki-release/commit/c768bddef2189e6f78b74328f4e53beba97da0bf))
+* exec docker commands in img dir ([e49fb53](https://github.com/grafana/loki-release/commit/e49fb53f7341306beebd72423bb34e23015cb55e))
+
+
+### Bug Fixes
+
+* need the push images conditional back ([8abf3cb](https://github.com/grafana/loki-release/commit/8abf3cbeb94671c6880bf2d25729287cc5da89a1))
+
 ## [1.8.4](https://github.com/grafana/loki-release/compare/v1.8.3...v1.8.4) (2024-02-08)
 
 
