@@ -23,7 +23,6 @@ export async function run(): Promise<void> {
 
     for (const command of commands) {
       info(command)
-
       const stdout = execSync(command, { cwd: imageDir })
       info(stdout.toString())
     }

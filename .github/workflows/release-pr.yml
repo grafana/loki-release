@@ -181,9 +181,7 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
@@ -231,9 +229,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
@@ -327,9 +323,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
@@ -514,9 +508,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
@@ -612,9 +604,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
@@ -708,9 +698,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
@@ -806,9 +794,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
@@ -904,9 +890,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
@@ -1002,9 +986,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
@@ -1098,9 +1080,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
@@ -1196,9 +1176,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
