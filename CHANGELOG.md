@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.8.6](https://github.com/grafana/loki-release/compare/v1.8.5...v1.8.6) (2024-02-08)
+
+
+### Features
+
+* fix image pushing ([921a5af](https://github.com/grafana/loki-release/commit/921a5afaa9a59620f9299aa3155dc2e73067cfe9))
+* list images before pushing ([019da6d](https://github.com/grafana/loki-release/commit/019da6dee81fa2594b79affcdf80266f91859956))
+* remove debug workflow ([356332a](https://github.com/grafana/loki-release/commit/356332a5107fe500091bb4604a3783b30c1a4456))
+* use synchronous exec ([ff924d4](https://github.com/grafana/loki-release/commit/ff924d4fea197dc308a6a7b52bf56a380e3adbfa))
+
+
+### Bug Fixes
+
+* debug workflow inputs ([7c093fe](https://github.com/grafana/loki-release/commit/7c093fec0bed650a6268bb9f5be93a47772e5905))
+* image prefix ([ce60c28](https://github.com/grafana/loki-release/commit/ce60c28da2d687e1e4484f03f5cdab33991a19c8))
+
 ## [1.8.5](https://github.com/grafana/loki-release/compare/v1.8.4...v1.8.5) (2024-02-08)
 
 
