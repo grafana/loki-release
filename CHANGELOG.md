@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.2](https://github.com/grafana/loki-release/compare/v1.8.1...v1.8.2) (2024-02-08)
+
+
+### Features
+
+* add push images action ([039c90e](https://github.com/grafana/loki-release/commit/039c90e1f9669c72b7ab23aa3e60f113d810cb1f))
+
+
+### Bug Fixes
+
+* errant semicolon ([069419e](https://github.com/grafana/loki-release/commit/069419e30d3cc192bc9ded19d7ea287f210dde98))
+* fromJSON typo ([50d26b5](https://github.com/grafana/loki-release/commit/50d26b5b6282ece769e2c0765f1be7f9b2a93d57))
+
 ## [1.8.1](https://github.com/grafana/loki-release/compare/v1.8.0...v1.8.1) (2024-02-06)
 
 
