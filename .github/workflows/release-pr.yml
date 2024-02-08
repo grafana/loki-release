@@ -294,7 +294,7 @@ jobs:
         outputs: "type=docker,dest=release/images/fluent-bit-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/fluent-bit:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -390,7 +390,7 @@ jobs:
         outputs: "type=docker,dest=release/images/fluentd-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/fluentd:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -577,7 +577,7 @@ jobs:
         outputs: "type=docker,dest=release/images/logcli-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/logcli:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -675,7 +675,7 @@ jobs:
         outputs: "type=docker,dest=release/images/logstash-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/logstash:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -771,7 +771,7 @@ jobs:
         outputs: "type=docker,dest=release/images/loki-canary-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/loki-canary:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -869,7 +869,7 @@ jobs:
         outputs: "type=docker,dest=release/images/loki-canary-boringcrypto-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/loki-canary-boringcrypto:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -967,7 +967,7 @@ jobs:
         outputs: "type=docker,dest=release/images/loki-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/loki:${{ steps.version.outputs.version }}"
-    - if: "${{ true && from(steps.version.outputs.pr_created) }}"
+    - if: "${{ true && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -1065,7 +1065,7 @@ jobs:
         outputs: "type=docker,dest=release/images/loki-operator-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/loki-operator:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -1161,7 +1161,7 @@ jobs:
         outputs: "type=docker,dest=release/images/promtail-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/promtail:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -1259,7 +1259,7 @@ jobs:
         outputs: "type=docker,dest=release/images/querytee-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/querytee:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:

@@ -80,7 +80,7 @@ local releaseStep = common.releaseStep;
         outputs: 'type=docker,dest=release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
       }),
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
-      + step.withIf('${{ %s && from(steps.version.outputs.pr_created) }}' % condition)
+      + step.withIf('${{ %s && fromJSON(steps.version.outputs.pr_created) }}' % condition)
       + step.with({
         path: 'release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
         destination: 'loki-build-artifacts/${{ github.sha }}/images',  //TODO: make bucket configurable
