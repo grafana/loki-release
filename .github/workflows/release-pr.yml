@@ -270,12 +270,22 @@ jobs:
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
         
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -284,7 +294,7 @@ jobs:
         outputs: "type=docker,dest=release/images/fluent-bit-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/fluent-bit:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -356,12 +366,22 @@ jobs:
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
         
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -370,7 +390,7 @@ jobs:
         outputs: "type=docker,dest=release/images/fluentd-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/fluentd:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -533,12 +553,22 @@ jobs:
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
         
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -547,7 +577,7 @@ jobs:
         outputs: "type=docker,dest=release/images/logcli-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/logcli:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -621,12 +651,22 @@ jobs:
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
         
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -635,7 +675,7 @@ jobs:
         outputs: "type=docker,dest=release/images/logstash-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/logstash:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -707,12 +747,22 @@ jobs:
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
         
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -721,7 +771,7 @@ jobs:
         outputs: "type=docker,dest=release/images/loki-canary-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/loki-canary:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -795,12 +845,22 @@ jobs:
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
         
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -809,7 +869,7 @@ jobs:
         outputs: "type=docker,dest=release/images/loki-canary-boringcrypto-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/loki-canary-boringcrypto:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -883,12 +943,22 @@ jobs:
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
         
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
       working-directory: "release"
-    - if: "${{ true }}"
+    - if: "${{ true && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -897,7 +967,7 @@ jobs:
         outputs: "type=docker,dest=release/images/loki-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/loki:${{ steps.version.outputs.version }}"
-    - if: "${{ true }}"
+    - if: "${{ true && from(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -971,12 +1041,22 @@ jobs:
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
         
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -985,7 +1065,7 @@ jobs:
         outputs: "type=docker,dest=release/images/loki-operator-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/loki-operator:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -1057,12 +1137,22 @@ jobs:
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
         
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -1071,7 +1161,7 @@ jobs:
         outputs: "type=docker,dest=release/images/promtail-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/promtail:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
@@ -1145,12 +1235,22 @@ jobs:
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
         
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
@@ -1159,7 +1259,7 @@ jobs:
         outputs: "type=docker,dest=release/images/querytee-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
         tags: "${{ inputs.image_prefix }}/querytee:${{ steps.version.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && from(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:

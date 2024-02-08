@@ -108,17 +108,11 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                gh release edit ${{ steps.should_release.outputs.name }} --draft=false
              |||),
 
-             releaseStep('push docker images')
+             step.new('push docker images', './lib/actions/push-images')
              + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
-             + step.withRun(|||
-               for image in `ls images/*.tar`; do
-                 echo "Found image ${image}"
-                 tag="$(tar xfO ${image} manifest.json | jq -r '.[0] | .RepoTags[0]')"
-
-                 echo "Importing and pushing ${tag}"
-                 docker load -i ${image}
-                 docker push ${tag}
-               done
-             |||),
+             + step.with({
+               imageDir: 'lib/images',
+               imagePrefix: '${{ inputs.image_prefix }}',
+             }),
            ]),
 }

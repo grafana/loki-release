@@ -59,7 +59,7 @@ std.manifestYamlDoc({
     dist: build.dist + job.withNeeds(validationSteps),
 
     //always build this image, as we have fake for it in the release repo
-    'loki-image': build.image('loki', 'cmd/loki', condition='${{ true }}') + job.withNeeds(validationSteps),
+    'loki-image': build.image('loki', 'cmd/loki', condition='true') + job.withNeeds(validationSteps),
 
     fluentd: build.image('fluentd', 'clients/cmd/fluentd', platform=['linux/amd64']) + job.withNeeds(validationSteps),
     'fluent-bit': build.image('fluent-bit', 'clients/cmd/fluent-bit', platform=['linux/amd64']) + job.withNeeds(validationSteps),

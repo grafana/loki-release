@@ -80,17 +80,10 @@ jobs:
       working-directory: "release"
     - if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
       name: "push docker images"
-      run: |
-        for image in `ls images/*.tar`; do
-          echo "Found image ${image}"
-          tag="$(tar xfO ${image} manifest.json | jq -r '.[0] | .RepoTags[0]')"
-        
-          echo "Importing and pushing ${tag}"
-          docker load -i ${image}
-          docker push ${tag}
-        done
-      shell: "bash"
-      working-directory: "release"
+      uses: "./lib/actions/push-images"
+      with:
+        imageDir: "lib/images"
+        imagePrefix: "${{ inputs.image_prefix }}"
 name: "create release"
 "on":
   workflow_call:
@@ -98,6 +91,11 @@ name: "create release"
       docker_username:
         description: "username to login to docker with"
         required: true
+        type: "string"
+      image_prefix:
+        default: "grafana"
+        description: "prefix for images"
+        required: false
         type: "string"
       release_repo:
         default: "grafana/loki"

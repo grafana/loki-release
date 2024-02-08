@@ -11,7 +11,7 @@
     "format:write": "prettier --write **/*.ts",
     "jsonnetfmt": "jsonnetfmt -i -n 2 ./workflows/**/*.{jsonnet,libsonnet}",
     "lint": "npx eslint . -c .eslintrc.yml",
-    "package": "for p in install-binary should-release; do ncc build actions/${p}/src/index.ts --license licenses.txt --out actions/${p}/dist; done",
+    "package": "for p in install-binary push-images should-release; do ncc build actions/${p}/src/index.ts --license licenses.txt --out actions/${p}/dist; done",
     "prepare": "husky install",
     "test": "jest",
     "workflows": "for w in release release-pr; do jsonnet -S workflows/${w}/main.jsonnet > .github/workflows/${w}.yml; done"
@@ -71,7 +71,7 @@
     "@commitlint/cli": "^17.6.3",
     "@commitlint/config-conventional": "^17.6.3",
     "@types/jest": "^29.5.10",
-    "@types/node": "^20.10.0",
+    "@types/node": "^20.11.16",
     "@types/sinon": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.12.0",

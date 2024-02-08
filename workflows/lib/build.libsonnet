@@ -8,7 +8,7 @@ local releaseStep = common.releaseStep;
     name,
     path,
     context='release',
-    condition="${{ inputs.release_repo == 'grafana/loki' }}",
+    condition="inputs.release_repo == 'grafana/loki'",
     platform=[
       'linux/amd64',
       'linux/arm64',
@@ -55,13 +55,23 @@ local releaseStep = common.releaseStep;
           --token="${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ inputs.versioning_strategy }}"
 
-        if [[ `jq length release.json` -gt 1 ]]; then echo 'release-please would create more than 1 PR, so cannot determine correct version'; exit 1; fi
-        version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
-        echo "version=${version}" >> $GITHUB_OUTPUT
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else;
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
       |||),
 
       step.new('Build and export', 'docker/build-push-action@v5')
-      + step.withIf(condition)
+      + step.withIf('${{ %s && fromJSON(steps.version.outputs.pr_created) }}' % condition)
       + step.with({
         context: context,
         file: 'release/%s/Dockerfile' % path,
@@ -70,7 +80,7 @@ local releaseStep = common.releaseStep;
         outputs: 'type=docker,dest=release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
       }),
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
-      + step.withIf(condition)
+      + step.withIf('${{ %s && from(steps.version.outputs.pr_created) }}' % condition)
       + step.with({
         path: 'release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
         destination: 'loki-build-artifacts/${{ github.sha }}/images',  //TODO: make bucket configurable

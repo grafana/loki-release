@@ -21,6 +21,12 @@ std.manifestYamlDoc({
           required: true,
           type: 'string',
         },
+        image_prefix: {
+          description: 'prefix for images',
+          default: 'grafana',
+          required: false,
+          type: 'string',
+        },
       },
       secrets: {
         GCS_SERVICE_ACCOUNT_KEY: {
