@@ -24744,7 +24744,7 @@ function buildCommands(repo, files) {
             commands.push(`docker load -i ${file}`);
             manifests.push(`${repo}/${image}:${version.toString()}-${shortPlatform}`);
         }
-        commands.push(`docker ls`, `docker push -a ${repo}/${image}`, `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`, `docker manifest push ${repo}/${image}:${version.toString()}`);
+        commands.push(`docker image ls`, `docker push -a ${repo}/${image}`, `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`, `docker manifest push ${repo}/${image}:${version.toString()}`);
     }
     return commands;
 }

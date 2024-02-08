@@ -44,7 +44,7 @@ export function buildCommands(repo: string, files: string[]): string[] {
     }
 
     commands.push(
-      `docker ls`,
+      `docker image ls`,
       `docker push -a ${repo}/${image}`,
       `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`,
       `docker manifest push ${repo}/${image}:${version.toString()}`
