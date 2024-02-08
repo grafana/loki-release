@@ -44,20 +44,8 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
 
   shouldRelease: job.new()
                  + job.withSteps([
-                   common.fetchReleaseRepo,
                    common.fetchReleaseLib,
                    common.extractBranchName,
-
-                   step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
-                   + step.with({
-                     version: '>= 452.0.0',
-                   }),
-
-                   releaseStep('extract branch name')
-                   + step.withId('extract_branch')
-                   + step.withRun(|||
-                     echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-                   |||),
 
                    step.new('should a release be created?', './lib/actions/should-release')
                    + step.withId('should_release')
@@ -77,9 +65,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                  + job.withIf('${{ fromJSON(needs.shouldRelease.outputs.shouldRelease) }}')
                  + job.withSteps([
                    common.fetchReleaseRepo,
-                   common.fetchReleaseLib,
                    common.setupNode,
                    common.googleAuth,
+                   common.setupGoogleCloudSdk,
 
                    // exits with code 1 if the url does not match
                    // meaning there are no artifacts for that sha
@@ -119,8 +107,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
   publishImages: job.new()
                  + job.withNeeds(['createRelease'])
                  + job.withSteps([
-                   common.googleAuth,
                    common.fetchReleaseLib,
+                   common.googleAuth,
+                   common.setupGoogleCloudSdk,
 
                    step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
                    step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),

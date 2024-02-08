@@ -88,6 +88,10 @@
               + $.step.with({
                 credentials_json: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
               }),
+  setupGoogleCloudSdk: $.step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
+                       + $.step.with({
+                         version: '>= 452.0.0',
+                       }),
 
   extractBranchName: $.releaseStep('extract branch name')
                      + $.step.withId('extract_branch')

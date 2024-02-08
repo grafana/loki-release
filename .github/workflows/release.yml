@@ -12,11 +12,6 @@ jobs:
       with:
         path: "release"
         repository: "${{ inputs.release_repo }}"
-    - name: "pull release library code"
-      uses: "actions/checkout@v4"
-      with:
-        path: "lib"
-        repository: "grafana/loki-release"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
@@ -25,6 +20,10 @@ jobs:
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+    - name: "Set up Cloud SDK"
+      uses: "google-github-actions/setup-gcloud@v1"
+      with:
+        version: ">= 452.0.0"
     - env:
         SHA: "${{ needs.shouldRelease.outputs.sha }}"
       name: "download binaries"
@@ -57,15 +56,19 @@ jobs:
     - "createRelease"
     runs-on: "ubuntu-latest"
     steps:
-    - name: "auth gcs"
-      uses: "google-github-actions/auth@v2"
-      with:
-        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "pull release library code"
       uses: "actions/checkout@v4"
       with:
         path: "lib"
         repository: "grafana/loki-release"
+    - name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+    - name: "Set up Cloud SDK"
+      uses: "google-github-actions/setup-gcloud@v1"
+      with:
+        version: ">= 452.0.0"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -95,26 +98,11 @@ jobs:
       shouldRelease: "${{ steps.should_release.outputs.shouldRelease }}"
     runs-on: "ubuntu-latest"
     steps:
-    - name: "pull code to release"
-      uses: "actions/checkout@v4"
-      with:
-        path: "release"
-        repository: "${{ inputs.release_repo }}"
     - name: "pull release library code"
       uses: "actions/checkout@v4"
       with:
         path: "lib"
         repository: "grafana/loki-release"
-    - id: "extract_branch"
-      name: "extract branch name"
-      run: |
-        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      shell: "bash"
-      working-directory: "release"
-    - name: "Set up Cloud SDK"
-      uses: "google-github-actions/setup-gcloud@v1"
-      with:
-        version: ">= 452.0.0"
     - id: "extract_branch"
       name: "extract branch name"
       run: |
