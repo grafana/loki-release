@@ -24803,7 +24803,7 @@ async function run() {
         const commands = (0, docker_1.buildCommands)(imagePrefix, files.filter(f => f.endsWith('.tar')));
         for (const command of commands) {
             (0, core_1.info)(command);
-            (0, child_process_1.exec)(command, (err, stdout, stderr) => {
+            (0, child_process_1.exec)(command, { cwd: imageDir }, (err, stdout, stderr) => {
                 if (err != null) {
                     throw err;
                 }

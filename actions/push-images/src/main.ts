@@ -24,7 +24,7 @@ export async function run(): Promise<void> {
     for (const command of commands) {
       info(command)
 
-      exec(command, (err, stdout, stderr) => {
+      exec(command, { cwd: imageDir }, (err, stdout, stderr) => {
         if (err != null) {
           throw err
         }
