@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.4](https://github.com/grafana/loki-release/compare/v1.8.3...v1.8.4) (2024-02-08)
+
+
+### Features
+
+* fix folder listing, better error handling ([2193521](https://github.com/grafana/loki-release/commit/21935215a13082416744dc6e77fce1155888e90c))
+
 ## [1.8.3](https://github.com/grafana/loki-release/compare/v1.8.2...v1.8.3) (2024-02-08)
 
 
