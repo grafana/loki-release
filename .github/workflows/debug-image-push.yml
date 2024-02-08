@@ -57,4 +57,4 @@ jobs:
         uses: "./lib/actions/push-images"
         with:
           imageDir: "release/images"
-          imagePrefix: "${{ inputs.image_prefix }}"
+          imagePrefix: trevorwhitney075
