@@ -7,11 +7,11 @@ jobs:
     - "shouldRelease"
     runs-on: "ubuntu-latest"
     steps:
-    - name: "pull code to release"
+    - name: "pull release library code"
       uses: "actions/checkout@v4"
       with:
-        path: "release"
-        repository: "${{ inputs.release_repo }}"
+        path: "lib"
+        repository: "grafana/loki-release"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
@@ -42,7 +42,7 @@ jobs:
           --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}"
       shell: "bash"
-      working-directory: "release"
+      working-directory: "lib"
     - env:
         GH_TOKEN: "${{ secrets.GH_TOKEN }}"
       id: "upload"
@@ -98,6 +98,11 @@ jobs:
       shouldRelease: "${{ steps.should_release.outputs.shouldRelease }}"
     runs-on: "ubuntu-latest"
     steps:
+    - name: "pull code to release"
+      uses: "actions/checkout@v4"
+      with:
+        path: "release"
+        repository: "${{ inputs.release_repo }}"
     - name: "pull release library code"
       uses: "actions/checkout@v4"
       with:
