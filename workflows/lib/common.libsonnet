@@ -41,6 +41,9 @@
     withIf: function(_if) {
       'if': _if,
     },
+    withOutputs: function(outputs) {
+      outputs: outputs,
+    },
   },
 
   releaseStep: function(name, uses=null) $.step.new(name, uses) +

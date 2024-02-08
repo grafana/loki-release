@@ -42,80 +42,105 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       ||| % pullRequestFooter),
     ]),
 
-  release: job.new()
-           + job.withSteps([
-             common.fetchReleaseRepo,
-             common.fetchReleaseLib,
-             common.setupNode,
-             common.googleAuth,
+  shouldRelease: job.new()
+                 + job.withSteps([
+                   common.fetchReleaseRepo,
+                   common.fetchReleaseLib,
+                   common.extractBranchName,
 
-             step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
-             step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
-             step.new('docker login', 'docker/login-action@v3')
-             + step.with({
-               username: '${{ inputs.docker_username }}',
-               password: '${{ secrets.DOCKER_PASSWORD }}',
-             }),
+                   step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
+                   + step.with({
+                     version: '>= 452.0.0',
+                   }),
 
-             step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
-             + step.with({
-               version: '>= 452.0.0',
-             }),
+                   releaseStep('extract branch name')
+                   + step.withId('extract_branch')
+                   + step.withRun(|||
+                     echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+                   |||),
 
-             releaseStep('extract branch name')
-             + step.withId('extract_branch')
-             + step.withRun(|||
-               echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-             |||),
+                   step.new('should a release be created?', './lib/actions/should-release')
+                   + step.withId('should_release')
+                   + step.with({
+                     baseBranch: '${{ steps.extract_branch.outputs.branch }}',
+                   }),
+                 ])
+                 + job.withOutputs({
+                   shouldRelease: '${{ steps.should_release.outputs.shouldRelease }}',
+                   sha: '${{ steps.should_release.outputs.sha }}',
+                   name: '${{ steps.should_release.outputs.name }}',
+                   branch: '${{ steps.extract_branch.outputs.branch }}',
 
-             step.new('should a release be created?', './lib/actions/should-release')
-             + step.withId('should_release')
-             + step.with({
-               baseBranch: '${{ steps.extract_branch.outputs.branch }}',
-             }),
+                 }),
+  createRelease: job.new()
+                 + job.withNeeds(['shouldRelease'])
+                 + job.withIf('${{ fromJSON(needs.shouldRelease.outputs.shouldRelease) }}')
+                 + job.withSteps([
+                   common.fetchReleaseRepo,
+                   common.fetchReleaseLib,
+                   common.setupNode,
+                   common.googleAuth,
 
-             // exits with code 1 if the url does not match
-             // meaning there are no artifacts for that sha
-             // we need to handle this if we're going to run this pipeline on every merge to main
-             releaseStep('download build artifacts')
-             + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
-             + step.withRun(|||
-               echo "downloading binaries to $(pwd)/dist"
-               gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/dist .
+                   // exits with code 1 if the url does not match
+                   // meaning there are no artifacts for that sha
+                   // we need to handle this if we're going to run this pipeline on every merge to main
+                   step.new('download binaries')
+                   + step.withEnv({
+                     SHA: '${{ needs.shouldRelease.outputs.sha }}',
+                   })
+                   + step.withRun(|||
+                     echo "downloading binaries to $(pwd)/dist"
+                     gsutil cp -r gs://loki-build-artifacts/${SHA}/dist .
+                   |||),
 
-               echo "downloading binaries to $(pwd)/images"
-               gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/images .
-             |||),
+                   releaseStep('create release')
+                   + step.withId('release')
+                   + step.withRun(|||
+                     npm install
+                     npm exec -- release-please github-release \
+                       --draft \
+                       --release-type simple \
+                       --repo-url="${{ inputs.release_repo }}" \
+                       --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
+                       --token="${{ secrets.GH_TOKEN }}"
+                   |||),
 
-             releaseStep('release please')
-             + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
-             + step.withId('release')
-             + step.withRun(|||
-               npm install
-               npm exec -- release-please github-release \
-                 --draft \
-                 --release-type simple \
-                 --repo-url="${{ inputs.release_repo }}" \
-                 --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-                 --token="${{ secrets.GH_TOKEN }}"
-             |||),
+                   step.new('upload artifacts')
+                   + step.withId('upload')
+                   + step.withEnv({
+                     GH_TOKEN: '${{ secrets.GH_TOKEN }}',
+                   })
+                   + step.withRun(|||
+                     gh release upload ${{ needs.shouldRelease.outputs.name }} dist/*
+                     gh release edit ${{ needs.shouldRelease.outputs.name }} --draft=false
+                   |||),
+                 ]),
 
-             releaseStep('upload artifacts')
-             + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
-             + step.withId('upload')
-             + step.withEnv({
-               GH_TOKEN: '${{ secrets.GH_TOKEN }}',
-             })
-             + step.withRun(|||
-               gh release upload ${{ steps.should_release.outputs.name }} dist/*
-               gh release edit ${{ steps.should_release.outputs.name }} --draft=false
-             |||),
+  publishImages: job.new()
+                 + job.withNeeds(['createRelease'])
+                 + job.withSteps([
+                   common.googleAuth,
+                   common.fetchReleaseLib,
 
-             step.new('push docker images', './lib/actions/push-images')
-             + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
-             + step.with({
-               imageDir: 'release/images',
-               imagePrefix: '${{ inputs.image_prefix }}',
-             }),
-           ]),
+                   step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
+                   step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
+                   step.new('docker login', 'docker/login-action@v3')
+                   + step.with({
+                     username: '${{ inputs.docker_username }}',
+                     password: '${{ secrets.DOCKER_PASSWORD }}',
+                   }),
+                   step.new('download images')
+                   + step.withEnv({
+                     SHA: '${{ needs.shouldRelease.outputs.sha }}',
+                   })
+                   + step.withRun(|||
+                     echo "downloading images to $(pwd)/images"
+                     gsutil cp -r gs://loki-build-artifacts/${SHA}/images .
+                   |||),
+                   step.new('publish docker images', './lib/actions/push-images')
+                   + step.with({
+                     imageDir: 'images',
+                     imagePrefix: '${{ inputs.image_prefix }}',
+                   }),
+                 ]),
 }

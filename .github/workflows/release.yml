@@ -1,7 +1,10 @@
 concurrency:
   group: "create-release-${{ github.sha }}"
 jobs:
-  release:
+  createRelease:
+    if: "${{ fromJSON(needs.shouldRelease.outputs.shouldRelease) }}"
+    needs:
+    - "shouldRelease"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -22,6 +25,47 @@ jobs:
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+    - env:
+        SHA: "${{ needs.shouldRelease.outputs.sha }}"
+      name: "download binaries"
+      run: |
+        echo "downloading binaries to $(pwd)/dist"
+        gsutil cp -r gs://loki-build-artifacts/${SHA}/dist .
+      shell: "bash"
+    - id: "release"
+      name: "create release"
+      run: |
+        npm install
+        npm exec -- release-please github-release \
+          --draft \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}"
+      shell: "bash"
+      working-directory: "release"
+    - env:
+        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+      id: "upload"
+      name: "upload artifacts"
+      run: |
+        gh release upload ${{ needs.shouldRelease.outputs.name }} dist/*
+        gh release edit ${{ needs.shouldRelease.outputs.name }} --draft=false
+      shell: "bash"
+  publishImages:
+    needs:
+    - "createRelease"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+    - name: "pull release library code"
+      uses: "actions/checkout@v4"
+      with:
+        path: "lib"
+        repository: "grafana/loki-release"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -31,6 +75,42 @@ jobs:
       with:
         password: "${{ secrets.DOCKER_PASSWORD }}"
         username: "${{ inputs.docker_username }}"
+    - env:
+        SHA: "${{ needs.shouldRelease.outputs.sha }}"
+      name: "download images"
+      run: |
+        echo "downloading images to $(pwd)/images"
+        gsutil cp -r gs://loki-build-artifacts/${SHA}/images .
+      shell: "bash"
+    - name: "publish docker images"
+      uses: "./lib/actions/push-images"
+      with:
+        imageDir: "images"
+        imagePrefix: "${{ inputs.image_prefix }}"
+  shouldRelease:
+    outputs:
+      branch: "${{ steps.extract_branch.outputs.branch }}"
+      name: "${{ steps.should_release.outputs.name }}"
+      sha: "${{ steps.should_release.outputs.sha }}"
+      shouldRelease: "${{ steps.should_release.outputs.shouldRelease }}"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull code to release"
+      uses: "actions/checkout@v4"
+      with:
+        path: "release"
+        repository: "${{ inputs.release_repo }}"
+    - name: "pull release library code"
+      uses: "actions/checkout@v4"
+      with:
+        path: "lib"
+        repository: "grafana/loki-release"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
     - name: "Set up Cloud SDK"
       uses: "google-github-actions/setup-gcloud@v1"
       with:
@@ -46,45 +126,6 @@ jobs:
       uses: "./lib/actions/should-release"
       with:
         baseBranch: "${{ steps.extract_branch.outputs.branch }}"
-    - if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
-      name: "download build artifacts"
-      run: |
-        echo "downloading binaries to $(pwd)/dist"
-        gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/dist .
-        
-        echo "downloading binaries to $(pwd)/images"
-        gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/images .
-      shell: "bash"
-      working-directory: "release"
-    - id: "release"
-      if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
-      name: "release please"
-      run: |
-        npm install
-        npm exec -- release-please github-release \
-          --draft \
-          --release-type simple \
-          --repo-url="${{ inputs.release_repo }}" \
-          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --token="${{ secrets.GH_TOKEN }}"
-      shell: "bash"
-      working-directory: "release"
-    - env:
-        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
-      id: "upload"
-      if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
-      name: "upload artifacts"
-      run: |
-        gh release upload ${{ steps.should_release.outputs.name }} dist/*
-        gh release edit ${{ steps.should_release.outputs.name }} --draft=false
-      shell: "bash"
-      working-directory: "release"
-    - if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
-      name: "push docker images"
-      uses: "./lib/actions/push-images"
-      with:
-        imageDir: "release/images"
-        imagePrefix: "${{ inputs.image_prefix }}"
 name: "create release"
 "on":
   workflow_call:
