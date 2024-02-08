@@ -227,6 +227,10 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -237,33 +241,65 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - id: "parse-metadata"
-      name: "parse image metadata"
+    - id: "platform"
+      name: "parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
-        
-        version=$(jq -r '."clients/cmd/fluent-bit"' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "version"
+      name: "get release version"
+      run: |
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
         file: "release/clients/cmd/fluent-bit/Dockerfile"
-        outputs: "type=docker,dest=release/images/fluent-bit-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/fluent-bit-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/fluent-bit:${{ steps.parse-metadata.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+        tags: "${{ inputs.image_prefix }}/fluent-bit:${{ steps.version.outputs.version }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/fluent-bit-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/fluent-bit-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
       fail-fast: true
@@ -287,6 +323,10 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -297,33 +337,65 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - id: "parse-metadata"
-      name: "parse image metadata"
+    - id: "platform"
+      name: "parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
-        
-        version=$(jq -r '."clients/cmd/fluentd"' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "version"
+      name: "get release version"
+      run: |
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
         file: "release/clients/cmd/fluentd/Dockerfile"
-        outputs: "type=docker,dest=release/images/fluentd-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/fluentd-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/fluentd:${{ steps.parse-metadata.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+        tags: "${{ inputs.image_prefix }}/fluentd:${{ steps.version.outputs.version }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/fluentd-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/fluentd-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
       fail-fast: true
@@ -438,6 +510,10 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -448,33 +524,65 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - id: "parse-metadata"
-      name: "parse image metadata"
+    - id: "platform"
+      name: "parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
-        
-        version=$(jq -r '."cmd/logcli"' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "version"
+      name: "get release version"
+      run: |
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
         file: "release/cmd/logcli/Dockerfile"
-        outputs: "type=docker,dest=release/images/logcli-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/logcli-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/logcli:${{ steps.parse-metadata.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+        tags: "${{ inputs.image_prefix }}/logcli:${{ steps.version.outputs.version }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/logcli-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/logcli-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
       fail-fast: true
@@ -500,6 +608,10 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -510,33 +622,65 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - id: "parse-metadata"
-      name: "parse image metadata"
+    - id: "platform"
+      name: "parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
-        
-        version=$(jq -r '."clients/cmd/logstash"' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "version"
+      name: "get release version"
+      run: |
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
         file: "release/clients/cmd/logstash/Dockerfile"
-        outputs: "type=docker,dest=release/images/logstash-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/logstash-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/logstash:${{ steps.parse-metadata.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+        tags: "${{ inputs.image_prefix }}/logstash:${{ steps.version.outputs.version }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/logstash-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/logstash-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
       fail-fast: true
@@ -560,6 +704,10 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -570,33 +718,65 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - id: "parse-metadata"
-      name: "parse image metadata"
+    - id: "platform"
+      name: "parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
-        
-        version=$(jq -r '."cmd/loki-canary"' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "version"
+      name: "get release version"
+      run: |
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
         file: "release/cmd/loki-canary/Dockerfile"
-        outputs: "type=docker,dest=release/images/loki-canary-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/loki-canary-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/loki-canary:${{ steps.parse-metadata.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+        tags: "${{ inputs.image_prefix }}/loki-canary:${{ steps.version.outputs.version }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/loki-canary-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/loki-canary-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
       fail-fast: true
@@ -622,6 +802,10 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -632,33 +816,65 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - id: "parse-metadata"
-      name: "parse image metadata"
+    - id: "platform"
+      name: "parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
-        
-        version=$(jq -r '."cmd/loki-canary-boringcrypto"' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "version"
+      name: "get release version"
+      run: |
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
         file: "release/cmd/loki-canary-boringcrypto/Dockerfile"
-        outputs: "type=docker,dest=release/images/loki-canary-boringcrypto-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/loki-canary-boringcrypto-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/loki-canary-boringcrypto:${{ steps.parse-metadata.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+        tags: "${{ inputs.image_prefix }}/loki-canary-boringcrypto:${{ steps.version.outputs.version }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/loki-canary-boringcrypto-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/loki-canary-boringcrypto-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
       fail-fast: true
@@ -684,6 +900,10 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -694,33 +914,65 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - id: "parse-metadata"
-      name: "parse image metadata"
+    - id: "platform"
+      name: "parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
-        
-        version=$(jq -r '."cmd/loki"' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - if: "${{ true }}"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "version"
+      name: "get release version"
+      run: |
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ true && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
         file: "release/cmd/loki/Dockerfile"
-        outputs: "type=docker,dest=release/images/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/loki-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/loki:${{ steps.parse-metadata.outputs.version }}"
-    - if: "${{ true }}"
+        tags: "${{ inputs.image_prefix }}/loki:${{ steps.version.outputs.version }}"
+    - if: "${{ true && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/loki-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/loki-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
       fail-fast: true
@@ -746,6 +998,10 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -756,33 +1012,65 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - id: "parse-metadata"
-      name: "parse image metadata"
+    - id: "platform"
+      name: "parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
-        
-        version=$(jq -r '."operator"' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "version"
+      name: "get release version"
+      run: |
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release/operator"
         file: "release/operator/Dockerfile"
-        outputs: "type=docker,dest=release/images/loki-operator-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/loki-operator-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/loki-operator:${{ steps.parse-metadata.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+        tags: "${{ inputs.image_prefix }}/loki-operator:${{ steps.version.outputs.version }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/loki-operator-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/loki-operator-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
       fail-fast: true
@@ -806,6 +1094,10 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -816,33 +1108,65 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - id: "parse-metadata"
-      name: "parse image metadata"
+    - id: "platform"
+      name: "parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
-        
-        version=$(jq -r '."clients/cmd/promtail"' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "version"
+      name: "get release version"
+      run: |
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
         file: "release/clients/cmd/promtail/Dockerfile"
-        outputs: "type=docker,dest=release/images/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/promtail-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/promtail:${{ steps.parse-metadata.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+        tags: "${{ inputs.image_prefix }}/promtail:${{ steps.version.outputs.version }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/promtail-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/promtail-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
       fail-fast: true
@@ -868,6 +1192,10 @@ jobs:
       with:
         cache-dependency-path: "release/go.sum"
         go-version-file: "release/go.mod"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - env:
         ACTIONS_STEP_DEBUG: "true"
       name: "auth gcs"
@@ -878,33 +1206,65 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - id: "parse-metadata"
-      name: "parse image metadata"
+    - id: "platform"
+      name: "parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
-        
-        version=$(jq -r '."cmd/querytee"' .release-please-manifest.json)
-        echo "version=${version}" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      shell: "bash"
+      working-directory: "release"
+    - id: "version"
+      name: "get release version"
+      run: |
+        npm install
+        npm exec -- release-please release-pr \
+          --consider-all-branches \
+          --dry-run \
+          --dry-run-output release.json \
+          --release-type simple \
+          --repo-url="${{ inputs.release_repo }}" \
+          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ inputs.versioning_strategy }}"
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      shell: "bash"
+      working-directory: "release"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
         file: "release/cmd/querytee/Dockerfile"
-        outputs: "type=docker,dest=release/images/querytee-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        outputs: "type=docker,dest=release/images/querytee-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/querytee:${{ steps.parse-metadata.outputs.version }}"
-    - if: "${{ inputs.release_repo == 'grafana/loki' }}"
+        tags: "${{ inputs.image_prefix }}/querytee:${{ steps.version.outputs.version }}"
+    - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/querytee-${{ steps.parse-metadata.outputs.version}}-${{ steps.parse-metadata.outputs.platform }}.tar"
+        path: "release/images/querytee-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
       fail-fast: true

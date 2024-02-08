@@ -14,7 +14,7 @@ loki-image:
 	docker build -t trevorwhitney075/loki -f cmd/loki/Dockerfile .
 
 clean:
-	rm cmd/loki/loki
+	rm -rf cmd/loki/loki dist
 
 check-generated-files:
 	echo "checking generated files"

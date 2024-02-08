@@ -18,12 +18,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       common.fetchReleaseRepo,
       common.fetchReleaseLib,
       common.setupNode,
-
-      releaseStep('extract branch name')
-      + step.withId('extract_branch')
-      + step.withRun(|||
-        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      |||),
+      common.extractBranchName,
 
       releaseLibStep('release please')
       + step.withId('release')
@@ -54,6 +49,14 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
              common.setupNode,
              common.googleAuth,
 
+             step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
+             step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
+             step.new('docker login', 'docker/login-action@v3')
+             + step.with({
+               username: '${{ inputs.docker_username }}',
+               password: '${{ secrets.DOCKER_PASSWORD }}',
+             }),
+
              step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v1')
              + step.with({
                version: '>= 452.0.0',
@@ -77,8 +80,11 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
              releaseStep('download build artifacts')
              + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.withRun(|||
+               echo "downloading binaries to $(pwd)/dist"
                gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/dist .
-               ls dist
+
+               echo "downloading binaries to $(pwd)/images"
+               gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/images .
              |||),
 
              releaseStep('release please')
@@ -104,5 +110,15 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                gh release upload ${{ steps.should_release.outputs.name }} dist/*
                gh release edit ${{ steps.should_release.outputs.name }} --draft=false
              |||),
+
+             step.new('push docker images', './lib/actions/push-images')
+             + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
+             + step.withEnv({
+               ACTIONS_STEP_DEBUG: true,
+             })
+             + step.with({
+               imageDir: 'release/images',
+               imagePrefix: '${{ inputs.image_prefix }}',
+             }),
            ]),
 }

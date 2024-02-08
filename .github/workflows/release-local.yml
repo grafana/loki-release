@@ -14,6 +14,9 @@ jobs:
     uses: ./.github/workflows/release.yml
     with:
       release_repo: grafana/loki-release
+      docker_username: trevorwhitney075
+      image_prefix: trevorwhitney075
     secrets:
       GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.BACKEND_ENTERPRISE_DRONE }}'
       GH_TOKEN: '${{ secrets.GH_TOKEN }}'
+      DOCKER_PASSWORD: '${{ secrets.DOCKER_PASSWORD }}'

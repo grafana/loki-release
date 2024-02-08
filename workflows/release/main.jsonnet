@@ -16,12 +16,26 @@ std.manifestYamlDoc({
           required: false,
           type: 'string',
         },
+        docker_username: {
+          description: 'username to login to docker with',
+          required: true,
+          type: 'string',
+        },
+        image_prefix: {
+          description: 'prefix for images',
+          default: 'grafana',
+          required: false,
+          type: 'string',
+        },
       },
       secrets: {
         GCS_SERVICE_ACCOUNT_KEY: {
           required: true,
         },
         GH_TOKEN: {
+          required: true,
+        },
+        DOCKER_PASSWORD: {
           required: true,
         },
       },
