@@ -83,6 +83,7 @@ jobs:
       working-directory: "release"
     - env:
         ACTIONS_STEP_DEBUG: true
+      if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
       name: "push docker images"
       uses: "./lib/actions/push-images"
       with:

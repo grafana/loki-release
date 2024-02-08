@@ -112,7 +112,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
              |||),
 
              step.new('push docker images', './lib/actions/push-images')
-             // + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
+             + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.withEnv({
                ACTIONS_STEP_DEBUG: true,
              })
