@@ -244,6 +244,7 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "extract_branch"
@@ -289,7 +290,7 @@ jobs:
         file: "release/clients/cmd/fluent-bit/Dockerfile"
         outputs: "type=docker,dest=release/images/fluent-bit-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/fluent-bit:${{ steps.version.outputs.version }}"
+        tags: "${{ inputs.image_prefix }}/fluent-bit:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
@@ -338,6 +339,7 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "extract_branch"
@@ -383,7 +385,7 @@ jobs:
         file: "release/clients/cmd/fluentd/Dockerfile"
         outputs: "type=docker,dest=release/images/fluentd-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/fluentd:${{ steps.version.outputs.version }}"
+        tags: "${{ inputs.image_prefix }}/fluentd:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
@@ -523,6 +525,7 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "extract_branch"
@@ -568,7 +571,7 @@ jobs:
         file: "release/cmd/logcli/Dockerfile"
         outputs: "type=docker,dest=release/images/logcli-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/logcli:${{ steps.version.outputs.version }}"
+        tags: "${{ inputs.image_prefix }}/logcli:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
@@ -619,6 +622,7 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "extract_branch"
@@ -664,7 +668,7 @@ jobs:
         file: "release/clients/cmd/logstash/Dockerfile"
         outputs: "type=docker,dest=release/images/logstash-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/logstash:${{ steps.version.outputs.version }}"
+        tags: "${{ inputs.image_prefix }}/logstash:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
@@ -713,6 +717,7 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "extract_branch"
@@ -758,7 +763,7 @@ jobs:
         file: "release/cmd/loki-canary/Dockerfile"
         outputs: "type=docker,dest=release/images/loki-canary-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/loki-canary:${{ steps.version.outputs.version }}"
+        tags: "${{ inputs.image_prefix }}/loki-canary:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
@@ -809,6 +814,7 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "extract_branch"
@@ -854,7 +860,7 @@ jobs:
         file: "release/cmd/loki-canary-boringcrypto/Dockerfile"
         outputs: "type=docker,dest=release/images/loki-canary-boringcrypto-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/loki-canary-boringcrypto:${{ steps.version.outputs.version }}"
+        tags: "${{ inputs.image_prefix }}/loki-canary-boringcrypto:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
@@ -905,6 +911,7 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "extract_branch"
@@ -950,7 +957,7 @@ jobs:
         file: "release/cmd/loki/Dockerfile"
         outputs: "type=docker,dest=release/images/loki-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/loki:${{ steps.version.outputs.version }}"
+        tags: "${{ inputs.image_prefix }}/loki:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
     - if: "${{ true && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
@@ -1001,6 +1008,7 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "extract_branch"
@@ -1046,7 +1054,7 @@ jobs:
         file: "release/operator/Dockerfile"
         outputs: "type=docker,dest=release/images/loki-operator-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/loki-operator:${{ steps.version.outputs.version }}"
+        tags: "${{ inputs.image_prefix }}/loki-operator:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
@@ -1095,6 +1103,7 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "extract_branch"
@@ -1140,7 +1149,7 @@ jobs:
         file: "release/clients/cmd/promtail/Dockerfile"
         outputs: "type=docker,dest=release/images/promtail-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/promtail:${{ steps.version.outputs.version }}"
+        tags: "${{ inputs.image_prefix }}/promtail:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
@@ -1191,6 +1200,7 @@ jobs:
         
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
     - id: "extract_branch"
@@ -1236,7 +1246,7 @@ jobs:
         file: "release/cmd/querytee/Dockerfile"
         outputs: "type=docker,dest=release/images/querytee-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         platforms: "${{ matrix.platform }}"
-        tags: "${{ inputs.image_prefix }}/querytee:${{ steps.version.outputs.version }}"
+        tags: "${{ inputs.image_prefix }}/querytee:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
     - if: "${{ inputs.release_repo == 'grafana/loki' && fromJSON(steps.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"

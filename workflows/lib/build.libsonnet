@@ -38,6 +38,7 @@ local releaseStep = common.releaseStep;
 
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${platform} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       |||),
 
       common.extractBranchName,
@@ -76,7 +77,7 @@ local releaseStep = common.releaseStep;
         context: context,
         file: 'release/%s/Dockerfile' % path,
         platforms: '${{ matrix.platform }}',
-        tags: '${{ inputs.image_prefix }}/%s:${{ steps.version.outputs.version }}' % [name],
+        tags: '${{ inputs.image_prefix }}/%s:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
         outputs: 'type=docker,dest=release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
       }),
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')

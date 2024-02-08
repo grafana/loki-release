@@ -39,13 +39,12 @@ export function buildCommands(repo: string, files: string[]): string[] {
         version = v
       }
       const shortPlatform = platform.split('/')[1]
-      commands.push(
-        `docker import --platform ${platform} ${file} ${repo}/${image}:${version.toString()}-${shortPlatform}`
-      )
+      commands.push(`docker load -i ${file}`)
       manifests.push(`${repo}/${image}:${version.toString()}-${shortPlatform}`)
     }
 
     commands.push(
+      `docker ls`,
       `docker push -a ${repo}/${image}`,
       `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`,
       `docker manifest push ${repo}/${image}:${version.toString()}`
