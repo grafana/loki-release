@@ -24799,17 +24799,23 @@ async function run() {
         const imagePrefix = (0, core_1.getInput)('imagePrefix');
         (0, core_1.info)(`imageDir:            ${imageDir}`);
         (0, core_1.info)(`imagePrefix:         ${imagePrefix}`);
-        const files = await (0, promises_1.readdir)(`${imageDir}/*.tar`);
-        const commands = (0, docker_1.buildCommands)(imagePrefix, files);
+        const files = await (0, promises_1.readdir)(imageDir);
+        const commands = (0, docker_1.buildCommands)(imagePrefix, files.filter(f => f.endsWith('.tar')));
         for (const command of commands) {
-            (0, core_1.debug)(`executing: ${command}`);
-            (0, child_process_1.exec)(command);
+            (0, core_1.info)(command);
+            (0, child_process_1.exec)(command, (err, stdout, stderr) => {
+                if (err != null) {
+                    throw err;
+                }
+                (0, core_1.info)(stdout);
+                (0, core_1.error)(stderr);
+            });
         }
     }
-    catch (error) {
+    catch (err) {
         // Fail the workflow run if an error occurs
-        if (error instanceof Error)
-            (0, core_1.setFailed)(error.message);
+        if (err instanceof Error)
+            (0, core_1.setFailed)(err.message);
     }
 }
 exports.run = run;

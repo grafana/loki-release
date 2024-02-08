@@ -1,4 +1,4 @@
-import { getInput, info, debug, setFailed } from '@actions/core'
+import { getInput, info, error, setFailed } from '@actions/core'
 import { buildCommands } from './docker'
 import { readdir } from 'fs/promises'
 import { exec } from 'child_process'
@@ -14,16 +14,27 @@ export async function run(): Promise<void> {
 
     info(`imageDir:            ${imageDir}`)
     info(`imagePrefix:         ${imagePrefix}`)
-    const files = await readdir(`${imageDir}/*.tar`)
 
-    const commands = buildCommands(imagePrefix, files)
+    const files = await readdir(imageDir)
+    const commands = buildCommands(
+      imagePrefix,
+      files.filter(f => f.endsWith('.tar'))
+    )
 
     for (const command of commands) {
-      debug(`executing: ${command}`)
-      exec(command)
+      info(command)
+
+      exec(command, (err, stdout, stderr) => {
+        if (err != null) {
+          throw err
+        }
+
+        info(stdout)
+        error(stderr)
+      })
     }
-  } catch (error) {
+  } catch (err) {
     // Fail the workflow run if an error occurs
-    if (error instanceof Error) setFailed(error.message)
+    if (err instanceof Error) setFailed(err.message)
   }
 }
