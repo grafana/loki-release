@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.7](https://github.com/grafana/loki-release/compare/v1.8.6...v1.8.7) (2024-02-08)
+
+
+### Features
+
+* use locker load instead of import to retain metadata ([33764f0](https://github.com/grafana/loki-release/commit/33764f05e40dc77c51b5e40cd160d2f2fa7c73c0))
+
+
+### Bug Fixes
+
+* short_platform ([712e182](https://github.com/grafana/loki-release/commit/712e182e83f818ccd52656a7dd5fd1d4415c068d))
+
 ## [1.8.6](https://github.com/grafana/loki-release/compare/v1.8.5...v1.8.6) (2024-02-08)
 
 
