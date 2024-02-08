@@ -27,7 +27,7 @@ jobs:
         name: "auth gcs"
         uses: "google-github-actions/auth@v2"
         with:
-          credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+          credentials_json: "${{ secrets.BACKEND_ENTERPRISE_DRONE }}"
       - name: "Set up QEMU"
         uses: "docker/setup-qemu-action@v3"
       - name: "set up docker buildx"
@@ -36,7 +36,7 @@ jobs:
         uses: "docker/login-action@v3"
         with:
           password: "${{ secrets.DOCKER_PASSWORD }}"
-          username: "${{ inputs.docker_username }}"
+          username: trevorwhitney075
       - name: "Set up Cloud SDK"
         uses: "google-github-actions/setup-gcloud@v1"
         with:
