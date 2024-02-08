@@ -1,7 +1,7 @@
-import { getInput, info, error, setFailed } from '@actions/core'
+import { getInput, info, setFailed } from '@actions/core'
 import { buildCommands } from './docker'
 import { readdir } from 'fs/promises'
-import { exec } from 'child_process'
+import { execSync } from 'child_process'
 
 /**
  * The main function for the action.
@@ -24,15 +24,8 @@ export async function run(): Promise<void> {
     for (const command of commands) {
       info(command)
 
-      exec(command, { cwd: imageDir }, (err, stdout, stderr) => {
-        if (err != null) {
-          // throw err
-          error(err.message)
-        }
-
-        info(stdout)
-        error(stderr)
-      })
+      const stdout = execSync(command, { cwd: imageDir })
+      info(stdout.toString())
     }
   } catch (err) {
     // Fail the workflow run if an error occurs
