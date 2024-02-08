@@ -80,7 +80,10 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
              releaseStep('download build artifacts')
              + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.withRun(|||
+               echo "downloading binaries to $(pwd)/dist"
                gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/dist .
+
+               echo "downloading binaries to $(pwd)/images"
                gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/images .
              |||),
 
@@ -111,7 +114,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
              step.new('push docker images', './lib/actions/push-images')
              + step.withIf('${{ fromJSON(steps.should_release.outputs.shouldRelease) }}')
              + step.with({
-               imageDir: 'lib/images',
+               imageDir: 'release/images',
                imagePrefix: '${{ inputs.image_prefix }}',
              }),
            ]),
