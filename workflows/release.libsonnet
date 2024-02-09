@@ -74,13 +74,13 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    // exits with code 1 if the url does not match
                    // meaning there are no artifacts for that sha
                    // we need to handle this if we're going to run this pipeline on every merge to main
-                   step.new('download binaries')
+                   releaseStep('download binaries')
                    + step.withRun(|||
                      echo "downloading binaries to $(pwd)/dist"
                      gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/dist .
                    |||),
 
-                   releaseStep('create release')
+                   releaseLibStep('create release')
                    + step.withId('release')
                    + step.withRun(|||
                      npm install
@@ -92,7 +92,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                        --token="${{ secrets.GH_TOKEN }}"
                    |||),
 
-                   step.new('upload artifacts')
+                   releaseStep('upload artifacts')
                    + step.withId('upload')
                    + step.withEnv({
                      GH_TOKEN: '${{ secrets.GH_TOKEN }}',

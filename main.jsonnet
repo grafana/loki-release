@@ -1,8 +1,8 @@
 {
-  common: import './workflows/lib/common.libsonnet',
-  build: import './workflows/lib/build.libsonnet',
-  release: import './workflows/lib/release.libsonnet',
-  validate: import './workflows/lib/validate.libsonnet',
+  common: import './workflows/common.libsonnet',
+  build: import './workflows/build.libsonnet',
+  release: import './workflows/release.libsonnet',
+  validate: import './workflows/validate.libsonnet',
   releasePRWorkflow: function(
     imageJobs={},
     skipValidation=false,
