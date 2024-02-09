@@ -8,7 +8,6 @@ local releaseStep = common.releaseStep;
     name,
     path,
     context='release',
-    condition="inputs.release_repo == 'grafana/loki'",
     platform=[
       'linux/amd64',
       'linux/arm64',
@@ -51,10 +50,10 @@ local releaseStep = common.releaseStep;
           --dry-run \
           --dry-run-output release.json \
           --release-type simple \
-          --repo-url="${{ inputs.release_repo }}" \
+          --repo-url="${{ env.RELEASE_REPO }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-          --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
 
         if [[ `jq length release.json` -gt 1 ]]; then 
           echo 'release-please would create more than 1 PR, so cannot determine correct version'
@@ -72,16 +71,16 @@ local releaseStep = common.releaseStep;
       |||),
 
       step.new('Build and export', 'docker/build-push-action@v5')
-      + step.withIf('${{ %s && fromJSON(steps.version.outputs.pr_created) }}' % condition)
+      + step.withIf('${{ fromJSON(steps.version.outputs.pr_created) }}')
       + step.with({
         context: context,
         file: 'release/%s/Dockerfile' % path,
         platforms: '${{ matrix.platform }}',
-        tags: '${{ inputs.image_prefix }}/%s:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
+        tags: '${{ env.IMAGE_PREFIX }}/%s:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
         outputs: 'type=docker,dest=release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
       }),
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
-      + step.withIf('${{ %s && fromJSON(steps.version.outputs.pr_created) }}' % condition)
+      + step.withIf('${{ fromJSON(steps.version.outputs.pr_created) }}')
       + step.with({
         path: 'release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
         destination: 'loki-build-artifacts/${{ github.sha }}/images',  //TODO: make bucket configurable

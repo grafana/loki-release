@@ -35,10 +35,10 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           --label "backport main,autorelease: pending,type/docs" \
           --pull-request-footer "%s" \
           --release-type simple \
-          --repo-url="${{ inputs.release_repo }}" \
+          --repo-url="${{ env.RELEASE_REPO }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token="${{ secrets.GH_TOKEN }}" \
-          --versioning-strategy "${{ inputs.versioning_strategy }}"
+          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
       ||| % pullRequestFooter),
     ]),
 
@@ -87,7 +87,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      npm exec -- release-please github-release \
                        --draft \
                        --release-type simple \
-                       --repo-url="${{ inputs.release_repo }}" \
+                       --repo-url="${{ env.RELEASE_REPO }}" \
                        --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
                        --token="${{ secrets.GH_TOKEN }}"
                    |||),
@@ -114,7 +114,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
                    step.new('docker login', 'docker/login-action@v3')
                    + step.with({
-                     username: '${{ inputs.docker_username }}',
+                     username: '${{ env.DOCKER_USERNAME }}',
                      password: '${{ secrets.DOCKER_PASSWORD }}',
                    }),
                    step.new('download images')
@@ -125,7 +125,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    step.new('publish docker images', './lib/actions/push-images')
                    + step.with({
                      imageDir: 'images',
-                     imagePrefix: '${{ inputs.image_prefix }}',
+                     imagePrefix: '${{ env.IMAGE_PREFIX }}',
                    }),
                  ]),
 }

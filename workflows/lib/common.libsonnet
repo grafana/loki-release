@@ -55,7 +55,7 @@
   fetchReleaseRepo:
     $.step.new('pull code to release', 'actions/checkout@v4')
     + $.step.with({
-      repository: '${{ inputs.release_repo }}',
+      repository: '${{ env.RELEASE_REPO }}',
       path: 'release',
     }),
   fetchReleaseLib:

@@ -14,7 +14,7 @@
     "package": "for p in install-binary push-images should-release; do ncc build actions/${p}/src/index.ts --license licenses.txt --out actions/${p}/dist; done",
     "prepare": "husky install",
     "test": "jest",
-    "workflows": "for w in release release-pr; do jsonnet -S workflows/${w}/main.jsonnet > .github/workflows/${w}.yml; done"
+    "workflows": "jsonnet -Sm .github/workflows .github/workflows.jsonnet"
   },
   "repository": {
     "type": "git",
