@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.8.9](https://github.com/grafana/loki-release/compare/v1.8.8...v1.8.9) (2024-02-09)
+
+
+### Features
+
+* make jsonnet a library rather than workflow templates ([ae9c304](https://github.com/grafana/loki-release/commit/ae9c304b9d98e7d4126cb4b32d3f6ac8c1989f71))
+
+
+### Bug Fixes
+
+* need to upload artifacts from git repo ([44e6a1f](https://github.com/grafana/loki-release/commit/44e6a1fd2fa95f206b2930c5b536064f3a339830))
+* publishImage dependencies ([2c123aa](https://github.com/grafana/loki-release/commit/2c123aa0303b3089328972e7de475610be9f7ca2))
+
 ## [1.8.8](https://github.com/grafana/loki-release/compare/v1.8.7...v1.8.8) (2024-02-09)
 
 
