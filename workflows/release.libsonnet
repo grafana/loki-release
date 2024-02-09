@@ -101,7 +101,10 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      gh release upload ${{ needs.shouldRelease.outputs.name }} dist/*
                      gh release edit ${{ needs.shouldRelease.outputs.name }} --draft=false
                    |||),
-                 ]),
+                 ])
+                 + job.withOutputs({
+                   sha: '${{ needs.shouldRelease.outputs.sha }}',
+                 }),
 
   publishImages: job.new()
                  + job.withNeeds(['createRelease'])
@@ -120,7 +123,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    step.new('download images')
                    + step.withRun(|||
                      echo "downloading images to $(pwd)/images"
-                     gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/images .
+                     gsutil cp -r gs://loki-build-artifacts/${{ needs.createRelease.outputs.sha }}/images .
                    |||),
                    step.new('publish docker images', './lib/actions/push-images')
                    + step.with({
