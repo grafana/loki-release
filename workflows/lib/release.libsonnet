@@ -65,6 +65,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                  + job.withNeeds(['shouldRelease'])
                  + job.withIf('${{ fromJSON(needs.shouldRelease.outputs.shouldRelease) }}')
                  + job.withSteps([
+                   common.fetchReleaseRepo,
                    common.fetchReleaseLib,
                    common.setupNode,
                    common.googleAuth,
@@ -79,7 +80,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/dist .
                    |||),
 
-                   releaseLibStep('create release')
+                   releaseStep('create release')
                    + step.withId('release')
                    + step.withRun(|||
                      npm install
