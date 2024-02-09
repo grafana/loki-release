@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.8.8](https://github.com/grafana/loki-release/compare/v1.8.7...v1.8.8) (2024-02-09)
+
+
+### Features
+
+* break release into multiple jobs ([0da93a4](https://github.com/grafana/loki-release/commit/0da93a4eba81c174eb3a1fedbb0e819d0b1a0b84))
+
+
+### Bug Fixes
+
+* docker image ls ([154caf7](https://github.com/grafana/loki-release/commit/154caf79c42e789d27a91b4c5fb6a2234e37b69f))
+* fetch the correct repos ([ae60528](https://github.com/grafana/loki-release/commit/ae60528cf42fb2205ab52ad9874f8070e03a1f49))
+* release pipeline ([d35c5cc](https://github.com/grafana/loki-release/commit/d35c5cc4674eeffd3832e39737e36b256f415d21))
+
 ## [1.8.8](https://github.com/grafana/loki-release/compare/v1.8.7...v1.8.8) (2024-02-08)
 
 
