@@ -75,7 +75,7 @@ local setupValidationDeps = function(job) job {
 {
   local validationMakeStep = function(name, target)
     releaseStep(name)
-    + step.withIf('${{ !fromJSON(inputs.skip_validation) }}')
+    + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
     + step.withRun(common.makeTarget(target)),
 
   test: setupValidationDeps(

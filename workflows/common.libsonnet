@@ -41,6 +41,9 @@
     withIf: function(_if) {
       'if': _if,
     },
+    withOutputs: function(outputs) {
+      outputs: outputs,
+    },
   },
 
   releaseStep: function(name, uses=null) $.step.new(name, uses) +
@@ -52,7 +55,7 @@
   fetchReleaseRepo:
     $.step.new('pull code to release', 'actions/checkout@v4')
     + $.step.with({
-      repository: '${{ inputs.release_repo }}',
+      repository: '${{ env.RELEASE_REPO }}',
       path: 'release',
     }),
   fetchReleaseLib:
@@ -82,12 +85,13 @@
   },
 
   googleAuth: $.step.new('auth gcs', 'google-github-actions/auth@v2')
-              + $.step.withEnv({
-                ACTIONS_STEP_DEBUG: 'true',
-              })
               + $.step.with({
                 credentials_json: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
               }),
+  setupGoogleCloudSdk: $.step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@v2')
+                       + $.step.with({
+                         version: '>= 452.0.0',
+                       }),
 
   extractBranchName: $.releaseStep('extract branch name')
                      + $.step.withId('extract_branch')

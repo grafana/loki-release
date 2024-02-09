@@ -3,18 +3,18 @@
   "version": "0.1.0",
   "description": "release pipeline and actions for Loki",
   "scripts": {
-    "all": "npm run workflows && npm run format:write && npm run lint && npm run test && npm run coverage && npm run package",
-    "bundle": "npm run format:write && npm run package",
+    "all": "npm run workflows && npm run format:write && npm run lint && npm run test && npm run coverage && npm run actions",
+    "bundle": "npm run format:write && npm run actions",
     "ci-test": "jest",
     "coverage": "make-coverage-badge --output-path ./badges/coverage.svg",
     "format:check": "prettier --check **/*.ts",
     "format:write": "prettier --write **/*.ts",
     "jsonnetfmt": "jsonnetfmt -i -n 2 ./workflows/**/*.{jsonnet,libsonnet}",
     "lint": "npx eslint . -c .eslintrc.yml",
-    "package": "for p in install-binary push-images should-release; do ncc build actions/${p}/src/index.ts --license licenses.txt --out actions/${p}/dist; done",
+    "actions": "for p in install-binary push-images should-release; do ncc build actions/${p}/src/index.ts --license licenses.txt --out actions/${p}/dist; done",
     "prepare": "husky install",
     "test": "jest",
-    "workflows": "for w in release release-pr; do jsonnet -S workflows/${w}/main.jsonnet > .github/workflows/${w}.yml; done"
+    "workflows": "jsonnet -Sm .github/workflows .github/workflows.jsonnet"
   },
   "repository": {
     "type": "git",

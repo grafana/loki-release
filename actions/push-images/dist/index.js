@@ -24741,7 +24741,7 @@ function buildCommands(repo, files) {
                 version = v;
             }
             const shortPlatform = platform.split('/')[1];
-            commands.push(`docker import --platform ${platform} ${file} ${repo}/${image}:${version.toString()}-${shortPlatform}`);
+            commands.push(`docker load -i ${file}`);
             manifests.push(`${repo}/${image}:${version.toString()}-${shortPlatform}`);
         }
         commands.push(`docker push -a ${repo}/${image}`, `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`, `docker manifest push ${repo}/${image}:${version.toString()}`);
@@ -24803,13 +24803,8 @@ async function run() {
         const commands = (0, docker_1.buildCommands)(imagePrefix, files.filter(f => f.endsWith('.tar')));
         for (const command of commands) {
             (0, core_1.info)(command);
-            (0, child_process_1.exec)(command, { cwd: imageDir }, (err, stdout, stderr) => {
-                if (err != null) {
-                    throw err;
-                }
-                (0, core_1.info)(stdout);
-                (0, core_1.error)(stderr);
-            });
+            const stdout = (0, child_process_1.execSync)(command, { cwd: imageDir });
+            (0, core_1.info)(stdout.toString());
         }
     }
     catch (err) {
