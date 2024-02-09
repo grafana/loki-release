@@ -24,12 +24,10 @@ jobs:
       uses: "google-github-actions/setup-gcloud@v1"
       with:
         version: ">= 452.0.0"
-    - env:
-        SHA: "${{ needs.shouldRelease.outputs.sha }}"
-      name: "download binaries"
+    - name: "download binaries"
       run: |
         echo "downloading binaries to $(pwd)/dist"
-        gsutil cp -r gs://loki-build-artifacts/${SHA}/dist .
+        gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/dist .
       shell: "bash"
     - id: "release"
       name: "create release"
@@ -78,12 +76,10 @@ jobs:
       with:
         password: "${{ secrets.DOCKER_PASSWORD }}"
         username: "${{ inputs.docker_username }}"
-    - env:
-        SHA: "${{ needs.shouldRelease.outputs.sha }}"
-      name: "download images"
+    - name: "download images"
       run: |
         echo "downloading images to $(pwd)/images"
-        gsutil cp -r gs://loki-build-artifacts/${SHA}/images .
+        gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/images .
       shell: "bash"
     - name: "publish docker images"
       uses: "./lib/actions/push-images"

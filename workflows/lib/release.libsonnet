@@ -74,12 +74,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    // meaning there are no artifacts for that sha
                    // we need to handle this if we're going to run this pipeline on every merge to main
                    step.new('download binaries')
-                   + step.withEnv({
-                     SHA: '${{ needs.shouldRelease.outputs.sha }}',
-                   })
                    + step.withRun(|||
                      echo "downloading binaries to $(pwd)/dist"
-                     gsutil cp -r gs://loki-build-artifacts/${SHA}/dist .
+                     gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/dist .
                    |||),
 
                    releaseLibStep('create release')
@@ -120,12 +117,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      password: '${{ secrets.DOCKER_PASSWORD }}',
                    }),
                    step.new('download images')
-                   + step.withEnv({
-                     SHA: '${{ needs.shouldRelease.outputs.sha }}',
-                   })
                    + step.withRun(|||
                      echo "downloading images to $(pwd)/images"
-                     gsutil cp -r gs://loki-build-artifacts/${SHA}/images .
+                     gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/images .
                    |||),
                    step.new('publish docker images', './lib/actions/push-images')
                    + step.with({
