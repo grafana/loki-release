@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.11](https://github.com/grafana/loki-release/compare/v1.8.10...v1.8.11) (2024-02-09)
+
+
+### Features
+
+* upgrade setup-gcloud-action ([8e7c2ff](https://github.com/grafana/loki-release/commit/8e7c2fff09066908558a9363abbf9b71c260cc98))
+
 ## [1.8.10](https://github.com/grafana/loki-release/compare/v1.8.9...v1.8.10) (2024-02-09)
 
 
