@@ -9,6 +9,8 @@ jobs:
     if: "${{ fromJSON(needs.shouldRelease.outputs.shouldRelease) }}"
     needs:
     - "shouldRelease"
+    outputs:
+      sha: "${{ needs.shouldRelease.outputs.sha }}"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -90,7 +92,7 @@ jobs:
     - name: "download images"
       run: |
         echo "downloading images to $(pwd)/images"
-        gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/images .
+        gsutil cp -r gs://loki-build-artifacts/${{ needs.createRelease.outputs.sha }}/images .
       shell: "bash"
     - name: "publish docker images"
       uses: "./lib/actions/push-images"
