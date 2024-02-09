@@ -1,14 +1,23 @@
 concurrency:
   group: "create-release-${{ github.sha }}"
+env:
+  DOCKER_USERNAME: "trevorwhitney075"
+  IMAGE_PREFIX: "trevorwhitney075"
+  RELEASE_REPO: "grafana/loki-release"
 jobs:
-  release:
+  createRelease:
+    if: "${{ fromJSON(needs.shouldRelease.outputs.shouldRelease) }}"
+    needs:
+    - "shouldRelease"
+    outputs:
+      sha: "${{ needs.shouldRelease.outputs.sha }}"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
       uses: "actions/checkout@v4"
       with:
         path: "release"
-        repository: "${{ inputs.release_repo }}"
+        repository: "${{ env.RELEASE_REPO }}"
     - name: "pull release library code"
       uses: "actions/checkout@v4"
       with:
@@ -18,12 +27,59 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
-    - env:
-        ACTIONS_STEP_DEBUG: "true"
-      name: "auth gcs"
+    - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+    - name: "Set up Cloud SDK"
+      uses: "google-github-actions/setup-gcloud@v2"
+      with:
+        version: ">= 452.0.0"
+    - name: "download binaries"
+      run: |
+        echo "downloading binaries to $(pwd)/dist"
+        gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/dist .
+      shell: "bash"
+      working-directory: "release"
+    - id: "release"
+      name: "create release"
+      run: |
+        npm install
+        npm exec -- release-please github-release \
+          --draft \
+          --release-type simple \
+          --repo-url="${{ env.RELEASE_REPO }}" \
+          --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
+          --token="${{ secrets.GH_TOKEN }}"
+      shell: "bash"
+      working-directory: "lib"
+    - env:
+        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+      id: "upload"
+      name: "upload artifacts"
+      run: |
+        gh release upload ${{ needs.shouldRelease.outputs.name }} dist/*
+        gh release edit ${{ needs.shouldRelease.outputs.name }} --draft=false
+      shell: "bash"
+      working-directory: "release"
+  publishImages:
+    needs:
+    - "createRelease"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull release library code"
+      uses: "actions/checkout@v4"
+      with:
+        path: "lib"
+        repository: "grafana/loki-release"
+    - name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+    - name: "Set up Cloud SDK"
+      uses: "google-github-actions/setup-gcloud@v2"
+      with:
+        version: ">= 452.0.0"
     - name: "Set up QEMU"
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
@@ -32,11 +88,35 @@ jobs:
       uses: "docker/login-action@v3"
       with:
         password: "${{ secrets.DOCKER_PASSWORD }}"
-        username: "${{ inputs.docker_username }}"
-    - name: "Set up Cloud SDK"
-      uses: "google-github-actions/setup-gcloud@v1"
+        username: "${{ env.DOCKER_USERNAME }}"
+    - name: "download images"
+      run: |
+        echo "downloading images to $(pwd)/images"
+        gsutil cp -r gs://loki-build-artifacts/${{ needs.createRelease.outputs.sha }}/images .
+      shell: "bash"
+    - name: "publish docker images"
+      uses: "./lib/actions/push-images"
       with:
-        version: ">= 452.0.0"
+        imageDir: "images"
+        imagePrefix: "${{ env.IMAGE_PREFIX }}"
+  shouldRelease:
+    outputs:
+      branch: "${{ steps.extract_branch.outputs.branch }}"
+      name: "${{ steps.should_release.outputs.name }}"
+      sha: "${{ steps.should_release.outputs.sha }}"
+      shouldRelease: "${{ steps.should_release.outputs.shouldRelease }}"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull code to release"
+      uses: "actions/checkout@v4"
+      with:
+        path: "release"
+        repository: "${{ env.RELEASE_REPO }}"
+    - name: "pull release library code"
+      uses: "actions/checkout@v4"
+      with:
+        path: "lib"
+        repository: "grafana/loki-release"
     - id: "extract_branch"
       name: "extract branch name"
       run: |
@@ -48,72 +128,11 @@ jobs:
       uses: "./lib/actions/should-release"
       with:
         baseBranch: "${{ steps.extract_branch.outputs.branch }}"
-    - if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
-      name: "download build artifacts"
-      run: |
-        echo "downloading binaries to $(pwd)/dist"
-        gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/dist .
-        
-        echo "downloading binaries to $(pwd)/images"
-        gsutil cp -r gs://loki-build-artifacts/${{ steps.should_release.outputs.sha }}/images .
-      shell: "bash"
-      working-directory: "release"
-    - id: "release"
-      if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
-      name: "release please"
-      run: |
-        npm install
-        npm exec -- release-please github-release \
-          --draft \
-          --release-type simple \
-          --repo-url="${{ inputs.release_repo }}" \
-          --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --token="${{ secrets.GH_TOKEN }}"
-      shell: "bash"
-      working-directory: "release"
-    - env:
-        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
-      id: "upload"
-      if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
-      name: "upload artifacts"
-      run: |
-        gh release upload ${{ steps.should_release.outputs.name }} dist/*
-        gh release edit ${{ steps.should_release.outputs.name }} --draft=false
-      shell: "bash"
-      working-directory: "release"
-    - env:
-        ACTIONS_STEP_DEBUG: true
-      if: "${{ fromJSON(steps.should_release.outputs.shouldRelease) }}"
-      name: "push docker images"
-      uses: "./lib/actions/push-images"
-      with:
-        imageDir: "release/images"
-        imagePrefix: "${{ inputs.image_prefix }}"
 name: "create release"
 "on":
-  workflow_call:
-    inputs:
-      docker_username:
-        description: "username to login to docker with"
-        required: true
-        type: "string"
-      image_prefix:
-        default: "grafana"
-        description: "prefix for images"
-        required: false
-        type: "string"
-      release_repo:
-        default: "grafana/loki"
-        description: "repo to make release in"
-        required: false
-        type: "string"
-    secrets:
-      DOCKER_PASSWORD:
-        required: true
-      GCS_SERVICE_ACCOUNT_KEY:
-        required: true
-      GH_TOKEN:
-        required: true
+  push:
+    branches:
+    - "release-[0-9].[0-9].x"
 permissions:
   contents: "write"
   pull-requests: "write"
