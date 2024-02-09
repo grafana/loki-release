@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.10](https://github.com/grafana/loki-release/compare/v1.8.9...v1.8.10) (2024-02-09)
+
+
+### Bug Fixes
+
+* husky pre-commit logic, add rendered workflow ([8706bf3](https://github.com/grafana/loki-release/commit/8706bf320eff20cb3eeb3d713d88c65847e9df45))
+
 ## [1.8.9](https://github.com/grafana/loki-release/compare/v1.8.8...v1.8.9) (2024-02-09)
 
 
