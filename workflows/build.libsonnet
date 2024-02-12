@@ -64,8 +64,7 @@ local releaseStep = common.releaseStep;
         if [[ `jq length release.json` -eq 0 ]]; then 
           echo "pr_created=false" >> $GITHUB_OUTPUT
         else
-          cat release.json
-          echo "version=$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch).\(.preRelease)"' release.json)" >> $GITHUB_OUTPUT
+          echo "version=$(npm run get-version)" >> $GITHUB_OUTPUT
           echo "pr_created=true" >> $GITHUB_OUTPUT
         fi
       |||),
