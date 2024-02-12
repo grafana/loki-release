@@ -23,6 +23,7 @@ local releaseLibStep = common.releaseLibStep;
       },
     })
     + job.withSteps([
+      common.fetchReleaseLib,
       common.fetchReleaseRepo,
       common.setupGo,
       common.setupNode,
