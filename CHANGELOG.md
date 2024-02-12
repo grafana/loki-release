@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.8.13-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.12-alpha.1...v1.8.13-alpha.1) (2024-02-12)
+
+
+### Features
+
+* cleanup node output ([9b52c56](https://github.com/grafana/loki-release/commit/9b52c563a012f4ccec2942427e9e10a70c74a284))
+* fetch release lib ([1a0daa8](https://github.com/grafana/loki-release/commit/1a0daa8c2768d256b67f24a3c62929aca6d2af11))
+* get version using node ([8598bc5](https://github.com/grafana/loki-release/commit/8598bc54ae263d8a2df388bf098ac7d4b4d4df66))
+* include prerelease in image and binary version ([1d4b500](https://github.com/grafana/loki-release/commit/1d4b50047917a4dc73eeb74c029d71df1643044d))
+* need to test something ([a6d3c56](https://github.com/grafana/loki-release/commit/a6d3c56e064d8a2d0e09ff0cd0966e1c99d2be8f))
+
+
+### Bug Fixes
+
+* add get-version script ([5bb3ef1](https://github.com/grafana/loki-release/commit/5bb3ef19368a3826c302c9f2061f517e9c8188bf))
+* jq syntax ([3d633c7](https://github.com/grafana/loki-release/commit/3d633c7e3df1c3df6e4cd660b3893944b3ee357f))
+* keep banging head at jq ([c296b17](https://github.com/grafana/loki-release/commit/c296b17130ad10fcaac6ddb2877b4252937195c4))
+* quote exported version ([8b0769b](https://github.com/grafana/loki-release/commit/8b0769bd72c729f5b0223f2298628ca2243a2e39))
+
 ## [1.8.12-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.11...v1.8.12-alpha.1) (2024-02-12)
 
 
