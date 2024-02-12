@@ -24799,12 +24799,25 @@ async function run() {
         const imagePrefix = (0, core_1.getInput)('imagePrefix');
         (0, core_1.info)(`imageDir:            ${imageDir}`);
         (0, core_1.info)(`imagePrefix:         ${imagePrefix}`);
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.debug)('listing files in image directory');
+            const lsCommand = (0, child_process_1.execSync)('ls', { cwd: imageDir });
+            (0, core_1.debug)(lsCommand.toString());
+        }
         const files = await (0, promises_1.readdir)(imageDir);
         const commands = (0, docker_1.buildCommands)(imagePrefix, files.filter(f => f.endsWith('.tar')));
+        if (commands.length === 0) {
+            throw new Error('failed to push any images');
+        }
         for (const command of commands) {
             (0, core_1.info)(command);
             const stdout = (0, child_process_1.execSync)(command, { cwd: imageDir });
             (0, core_1.info)(stdout.toString());
+        }
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.debug)('running docker images ls to see imported images');
+            const stdout = (0, child_process_1.execSync)('docker images ls', { cwd: imageDir });
+            (0, core_1.debug)(stdout.toString());
         }
     }
     catch (err) {

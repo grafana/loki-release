@@ -44,7 +44,8 @@
     releaseRepo='grafana/loki-release',
     dockerUsername='grafana',
     imagePrefix='grafana',
-    branches=['release-[0-9].[0-9].x', 'k[0-9]*']
+    branches=['release-[0-9].[0-9].x', 'k[0-9]*'],
+    getDockerCredsFromVault=false
                   ) {
     name: 'create release',
     on: {
@@ -61,13 +62,14 @@
     },
     env: {
       RELEASE_REPO: releaseRepo,
-      DOCKER_USERNAME: dockerUsername,
       IMAGE_PREFIX: imagePrefix,
+    } + if !getDockerCredsFromVault then {
+      DOCKER_USERNAME: dockerUsername,
     },
     jobs: {
       shouldRelease: $.release.shouldRelease,
       createRelease: $.release.createRelease,
-      publishImages: $.release.publishImages,
+      publishImages: $.release.publishImages(getDockerCredsFromVault),
     },
   },
 }

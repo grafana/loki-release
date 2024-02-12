@@ -106,29 +106,34 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    sha: '${{ needs.shouldRelease.outputs.sha }}',
                  }),
 
-  publishImages: job.new()
-                 + job.withNeeds(['createRelease'])
-                 + job.withSteps([
-                   common.fetchReleaseLib,
-                   common.googleAuth,
-                   common.setupGoogleCloudSdk,
+  publishImages: function(getDockerCredsFromVault=false)
+    job.new()
+    + job.withNeeds(['createRelease'])
+    + job.withSteps([
+      common.fetchReleaseLib,
+      common.googleAuth,
+      common.setupGoogleCloudSdk,
 
-                   step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
-                   step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
-                   step.new('docker login', 'docker/login-action@v3')
-                   + step.with({
-                     username: '${{ env.DOCKER_USERNAME }}',
-                     password: '${{ secrets.DOCKER_PASSWORD }}',
-                   }),
-                   step.new('download images')
-                   + step.withRun(|||
-                     echo "downloading images to $(pwd)/images"
-                     gsutil cp -r gs://loki-build-artifacts/${{ needs.createRelease.outputs.sha }}/images .
-                   |||),
-                   step.new('publish docker images', './lib/actions/push-images')
-                   + step.with({
-                     imageDir: 'images',
-                     imagePrefix: '${{ env.IMAGE_PREFIX }}',
-                   }),
-                 ]),
+      step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
+      step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
+    ] + if getDockerCredsFromVault then [
+      step.new('Login to DockerHub', 'grafana/shared-workflows/actions/dockerhub-login@main'),
+    ] else [
+      step.new('docker login', 'docker/login-action@v3')
+      + step.with({
+        username: '${{ env.DOCKER_USERNAME }}',
+        password: '${{ secrets.DOCKER_PASSWORD }}',
+      }),
+    ] + [
+      step.new('download images')
+      + step.withRun(|||
+        echo "downloading images to $(pwd)/images"
+        gsutil cp -r gs://loki-build-artifacts/${{ needs.createRelease.outputs.sha }}/images .
+      |||),
+      step.new('publish docker images', './lib/actions/push-images')
+      + step.with({
+        imageDir: 'images',
+        imagePrefix: '${{ env.IMAGE_PREFIX }}',
+      }),
+    ]),
 }
