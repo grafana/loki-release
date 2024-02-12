@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.8.12-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.11...v1.8.12-alpha.1) (2024-02-12)
+
+
+### Features
+
+* attempt a release candidate release ([71a2480](https://github.com/grafana/loki-release/commit/71a248094509d206fa24fdeba8f17e7c05f631d0))
+
+
+### Bug Fixes
+
+* currently released version ([d1a4710](https://github.com/grafana/loki-release/commit/d1a4710756eacdbe12d33919ef76a35a785e71d7))
+
+
+### Miscellaneous Chores
+
+* release 1.8.12-alpha.1 ([55c86a9](https://github.com/grafana/loki-release/commit/55c86a9f00de72362b492ed647ff2ab4631ddb0a))
+
 ## [1.8.11](https://github.com/grafana/loki-release/compare/v1.8.10...v1.8.11) (2024-02-09)
 
 ### Features
