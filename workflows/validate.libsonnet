@@ -38,7 +38,7 @@ local setupValidationDeps = function(job) job {
     step.new('install dependencies') +
     step.withRun(|||
       apt update
-      apt install -qy tar
+      apt install -qy tar xz-utils
     |||),
     step.new('install shellcheck', './lib/actions/install-binary')
     + step.with({

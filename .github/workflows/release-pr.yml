@@ -25,7 +25,7 @@ jobs:
     - name: "install dependencies"
       run: |
         apt update
-        apt install -qy tar
+        apt install -qy tar xz-utils
       shell: "bash"
     - name: "install shellcheck"
       uses: "./lib/actions/install-binary"
@@ -178,7 +178,7 @@ jobs:
     - name: "install dependencies"
       run: |
         apt update
-        apt install -qy tar
+        apt install -qy tar xz-utils
       shell: "bash"
     - name: "install shellcheck"
       uses: "./lib/actions/install-binary"
@@ -327,7 +327,7 @@ jobs:
     - name: "install dependencies"
       run: |
         apt update
-        apt install -qy tar
+        apt install -qy tar xz-utils
       shell: "bash"
     - name: "install shellcheck"
       uses: "./lib/actions/install-binary"
