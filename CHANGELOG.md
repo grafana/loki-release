@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.14-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.13-alpha.1...v1.8.14-alpha.1) (2024-02-13)
+
+
+### Features
+
+* ability to get docker creds from vault ([b3826e1](https://github.com/grafana/loki-release/commit/b3826e16e3bf530aa70743f7e48dc20d1b16a7bf))
+
 ## [1.8.13-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.12-alpha.1...v1.8.13-alpha.1) (2024-02-12)
 
 
