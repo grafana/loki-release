@@ -64,6 +64,7 @@ local releaseLibStep = common.releaseLibStep;
     job.new()
     + job.withSteps([
       common.fetchReleaseLib,
+      common.fetchReleaseRepo,
       common.setupNode,
       common.extractBranchName,
       releaseLibStep('get release version')

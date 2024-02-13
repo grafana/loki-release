@@ -329,6 +329,11 @@ jobs:
       with:
         path: "lib"
         repository: "grafana/loki-release"
+    - name: "pull code to release"
+      uses: "actions/checkout@v4"
+      with:
+        path: "release"
+        repository: "${{ env.RELEASE_REPO }}"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
