@@ -6,19 +6,20 @@ local build = lokiRelease.build;
       imageJobs={
         loki: build.image('fake-loki', 'cmd/loki'),
       },
+      branches=['release-[0-9].[0-9].x'],
+      imagePrefix='trevorwhitney075',
       releaseRepo='grafana/loki-release',
       skipValidation=false,
       versioningStrategy='always-bump-patch',
-      imagePrefix='trevorwhitney075',
-      branches=['release-[0-9].[0-9].x'],
     ), false, false
   ),
   'release.yml': std.manifestYamlDoc(
     lokiRelease.releaseWorkflow(
-      releaseRepo='grafana/loki-release',
-      dockerUsername='trevorwhitney075',
-      imagePrefix='trevorwhitney075',
       branches=['release-[0-9].[0-9].x'],
+      dockerUsername='trevorwhitney075',
+      getDockerCredsFromVault=false,
+      imagePrefix='trevorwhitney075',
+      releaseRepo='grafana/loki-release',
     ), false, false
   ),
 }

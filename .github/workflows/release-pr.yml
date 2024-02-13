@@ -303,6 +303,11 @@ jobs:
     - "check"
     runs-on: "ubuntu-latest"
     steps:
+    - name: "pull release library code"
+      uses: "actions/checkout@v4"
+      with:
+        path: "lib"
+        repository: "grafana/loki-release"
     - name: "pull code to release"
       uses: "actions/checkout@v4"
       with:
@@ -364,12 +369,13 @@ jobs:
         if [[ `jq length release.json` -eq 0 ]]; then 
           echo "pr_created=false" >> $GITHUB_OUTPUT
         else
-          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          version="$(npm run --silent get-version)"
+          echo "Parsed version: ${version}"
           echo "version=${version}" >> $GITHUB_OUTPUT
           echo "pr_created=true" >> $GITHUB_OUTPUT
         fi
       shell: "bash"
-      working-directory: "release"
+      working-directory: "lib"
     - if: "${{ fromJSON(steps.version.outputs.pr_created) }}"
       name: "Build and export"
       uses: "docker/build-push-action@v5"
