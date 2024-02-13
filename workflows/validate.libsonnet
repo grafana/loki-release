@@ -35,6 +35,14 @@ local setupValidationDeps = function(job) job {
     //   tarball_binary_path: '*/${binary}',
     //   smoke_test: '${binary} version',
     // }),
+    step.new('install dependencies') +
+    step.withRun(|||
+      sudo apt update
+      sudo apt install -qy musl gnupg ragel \
+        file zip unzip jq gettext \
+        protobuf-compiler libprotobuf-dev \
+        libsystemd-dev jq tar
+    |||),
     step.new('install shellcheck', './lib/actions/install-binary')
     + step.with({
       binary: 'shellcheck',
