@@ -44,6 +44,9 @@
     withOutputs: function(outputs) {
       outputs: outputs,
     },
+    withContainer: function(container) {
+      container: container,
+    },
   },
 
   releaseStep: function(name, uses=null) $.step.new(name, uses) +
@@ -75,7 +78,7 @@
                'node-version': 20,
              }),
 
-  makeTarget: function(target) 'make BUILD_IN_CONTAINER=false %s' % target,
+  makeTarget: function(target) 'make %s' % target,
 
   alwaysGreen: {
     steps: [
