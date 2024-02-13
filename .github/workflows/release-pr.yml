@@ -24,11 +24,8 @@ jobs:
         repository: "grafana/loki-release"
     - name: "install dependencies"
       run: |
-        sudo apt update
-        sudo apt install -qy musl gnupg ragel \
-          file zip unzip jq gettext \
-          protobuf-compiler libprotobuf-dev \
-          libsystemd-dev jq tar
+        apt update
+        apt install -qy tar
       shell: "bash"
     - name: "install shellcheck"
       uses: "./lib/actions/install-binary"
@@ -180,11 +177,8 @@ jobs:
         repository: "grafana/loki-release"
     - name: "install dependencies"
       run: |
-        sudo apt update
-        sudo apt install -qy musl gnupg ragel \
-          file zip unzip jq gettext \
-          protobuf-compiler libprotobuf-dev \
-          libsystemd-dev jq tar
+        apt update
+        apt install -qy tar
       shell: "bash"
     - name: "install shellcheck"
       uses: "./lib/actions/install-binary"
@@ -332,11 +326,8 @@ jobs:
         repository: "grafana/loki-release"
     - name: "install dependencies"
       run: |
-        sudo apt update
-        sudo apt install -qy musl gnupg ragel \
-          file zip unzip jq gettext \
-          protobuf-compiler libprotobuf-dev \
-          libsystemd-dev jq tar
+        apt update
+        apt install -qy tar
       shell: "bash"
     - name: "install shellcheck"
       uses: "./lib/actions/install-binary"

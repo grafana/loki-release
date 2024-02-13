@@ -37,11 +37,8 @@ local setupValidationDeps = function(job) job {
     // }),
     step.new('install dependencies') +
     step.withRun(|||
-      sudo apt update
-      sudo apt install -qy musl gnupg ragel \
-        file zip unzip jq gettext \
-        protobuf-compiler libprotobuf-dev \
-        libsystemd-dev jq tar
+      apt update
+      apt install -qy tar
     |||),
     step.new('install shellcheck', './lib/actions/install-binary')
     + step.with({
