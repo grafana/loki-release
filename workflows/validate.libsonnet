@@ -7,8 +7,8 @@ local setupValidationDeps = function(job) job {
   steps: [
     common.fetchReleaseRepo,
     common.fetchReleaseLib,
-    common.setupGo,
-    common.setupNode,
+    // common.setupGo,
+    // common.setupNode,
     // step.new('install dependencies') +
     // step.withRun(|||
     //   go install github.com/bufbuild/buf/cmd/buf@v1.4.0

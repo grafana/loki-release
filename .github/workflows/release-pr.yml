@@ -22,15 +22,6 @@ jobs:
       with:
         path: "lib"
         repository: "grafana/loki-release"
-    - name: "setup go"
-      uses: "actions/setup-go@v5"
-      with:
-        cache-dependency-path: "release/go.sum"
-        go-version-file: "release/go.mod"
-    - name: "setup node"
-      uses: "actions/setup-node@v4"
-      with:
-        node-version: 20
     - env:
         BUILD_IN_CONTAINER: false
       if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
@@ -175,15 +166,6 @@ jobs:
       with:
         path: "lib"
         repository: "grafana/loki-release"
-    - name: "setup go"
-      uses: "actions/setup-go@v5"
-      with:
-        cache-dependency-path: "release/go.sum"
-        go-version-file: "release/go.mod"
-    - name: "setup node"
-      uses: "actions/setup-node@v4"
-      with:
-        node-version: 20
     - env:
         BUILD_IN_CONTAINER: false
       if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
@@ -316,15 +298,6 @@ jobs:
       with:
         path: "lib"
         repository: "grafana/loki-release"
-    - name: "setup go"
-      uses: "actions/setup-go@v5"
-      with:
-        cache-dependency-path: "release/go.sum"
-        go-version-file: "release/go.mod"
-    - name: "setup node"
-      uses: "actions/setup-node@v4"
-      with:
-        node-version: 20
     - env:
         BUILD_IN_CONTAINER: false
       if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
