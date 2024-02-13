@@ -65,7 +65,7 @@
       IMAGE_PREFIX: imagePrefix,
     } + if !getDockerCredsFromVault then {
       DOCKER_USERNAME: dockerUsername,
-    },
+    } else {},
     jobs: {
       shouldRelease: $.release.shouldRelease,
       createRelease: $.release.createRelease,
