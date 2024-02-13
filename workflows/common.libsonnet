@@ -47,6 +47,9 @@
     withContainer: function(container) {
       container: container,
     },
+    withEnv: function(env) {
+      env: env,
+    },
   },
 
   releaseStep: function(name, uses=null) $.step.new(name, uses) +
@@ -67,11 +70,11 @@
       repository: 'grafana/loki-release',
       path: 'lib',
     }),
-  setupGo: $.step.new('setup go', 'actions/setup-go@v5')
-           + $.step.with({
-             'go-version-file': 'release/go.mod',
-             'cache-dependency-path': 'release/go.sum',
-           }),
+  // setupGo: $.step.new('setup go', 'actions/setup-go@v5')
+  //          + $.step.with({
+  //            'go-version-file': 'release/go.mod',
+  //            'cache-dependency-path': 'release/go.sum',
+  //          }),
 
   setupNode: $.step.new('setup node', 'actions/setup-node@v4')
              + $.step.with({
