@@ -24749,21 +24749,21 @@ function buildCommands(repo, files) {
     return commands;
 }
 exports.buildCommands = buildCommands;
-const imagePattern = /^(?<image>[^0-9]*)-(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)-(?<platform>.*).tar$/;
+const imagePattern = /^(?<image>[^0-9]*)-(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(\.(?<preRelease>[a-zA-Z0-9.]*))?-(?<platform>.*).tar$/;
 function parseImageMeta(file) {
     const match = file?.match(imagePattern);
     if (match && match.groups) {
-        const { image, major, minor, patch, platform } = match.groups;
+        const { image, major, minor, preRelease, patch, platform } = match.groups;
         return {
             image,
-            version: parseVersion(major, minor, patch),
+            version: parseVersion(major, minor, patch, preRelease),
             platform: platform.replace('-', '/')
         };
     }
     return null;
 }
 exports.parseImageMeta = parseImageMeta;
-function parseVersion(maj, min, pat) {
+function parseVersion(maj, min, pat, preRelease) {
     const major = parseInt(maj);
     const minor = parseInt(min);
     const patch = parseInt(pat);
@@ -24771,7 +24771,12 @@ function parseVersion(maj, min, pat) {
         major,
         minor,
         patch,
-        toString: () => `${major}.${minor}.${patch}`
+        toString: () => {
+            if (preRelease) {
+                return `${major}.${minor}.${patch}.${preRelease}`;
+            }
+            return `${major}.${minor}.${patch}`;
+        }
     };
 }
 
@@ -24799,12 +24804,25 @@ async function run() {
         const imagePrefix = (0, core_1.getInput)('imagePrefix');
         (0, core_1.info)(`imageDir:            ${imageDir}`);
         (0, core_1.info)(`imagePrefix:         ${imagePrefix}`);
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.debug)('listing files in image directory');
+            const lsCommand = (0, child_process_1.execSync)('ls', { cwd: imageDir });
+            (0, core_1.debug)(lsCommand.toString());
+        }
         const files = await (0, promises_1.readdir)(imageDir);
         const commands = (0, docker_1.buildCommands)(imagePrefix, files.filter(f => f.endsWith('.tar')));
+        if (commands.length === 0) {
+            throw new Error('failed to push any images');
+        }
         for (const command of commands) {
             (0, core_1.info)(command);
             const stdout = (0, child_process_1.execSync)(command, { cwd: imageDir });
             (0, core_1.info)(stdout.toString());
+        }
+        if ((0, core_1.isDebug)()) {
+            (0, core_1.debug)('running docker images ls to see imported images');
+            const stdout = (0, child_process_1.execSync)('docker images ls', { cwd: imageDir });
+            (0, core_1.debug)(stdout.toString());
         }
     }
     catch (err) {

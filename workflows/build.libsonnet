@@ -2,6 +2,7 @@ local common = import 'common.libsonnet';
 local job = common.job;
 local step = common.step;
 local releaseStep = common.releaseStep;
+local releaseLibStep = common.releaseLibStep;
 
 {
   image: function(
@@ -22,6 +23,7 @@ local releaseStep = common.releaseStep;
       },
     })
     + job.withSteps([
+      common.fetchReleaseLib,
       common.fetchReleaseRepo,
       common.setupGo,
       common.setupNode,
@@ -41,7 +43,7 @@ local releaseStep = common.releaseStep;
       |||),
 
       common.extractBranchName,
-      releaseStep('get release version')
+      releaseLibStep('get release version')
       + step.withId('version')
       + step.withRun(|||
         npm install
@@ -64,7 +66,8 @@ local releaseStep = common.releaseStep;
         if [[ `jq length release.json` -eq 0 ]]; then 
           echo "pr_created=false" >> $GITHUB_OUTPUT
         else
-          version="$(jq -r '.[0] | .version | "\(.major).\(.minor).\(.patch)"' release.json)"
+          version="$(npm run --silent get-version)"
+          echo "Parsed version: ${version}"
           echo "version=${version}" >> $GITHUB_OUTPUT
           echo "pr_created=true" >> $GITHUB_OUTPUT
         fi

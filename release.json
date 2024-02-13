@@ -1,0 +1,83 @@
+[
+  {
+    "title": {
+      "version": {
+        "major": 1,
+        "minor": 8,
+        "patch": 13,
+        "preRelease": "alpha.1"
+      },
+      "component": "",
+      "targetBranch": "release-1.8.x",
+      "pullRequestTitlePattern": "chore${scope}: release${component} ${version}",
+      "matchPattern": {}
+    },
+    "body": {
+      "header": ":robot: I have created a release *beep* *boop*",
+      "footer": "This PR was generated with [Release Please](https://github.com/googleapis/release-please). See [documentation](https://github.com/googleapis/release-please#release-please).",
+      "releaseData": [
+        {
+          "component": "",
+          "version": {
+            "major": 1,
+            "minor": 8,
+            "patch": 13,
+            "preRelease": "alpha.1"
+          },
+          "notes": "## [1.8.13-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.12-alpha.1...v1.8.13-alpha.1) (2024-02-12)\n\n\n### Features\n\n* need to test something ([a6d3c56](https://github.com/grafana/loki-release/commit/a6d3c56e064d8a2d0e09ff0cd0966e1c99d2be8f))"
+        }
+      ],
+      "useComponents": false
+    },
+    "updates": [
+      {
+        "path": "CHANGELOG.md",
+        "createIfMissing": true,
+        "updater": {
+          "version": {
+            "major": 1,
+            "minor": 8,
+            "patch": 13,
+            "preRelease": "alpha.1"
+          },
+          "changelogEntry": "## [1.8.13-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.12-alpha.1...v1.8.13-alpha.1) (2024-02-12)\n\n\n### Features\n\n* need to test something ([a6d3c56](https://github.com/grafana/loki-release/commit/a6d3c56e064d8a2d0e09ff0cd0966e1c99d2be8f))",
+          "versionHeaderRegex": {}
+        }
+      },
+      {
+        "path": "version.txt",
+        "createIfMissing": false,
+        "updater": {
+          "version": {
+            "major": 1,
+            "minor": 8,
+            "patch": 13,
+            "preRelease": "alpha.1"
+          }
+        }
+      },
+      {
+        "path": ".release-please-manifest.json",
+        "createIfMissing": false,
+        "updater": {
+          "version": {
+            "major": 1,
+            "minor": 8,
+            "patch": 13,
+            "preRelease": "alpha.1"
+          },
+          "versionsMap": {}
+        }
+      }
+    ],
+    "labels": ["autorelease: pending"],
+    "headRefName": "release-please--branches--release-1.8.x",
+    "version": {
+      "major": 1,
+      "minor": 8,
+      "patch": 13,
+      "preRelease": "alpha.1"
+    },
+    "draft": false
+  }
+]
