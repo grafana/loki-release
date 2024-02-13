@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.16-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.15-alpha.1...v1.8.16-alpha.1) (2024-02-13)
+
+
+### Bug Fixes
+
+* main.jsonnet ([6b035a3](https://github.com/grafana/loki-release/commit/6b035a313b01592222305e73594ae2c6993cef1f))
+
 ## [1.8.15-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.14-alpha.1...v1.8.15-alpha.1) (2024-02-13)
 
 
