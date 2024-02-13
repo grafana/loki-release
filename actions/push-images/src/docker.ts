@@ -58,11 +58,12 @@ type Version = {
   major: number
   minor: number
   patch: number
+  preRelease?: string
   toString: () => string
 }
 
 const imagePattern =
-  /^(?<image>[^0-9]*)-(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)-(?<platform>.*).tar$/
+  /^(?<image>[^0-9]*)-(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(\.(?<preRelease>[a-zA-Z0-9.]*))?-(?<platform>.*).tar$/
 export function parseImageMeta(file: string): {
   image: string
   version: Version
@@ -71,10 +72,10 @@ export function parseImageMeta(file: string): {
   const match = file?.match(imagePattern)
 
   if (match && match.groups) {
-    const { image, major, minor, patch, platform } = match.groups
+    const { image, major, minor, preRelease, patch, platform } = match.groups
     return {
       image,
-      version: parseVersion(major, minor, patch),
+      version: parseVersion(major, minor, patch, preRelease),
       platform: platform.replace('-', '/')
     }
   }
@@ -82,7 +83,12 @@ export function parseImageMeta(file: string): {
   return null
 }
 
-function parseVersion(maj: string, min: string, pat: string): Version {
+function parseVersion(
+  maj: string,
+  min: string,
+  pat: string,
+  preRelease?: string
+): Version {
   const major = parseInt(maj)
   const minor = parseInt(min)
   const patch = parseInt(pat)
@@ -91,6 +97,12 @@ function parseVersion(maj: string, min: string, pat: string): Version {
     major,
     minor,
     patch,
-    toString: () => `${major}.${minor}.${patch}`
+    toString: () => {
+      if (preRelease) {
+        return `${major}.${minor}.${patch}.${preRelease}`
+      }
+
+      return `${major}.${minor}.${patch}`
+    }
   }
 }

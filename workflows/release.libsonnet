@@ -117,9 +117,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
       step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
     ] + if getDockerCredsFromVault then [
-      step.new('Login to DockerHub', 'grafana/shared-workflows/actions/dockerhub-login@main'),
+      step.new('Login to DockerHub (from vault)', 'grafana/shared-workflows/actions/dockerhub-login@main'),
     ] else [
-      step.new('docker login', 'docker/login-action@v3')
+      step.new('Login to DockerHub (from secrets)', 'docker/login-action@v3')
       + step.with({
         username: '${{ env.DOCKER_USERNAME }}',
         password: '${{ secrets.DOCKER_PASSWORD }}',

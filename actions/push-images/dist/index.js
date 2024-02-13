@@ -24749,21 +24749,21 @@ function buildCommands(repo, files) {
     return commands;
 }
 exports.buildCommands = buildCommands;
-const imagePattern = /^(?<image>[^0-9]*)-(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)-(?<platform>.*).tar$/;
+const imagePattern = /^(?<image>[^0-9]*)-(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(\.(?<preRelease>[a-zA-Z0-9.]*))?-(?<platform>.*).tar$/;
 function parseImageMeta(file) {
     const match = file?.match(imagePattern);
     if (match && match.groups) {
-        const { image, major, minor, patch, platform } = match.groups;
+        const { image, major, minor, preRelease, patch, platform } = match.groups;
         return {
             image,
-            version: parseVersion(major, minor, patch),
+            version: parseVersion(major, minor, patch, preRelease),
             platform: platform.replace('-', '/')
         };
     }
     return null;
 }
 exports.parseImageMeta = parseImageMeta;
-function parseVersion(maj, min, pat) {
+function parseVersion(maj, min, pat, preRelease) {
     const major = parseInt(maj);
     const minor = parseInt(min);
     const patch = parseInt(pat);
@@ -24771,7 +24771,12 @@ function parseVersion(maj, min, pat) {
         major,
         minor,
         patch,
-        toString: () => `${major}.${minor}.${patch}`
+        toString: () => {
+            if (preRelease) {
+                return `${major}.${minor}.${patch}.${preRelease}`;
+            }
+            return `${major}.${minor}.${patch}`;
+        }
     };
 }
 

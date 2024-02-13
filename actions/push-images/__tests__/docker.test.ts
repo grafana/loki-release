@@ -252,6 +252,14 @@ describe('parseImage', () => {
           version: twoNineFour,
           platform: 'linux/amd64'
         }
+      },
+      {
+        file: 'loki-2.9.4.alpha.1-linux-amd64.tar',
+        expected: {
+          image: 'loki',
+          version: '2.9.4.alpha.1',
+          platform: 'linux/amd64'
+        }
       }
     ]) {
       const image = parseImageMeta(img.file)
