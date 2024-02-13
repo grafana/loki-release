@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.15-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.14-alpha.1...v1.8.15-alpha.1) (2024-02-13)
+
+
+### Features
+
+* support prerelease in docker push action ([a0c99cf](https://github.com/grafana/loki-release/commit/a0c99cf8260c84733e3044028b825c166a2d1777))
+
+
+### Bug Fixes
+
+* docker tests ([95f31d5](https://github.com/grafana/loki-release/commit/95f31d57d065e9f772cf82fd021a9c5bc5aae723))
+
 ## [1.8.14-alpha.1](https://github.com/grafana/loki-release/compare/v1.8.13-alpha.1...v1.8.14-alpha.1) (2024-02-13)
 
 
