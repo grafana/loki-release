@@ -320,7 +320,7 @@ jobs:
     - "lint"
     - "check"
     outputs:
-      pr_created: "${{ steps.version.outputs.version }}"
+      pr_created: "${{ steps.version.outputs.pr_created }}"
       version: "${{ steps.version.outputs.version }}"
     runs-on: "ubuntu-latest"
     steps:

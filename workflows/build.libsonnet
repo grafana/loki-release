@@ -99,7 +99,7 @@ local releaseLibStep = common.releaseLibStep;
     ])
     + job.withOutputs({
       version: '${{ steps.version.outputs.version }}',
-      pr_created: '${{ steps.version.outputs.version }}',
+      pr_created: '${{ steps.version.outputs.pr_created }}',
     }),
 
   dist: function(buildImage)
