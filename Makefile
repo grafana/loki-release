@@ -40,4 +40,4 @@ dist:
 
 packages:
 	mkdir -p dist
-	cp CHANGELOG dist/
+	cp CHANGELOG.md dist/
