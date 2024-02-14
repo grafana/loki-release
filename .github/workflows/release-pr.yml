@@ -296,7 +296,7 @@ jobs:
       uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
       with:
         common_secrets: |
-          NFPM_SIGNING_KEY=packages-gpg:private_key
+          NFPM_SIGNING_KEY=packages-gpg:private-key
           NFPM_PASSPHRASE=packages-gpg:passphrase
     - name: "set outputs"
       run: |
