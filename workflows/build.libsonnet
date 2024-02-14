@@ -117,7 +117,7 @@ local releaseLibStep = common.releaseLibStep;
         IMAGE_TAG: '${{ needs.version.outputs.version }}',
         DRONE_TAG: '${{ needs.version.outputs.version }}',
       })
-      + step.withRun('make dist package'),
+      + step.withRun('make dist packages'),
 
       step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v2')
       + step.with({

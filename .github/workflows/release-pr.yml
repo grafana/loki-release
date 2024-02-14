@@ -151,7 +151,7 @@ jobs:
         IMAGE_TAG: "${{ needs.version.outputs.version }}"
         SKIP_ARM: true
       name: "build artifacts"
-      run: "make dist package"
+      run: "make dist packages"
       shell: "bash"
       working-directory: "release"
     - name: "upload build artifacts"
