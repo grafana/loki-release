@@ -114,7 +114,7 @@ local releaseLibStep = common.releaseLibStep;
                  step.new('set outputs')
                  + step.withRun(|||
                    echo "key=${NFPM_SIGNING_KEY}" >> $GITHUB_OUTPUT
-                   echo "passphrase=${NFPM_PASSPHRASE" >> $GITHUB_OUTPUT
+                   echo "passphrase=${NFPM_PASSPHRASE}" >> $GITHUB_OUTPUT
                  |||),
                ])
                + job.withOutputs({

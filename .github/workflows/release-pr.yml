@@ -301,7 +301,7 @@ jobs:
     - name: "set outputs"
       run: |
         echo "key=${NFPM_SIGNING_KEY}" >> $GITHUB_OUTPUT
-        echo "passphrase=${NFPM_PASSPHRASE" >> $GITHUB_OUTPUT
+        echo "passphrase=${NFPM_PASSPHRASE}" >> $GITHUB_OUTPUT
       shell: "bash"
   test:
     container:
