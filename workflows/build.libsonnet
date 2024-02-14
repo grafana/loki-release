@@ -113,7 +113,9 @@ local releaseLibStep = common.releaseLibStep;
                  step.new('get secrets')
                  + step.withId('get-secrets')
                  + step.withRun(|||
-                   echo "key=${NFPM_SIGNING_KEY}" >> $GITHUB_OUTPUT
+                   echo "key<<EOF" >> $GITHUB_OUTPUT
+                   echo "${NFPM_SIGNING_KEY}" >> $GITHUB_OUTPUT
+                   echo "EOF" >> $GITHUB_OUTPUT
                    echo "passphrase=${NFPM_PASSPHRASE}" >> $GITHUB_OUTPUT
                  |||),
                ])
