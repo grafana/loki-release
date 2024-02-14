@@ -4,13 +4,15 @@
   release: import './workflows/release.libsonnet',
   validate: import './workflows/validate.libsonnet',
   releasePRWorkflow: function(
-    imageJobs={},
-    skipValidation=false,
-    versioningStrategy='always-bump-patch',
-    releaseRepo='grafana/loki-release',
+    branches=['release-[0-9].[0-9].x', 'k[0-9]*'],
+    buildImage='grafana/loki-build-image:0.33.0',
     dockerUsername='grafana',
+    imageJobs={},
     imagePrefix='grafana',
-    branches=['release-[0-9].[0-9].x', 'k[0-9]*']
+    releaseRepo='grafana/loki-release',
+    skipValidation=false,
+    skipArm=true,
+    versioningStrategy='always-bump-patch',
                     ) {
     name: 'create release PR',
     on: {
@@ -33,9 +35,10 @@
       VERSIONING_STRATEGY: versioningStrategy,
     },
     local validationSteps = ['test', 'lint', 'check'],
-    jobs: $.validate {
-      dist: $.build.dist + $.common.job.withNeeds(validationSteps),
-    } + std.mapWithKey(function(name, job) job + $.common.job.withNeeds(validationSteps), imageJobs) + {
+    jobs: $.validate(buildImage) {
+      version: $.build.version + $.common.job.withNeeds(validationSteps),
+      dist: $.build.dist(buildImage, skipArm) + $.common.job.withNeeds(['version']),
+    } + std.mapWithKey(function(name, job) job + $.common.job.withNeeds(['version']), imageJobs) + {
       local buildImageSteps = ['dist'] + std.objectFields(imageJobs),
       'create-release-pr': $.release.createReleasePR + $.common.job.withNeeds(buildImageSteps),
     },
@@ -56,6 +59,7 @@
     permissions: {
       contents: 'write',
       'pull-requests': 'write',
+      'id-token': 'write',
     },
     concurrency: {
       group: 'create-release-${{ github.sha }}',
@@ -63,13 +67,11 @@
     env: {
       RELEASE_REPO: releaseRepo,
       IMAGE_PREFIX: imagePrefix,
-    } + if !getDockerCredsFromVault then {
-      DOCKER_USERNAME: dockerUsername,
-    } else {},
+    },
     jobs: {
       shouldRelease: $.release.shouldRelease,
       createRelease: $.release.createRelease,
-      publishImages: $.release.publishImages(getDockerCredsFromVault),
+      publishImages: $.release.publishImages(getDockerCredsFromVault, dockerUsername),
     },
   },
 }

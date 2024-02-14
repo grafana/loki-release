@@ -25,7 +25,6 @@ local releaseLibStep = common.releaseLibStep;
     + job.withSteps([
       common.fetchReleaseLib,
       common.fetchReleaseRepo,
-      common.setupGo,
       common.setupNode,
       common.googleAuth,
 
@@ -42,6 +41,30 @@ local releaseLibStep = common.releaseLibStep;
         echo "platform_short=$(echo ${{ matrix.platform }} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       |||),
 
+      step.new('Build and export', 'docker/build-push-action@v5')
+      + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
+      + step.with({
+        context: context,
+        file: 'release/%s/Dockerfile' % path,
+        platforms: '${{ matrix.platform }}',
+        tags: '${{ env.IMAGE_PREFIX }}/%s:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
+        outputs: 'type=docker,dest=release/images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
+      }),
+      step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
+      + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
+      + step.with({
+        path: 'release/images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
+        destination: 'loki-build-artifacts/${{ github.sha }}/images',  //TODO: make bucket configurable
+        process_gcloudignore: false,
+      }),
+    ]),
+
+  version:
+    job.new()
+    + job.withSteps([
+      common.fetchReleaseLib,
+      common.fetchReleaseRepo,
+      common.setupNode,
       common.extractBranchName,
       releaseLibStep('get release version')
       + step.withId('version')
@@ -72,53 +95,34 @@ local releaseLibStep = common.releaseLibStep;
           echo "pr_created=true" >> $GITHUB_OUTPUT
         fi
       |||),
+    ])
+    + job.withOutputs({
+      version: '${{ steps.version.outputs.version }}',
+      pr_created: '${{ steps.version.outputs.pr_created }}',
+    }),
 
-      step.new('Build and export', 'docker/build-push-action@v5')
-      + step.withIf('${{ fromJSON(steps.version.outputs.pr_created) }}')
+  dist: function(buildImage, skipArm=true)
+    job.new()
+    + job.withContainer({
+      image: buildImage,
+    })
+    + job.withSteps([
+      common.fetchReleaseRepo,
+      common.googleAuth,
+
+      releaseStep('build artifacts')
+      + step.withEnv({
+        BUILD_IN_CONTAINER: false,
+        SKIP_ARM: skipArm,
+        IMAGE_TAG: '${{ needs.version.outputs.version }}',
+      })
+      + step.withRun('make dist'),
+
+      step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v2')
       + step.with({
-        context: context,
-        file: 'release/%s/Dockerfile' % path,
-        platforms: '${{ matrix.platform }}',
-        tags: '${{ env.IMAGE_PREFIX }}/%s:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
-        outputs: 'type=docker,dest=release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
-      }),
-      step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
-      + step.withIf('${{ fromJSON(steps.version.outputs.pr_created) }}')
-      + step.with({
-        path: 'release/images/%s-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
-        destination: 'loki-build-artifacts/${{ github.sha }}/images',  //TODO: make bucket configurable
+        path: 'release/dist',
+        destination: 'loki-build-artifacts/${{ github.sha }}',  //TODO: make bucket configurable
         process_gcloudignore: false,
       }),
     ]),
-
-  dist: job.new()
-        + job.withSteps([
-          common.fetchReleaseRepo,
-          common.setupGo,
-          common.googleAuth,
-
-          step.new('install dependencies') +
-          step.withRun(|||
-            go install github.com/mitchellh/gox@9f71238
-            go install github.com/bufbuild/buf/cmd/buf@v1.4.0
-            go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
-            go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
-
-            sudo apt update
-            sudo apt install -qy musl gnupg ragel \
-              file zip unzip jq gettext \
-              protobuf-compiler libprotobuf-dev \
-              libsystemd-dev jq
-          |||),
-
-          releaseStep('build artifacts')
-          + step.withRun('make BUILD_IN_CONTAINER=false SKIP_ARM=true dist'),
-
-          step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v2')
-          + step.with({
-            path: 'release/dist',
-            destination: 'loki-build-artifacts/${{ github.sha }}',  //TODO: make bucket configurable
-            process_gcloudignore: false,
-          }),
-        ]),
 }

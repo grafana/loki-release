@@ -8,6 +8,8 @@ env:
   VERSIONING_STRATEGY: "always-bump-patch"
 jobs:
   check:
+    container:
+      image: "grafana/loki-build-image:0.33.0"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -20,41 +22,11 @@ jobs:
       with:
         path: "lib"
         repository: "grafana/loki-release"
-    - name: "setup go"
-      uses: "actions/setup-go@v5"
-      with:
-        cache-dependency-path: "release/go.sum"
-        go-version-file: "release/go.mod"
-    - name: "setup node"
-      uses: "actions/setup-node@v4"
-      with:
-        node-version: 20
-    - name: "install dependencies"
+    - name: "install tar"
       run: |
-        go install github.com/bufbuild/buf/cmd/buf@v1.4.0
-        go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
-        go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
-        go install github.com/fatih/faillint@v1.11.0
-        go install golang.org/x/tools/cmd/goimports@v0.7.0
-        go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@v0.4.0
-        go install github.com/monitoring-mixins/mixtool/cmd/mixtool@bca3066
-        go install github.com/google/go-jsonnet/cmd/jsonnet@v0.18.0
-        go install github.com/google/go-jsonnet/cmd/jsonnet-lint@v0.18.0
-        
-        sudo apt update
-        sudo apt install -qy musl gnupg ragel \
-          file zip unzip jq gettext \
-          protobuf-compiler libprotobuf-dev \
-          libsystemd-dev jq
+        apt update
+        apt install -qy tar xz-utils
       shell: "bash"
-    - name: "install golangci-lint"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "golangci-lint"
-        download_url: "https://github.com/golangci/golangci-lint/releases/download/v${version}/golangci-lint-${version}-linux-amd64.tar.gz"
-        smoke_test: "${binary} version"
-        tarball_binary_path: "*/${binary}"
-        version: "1.55.1"
     - name: "install shellcheck"
       uses: "./lib/actions/install-binary"
       with:
@@ -64,22 +36,6 @@ jobs:
         tar_args: "xvf"
         tarball_binary_path: "*/${binary}"
         version: "0.9.0"
-    - name: "install helm"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "helm"
-        download_url: "https://get.helm.sh/helm-v${version}-linux-amd64.tar.gz"
-        smoke_test: "${binary} version"
-        tarball_binary_path: "*/${binary}"
-        version: "3.2.3"
-    - name: "install helm-docs"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "helm-docs"
-        download_url: "https://github.com/norwoodj/helm-docs/releases/download/v${version}/helm-docs_Linux_x86_64.tar.gz"
-        smoke_test: "${binary} --version"
-        tarball_binary_path: "${binary}"
-        version: "1.11.2"
     - name: "install jsonnetfmt"
       uses: "./lib/actions/install-binary"
       with:
@@ -88,34 +44,46 @@ jobs:
         smoke_test: "${binary} --version"
         tarball_binary_path: "${binary}"
         version: "0.18.0"
-    - if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+    - env:
+        BUILD_IN_CONTAINER: false
+      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       name: "check generated files"
-      run: "make BUILD_IN_CONTAINER=false check-generated-files"
+      run: "make check-generated-files"
       shell: "bash"
       working-directory: "release"
-    - if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+    - env:
+        BUILD_IN_CONTAINER: false
+      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       name: "check mod"
-      run: "make BUILD_IN_CONTAINER=false check-mod"
+      run: "make check-mod"
       shell: "bash"
       working-directory: "release"
-    - if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+    - env:
+        BUILD_IN_CONTAINER: false
+      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       name: "shellcheck"
-      run: "make BUILD_IN_CONTAINER=false lint-scripts"
+      run: "make lint-scripts"
       shell: "bash"
       working-directory: "release"
-    - if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+    - env:
+        BUILD_IN_CONTAINER: false
+      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       name: "check docs"
-      run: "make BUILD_IN_CONTAINER=false check-doc"
+      run: "make check-doc"
       shell: "bash"
       working-directory: "release"
-    - if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+    - env:
+        BUILD_IN_CONTAINER: false
+      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       name: "validate example configs"
-      run: "make BUILD_IN_CONTAINER=false check-example-config-doc"
+      run: "make check-example-config-doc"
       shell: "bash"
       working-directory: "release"
-    - if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+    - env:
+        BUILD_IN_CONTAINER: false
+      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       name: "check helm reference doc"
-      run: "make BUILD_IN_CONTAINER=false documentation-helm-reference-check"
+      run: "make documentation-helm-reference-check"
       shell: "bash"
       working-directory: "release"
   create-release-pr:
@@ -162,10 +130,10 @@ jobs:
       shell: "bash"
       working-directory: "lib"
   dist:
+    container:
+      image: "grafana/loki-build-image:0.33.0"
     needs:
-    - "test"
-    - "lint"
-    - "check"
+    - "version"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -173,30 +141,16 @@ jobs:
       with:
         path: "release"
         repository: "${{ env.RELEASE_REPO }}"
-    - name: "setup go"
-      uses: "actions/setup-go@v5"
-      with:
-        cache-dependency-path: "release/go.sum"
-        go-version-file: "release/go.mod"
     - name: "auth gcs"
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-    - name: "install dependencies"
-      run: |
-        go install github.com/mitchellh/gox@9f71238
-        go install github.com/bufbuild/buf/cmd/buf@v1.4.0
-        go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
-        go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
-        
-        sudo apt update
-        sudo apt install -qy musl gnupg ragel \
-          file zip unzip jq gettext \
-          protobuf-compiler libprotobuf-dev \
-          libsystemd-dev jq
-      shell: "bash"
-    - name: "build artifacts"
-      run: "make BUILD_IN_CONTAINER=false SKIP_ARM=true dist"
+    - env:
+        BUILD_IN_CONTAINER: false
+        IMAGE_TAG: "${{ needs.version.outputs.version }}"
+        SKIP_ARM: true
+      name: "build artifacts"
+      run: "make dist"
       shell: "bash"
       working-directory: "release"
     - name: "upload build artifacts"
@@ -206,6 +160,8 @@ jobs:
         path: "release/dist"
         process_gcloudignore: false
   lint:
+    container:
+      image: "grafana/loki-build-image:0.33.0"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -218,41 +174,11 @@ jobs:
       with:
         path: "lib"
         repository: "grafana/loki-release"
-    - name: "setup go"
-      uses: "actions/setup-go@v5"
-      with:
-        cache-dependency-path: "release/go.sum"
-        go-version-file: "release/go.mod"
-    - name: "setup node"
-      uses: "actions/setup-node@v4"
-      with:
-        node-version: 20
-    - name: "install dependencies"
+    - name: "install tar"
       run: |
-        go install github.com/bufbuild/buf/cmd/buf@v1.4.0
-        go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
-        go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
-        go install github.com/fatih/faillint@v1.11.0
-        go install golang.org/x/tools/cmd/goimports@v0.7.0
-        go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@v0.4.0
-        go install github.com/monitoring-mixins/mixtool/cmd/mixtool@bca3066
-        go install github.com/google/go-jsonnet/cmd/jsonnet@v0.18.0
-        go install github.com/google/go-jsonnet/cmd/jsonnet-lint@v0.18.0
-        
-        sudo apt update
-        sudo apt install -qy musl gnupg ragel \
-          file zip unzip jq gettext \
-          protobuf-compiler libprotobuf-dev \
-          libsystemd-dev jq
+        apt update
+        apt install -qy tar xz-utils
       shell: "bash"
-    - name: "install golangci-lint"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "golangci-lint"
-        download_url: "https://github.com/golangci/golangci-lint/releases/download/v${version}/golangci-lint-${version}-linux-amd64.tar.gz"
-        smoke_test: "${binary} version"
-        tarball_binary_path: "*/${binary}"
-        version: "1.55.1"
     - name: "install shellcheck"
       uses: "./lib/actions/install-binary"
       with:
@@ -262,22 +188,6 @@ jobs:
         tar_args: "xvf"
         tarball_binary_path: "*/${binary}"
         version: "0.9.0"
-    - name: "install helm"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "helm"
-        download_url: "https://get.helm.sh/helm-v${version}-linux-amd64.tar.gz"
-        smoke_test: "${binary} version"
-        tarball_binary_path: "*/${binary}"
-        version: "3.2.3"
-    - name: "install helm-docs"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "helm-docs"
-        download_url: "https://github.com/norwoodj/helm-docs/releases/download/v${version}/helm-docs_Linux_x86_64.tar.gz"
-        smoke_test: "${binary} --version"
-        tarball_binary_path: "${binary}"
-        version: "1.11.2"
     - name: "install jsonnetfmt"
       uses: "./lib/actions/install-binary"
       with:
@@ -286,21 +196,23 @@ jobs:
         smoke_test: "${binary} --version"
         tarball_binary_path: "${binary}"
         version: "0.18.0"
-    - if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+    - env:
+        BUILD_IN_CONTAINER: false
+      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       name: "lint"
-      run: "make BUILD_IN_CONTAINER=false lint"
+      run: "make lint"
       shell: "bash"
       working-directory: "release"
-    - if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+    - env:
+        BUILD_IN_CONTAINER: false
+      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       name: "lint jsonnet"
-      run: "make BUILD_IN_CONTAINER=false lint-jsonnet"
+      run: "make lint-jsonnet"
       shell: "bash"
       working-directory: "release"
   loki:
     needs:
-    - "test"
-    - "lint"
-    - "check"
+    - "version"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull release library code"
@@ -313,11 +225,6 @@ jobs:
       with:
         path: "release"
         repository: "${{ env.RELEASE_REPO }}"
-    - name: "setup go"
-      uses: "actions/setup-go@v5"
-      with:
-        cache-dependency-path: "release/go.sum"
-        go-version-file: "release/go.mod"
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
@@ -340,6 +247,97 @@ jobs:
         echo "platform_short=$(echo ${{ matrix.platform }} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       shell: "bash"
       working-directory: "release"
+    - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
+      name: "Build and export"
+      uses: "docker/build-push-action@v5"
+      with:
+        context: "release"
+        file: "release/cmd/loki/Dockerfile"
+        outputs: "type=docker,dest=release/images/fake-loki-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
+        platforms: "${{ matrix.platform }}"
+        tags: "${{ env.IMAGE_PREFIX }}/fake-loki:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
+    - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
+      name: "upload artifacts"
+      uses: "google-github-actions/upload-cloud-storage@v2"
+      with:
+        destination: "loki-build-artifacts/${{ github.sha }}/images"
+        path: "release/images/fake-loki-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
+        process_gcloudignore: false
+    strategy:
+      fail-fast: true
+      matrix:
+        platform:
+        - "linux/amd64"
+        - "linux/arm64"
+        - "linux/arm"
+  test:
+    container:
+      image: "grafana/loki-build-image:0.33.0"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull code to release"
+      uses: "actions/checkout@v4"
+      with:
+        path: "release"
+        repository: "${{ env.RELEASE_REPO }}"
+    - name: "pull release library code"
+      uses: "actions/checkout@v4"
+      with:
+        path: "lib"
+        repository: "grafana/loki-release"
+    - name: "install tar"
+      run: |
+        apt update
+        apt install -qy tar xz-utils
+      shell: "bash"
+    - name: "install shellcheck"
+      uses: "./lib/actions/install-binary"
+      with:
+        binary: "shellcheck"
+        download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
+        smoke_test: "${binary} --version"
+        tar_args: "xvf"
+        tarball_binary_path: "*/${binary}"
+        version: "0.9.0"
+    - name: "install jsonnetfmt"
+      uses: "./lib/actions/install-binary"
+      with:
+        binary: "jsonnetfmt"
+        download_url: "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
+        smoke_test: "${binary} --version"
+        tarball_binary_path: "${binary}"
+        version: "0.18.0"
+    - env:
+        BUILD_IN_CONTAINER: false
+      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      name: "test"
+      run: "make test"
+      shell: "bash"
+      working-directory: "release"
+  version:
+    needs:
+    - "test"
+    - "lint"
+    - "check"
+    outputs:
+      pr_created: "${{ steps.version.outputs.pr_created }}"
+      version: "${{ steps.version.outputs.version }}"
+    runs-on: "ubuntu-latest"
+    steps:
+    - name: "pull release library code"
+      uses: "actions/checkout@v4"
+      with:
+        path: "lib"
+        repository: "grafana/loki-release"
+    - name: "pull code to release"
+      uses: "actions/checkout@v4"
+      with:
+        path: "release"
+        repository: "${{ env.RELEASE_REPO }}"
+    - name: "setup node"
+      uses: "actions/setup-node@v4"
+      with:
+        node-version: 20
     - id: "extract_branch"
       name: "extract branch name"
       run: |
@@ -376,115 +374,6 @@ jobs:
         fi
       shell: "bash"
       working-directory: "lib"
-    - if: "${{ fromJSON(steps.version.outputs.pr_created) }}"
-      name: "Build and export"
-      uses: "docker/build-push-action@v5"
-      with:
-        context: "release"
-        file: "release/cmd/loki/Dockerfile"
-        outputs: "type=docker,dest=release/images/fake-loki-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
-        platforms: "${{ matrix.platform }}"
-        tags: "${{ env.IMAGE_PREFIX }}/fake-loki:${{ steps.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
-    - if: "${{ fromJSON(steps.version.outputs.pr_created) }}"
-      name: "upload artifacts"
-      uses: "google-github-actions/upload-cloud-storage@v2"
-      with:
-        destination: "loki-build-artifacts/${{ github.sha }}/images"
-        path: "release/images/fake-loki-${{ steps.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
-        process_gcloudignore: false
-    strategy:
-      fail-fast: true
-      matrix:
-        platform:
-        - "linux/amd64"
-        - "linux/arm64"
-        - "linux/arm"
-  test:
-    runs-on: "ubuntu-latest"
-    steps:
-    - name: "pull code to release"
-      uses: "actions/checkout@v4"
-      with:
-        path: "release"
-        repository: "${{ env.RELEASE_REPO }}"
-    - name: "pull release library code"
-      uses: "actions/checkout@v4"
-      with:
-        path: "lib"
-        repository: "grafana/loki-release"
-    - name: "setup go"
-      uses: "actions/setup-go@v5"
-      with:
-        cache-dependency-path: "release/go.sum"
-        go-version-file: "release/go.mod"
-    - name: "setup node"
-      uses: "actions/setup-node@v4"
-      with:
-        node-version: 20
-    - name: "install dependencies"
-      run: |
-        go install github.com/bufbuild/buf/cmd/buf@v1.4.0
-        go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
-        go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
-        go install github.com/fatih/faillint@v1.11.0
-        go install golang.org/x/tools/cmd/goimports@v0.7.0
-        go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@v0.4.0
-        go install github.com/monitoring-mixins/mixtool/cmd/mixtool@bca3066
-        go install github.com/google/go-jsonnet/cmd/jsonnet@v0.18.0
-        go install github.com/google/go-jsonnet/cmd/jsonnet-lint@v0.18.0
-        
-        sudo apt update
-        sudo apt install -qy musl gnupg ragel \
-          file zip unzip jq gettext \
-          protobuf-compiler libprotobuf-dev \
-          libsystemd-dev jq
-      shell: "bash"
-    - name: "install golangci-lint"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "golangci-lint"
-        download_url: "https://github.com/golangci/golangci-lint/releases/download/v${version}/golangci-lint-${version}-linux-amd64.tar.gz"
-        smoke_test: "${binary} version"
-        tarball_binary_path: "*/${binary}"
-        version: "1.55.1"
-    - name: "install shellcheck"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "shellcheck"
-        download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
-        smoke_test: "${binary} --version"
-        tar_args: "xvf"
-        tarball_binary_path: "*/${binary}"
-        version: "0.9.0"
-    - name: "install helm"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "helm"
-        download_url: "https://get.helm.sh/helm-v${version}-linux-amd64.tar.gz"
-        smoke_test: "${binary} version"
-        tarball_binary_path: "*/${binary}"
-        version: "3.2.3"
-    - name: "install helm-docs"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "helm-docs"
-        download_url: "https://github.com/norwoodj/helm-docs/releases/download/v${version}/helm-docs_Linux_x86_64.tar.gz"
-        smoke_test: "${binary} --version"
-        tarball_binary_path: "${binary}"
-        version: "1.11.2"
-    - name: "install jsonnetfmt"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "jsonnetfmt"
-        download_url: "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
-        smoke_test: "${binary} --version"
-        tarball_binary_path: "${binary}"
-        version: "0.18.0"
-    - if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      name: "test"
-      run: "make BUILD_IN_CONTAINER=false test"
-      shell: "bash"
-      working-directory: "release"
 name: "create release PR"
 "on":
   push:
