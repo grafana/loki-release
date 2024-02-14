@@ -134,6 +134,7 @@ jobs:
       image: "grafana/loki-build-image:0.33.0"
     needs:
     - "version"
+    - "nfpmSecrets"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -145,14 +146,8 @@ jobs:
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-    - id: "get-secrets"
-      name: "get nfpm signing keys"
-      uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
-      with:
-        common_secrets: |
-          NFPM_SIGNING_KEY=packages-gpg:gpg_private_key
-          NFPM_PASSPHRASE=packages-gpg:passphrase
     - env:
+        NFPM_SIGNING_KEY: "${{ needs.nfpmSecrets.outputs.nfpm_signing_key }}"
         NFPM_SIGNING_KEY_FILE: "${GITHUB_WORKSPACE}/nfpm-private-key.key"
       name: "write nfpm signing key file"
       run: |
@@ -162,6 +157,7 @@ jobs:
         BUILD_IN_CONTAINER: false
         DRONE_TAG: "${{ needs.version.outputs.version }}"
         IMAGE_TAG: "${{ needs.version.outputs.version }}"
+        NFPM_PASSPHRASE: "${{ needs.nfpmSecrets.outputs.nfpm_passphrase }}"
         NFPM_SIGNING_KEY_FILE: "${GITHUB_WORKSPACE}/nfpm-private-key.key"
         SKIP_ARM: true
       name: "build artifacts"
@@ -285,6 +281,24 @@ jobs:
         - "linux/amd64"
         - "linux/arm64"
         - "linux/arm"
+  nfpmSecrets:
+    outputs:
+      nfpm_passphrase: "${{ steps.get-secrets.outputs.passphrase }}"
+      nfpm_signing_key: "${{ steps.get-secrets.outputs.key }}"
+    runs-on: "ubuntu-latest"
+    steps:
+    - id: "get-secrets"
+      name: "get nfpm signing keys"
+      uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
+      with:
+        common_secrets: |
+          NFPM_SIGNING_KEY=packages-gpg:gpg_private_key
+          NFPM_PASSPHRASE=packages-gpg:passphrase
+    - name: "set outputs"
+      run: |
+        echo "key=${NFPM_SIGNING_KEY}" >> $GITHUB_OUTPUT
+        echo "passphrase=${NFPM_PASSPHRASE" >> $GITHUB_OUTPUT
+      shell: "bash"
   test:
     container:
       image: "grafana/loki-build-image:0.33.0"

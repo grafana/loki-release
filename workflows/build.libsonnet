@@ -101,25 +101,40 @@ local releaseLibStep = common.releaseLibStep;
       pr_created: '${{ steps.version.outputs.pr_created }}',
     }),
 
+  nfpmSecrets: job.new()
+               + job.withSteps([
+                 step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
+                 + step.withId('get-secrets')
+                 + step.with({
+                   common_secrets: |||
+                     NFPM_SIGNING_KEY=packages-gpg:gpg_private_key
+                     NFPM_PASSPHRASE=packages-gpg:passphrase
+                   |||,
+                 }),
+                 step.new('set outputs')
+                 + step.withRun(|||
+                   echo "key=${NFPM_SIGNING_KEY}" >> $GITHUB_OUTPUT
+                   echo "passphrase=${NFPM_PASSPHRASE" >> $GITHUB_OUTPUT
+                 |||),
+               ])
+               + job.withOutputs({
+                 nfpm_signing_key: '${{ steps.get-secrets.outputs.key }}',
+                 nfpm_passphrase: '${{ steps.get-secrets.outputs.passphrase }}',
+               }),
+
   dist: function(buildImage, skipArm=true)
     job.new()
+    + job.withNeeds(['nfpmSecrets'])
     + job.withContainer({
       image: buildImage,
     })
     + job.withSteps([
       common.fetchReleaseRepo,
       common.googleAuth,
-      step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
-      + step.withId('get-secrets')
-      + step.with({
-        common_secrets: |||
-          NFPM_SIGNING_KEY=packages-gpg:gpg_private_key
-          NFPM_PASSPHRASE=packages-gpg:passphrase
-        |||,
-      }),
 
       step.new('write nfpm signing key file')
       + step.withEnv({
+        NFPM_SIGNING_KEY: '${{ needs.nfpmSecrets.outputs.nfpm_signing_key }}',
         NFPM_SIGNING_KEY_FILE: '${GITHUB_WORKSPACE}/nfpm-private-key.key',
       })
       + step.withRun(|||
@@ -133,6 +148,7 @@ local releaseLibStep = common.releaseLibStep;
         IMAGE_TAG: '${{ needs.version.outputs.version }}',
         DRONE_TAG: '${{ needs.version.outputs.version }}',
         NFPM_SIGNING_KEY_FILE: '${GITHUB_WORKSPACE}/nfpm-private-key.key',
+        NFPM_PASSPHRASE: '${{ needs.nfpmSecrets.outputs.nfpm_passphrase }}',
       })
       + step.withRun('make dist packages'),
 
