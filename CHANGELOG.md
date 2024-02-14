@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.2](https://github.com/grafana/loki-release/compare/v1.9.1...v1.9.2) (2024-02-14)
+
+
+### Bug Fixes
+
+* missing docker steps ([46ca74e](https://github.com/grafana/loki-release/commit/46ca74e22e5e7597ddbf07bb85ab4bf7a8f67cb1))
+
 ## [1.9.1](https://github.com/grafana/loki-release/compare/v1.9.0...v1.9.1) (2024-02-14)
 
 
