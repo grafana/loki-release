@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/grafana/loki-release/compare/v1.9.0...v1.9.1) (2024-02-14)
+
+
+### Bug Fixes
+
+* add id-token write permission to release pipeline ([03a6364](https://github.com/grafana/loki-release/commit/03a6364b4404ce1f226393d665a608a7a00e341d))
+
 ## [1.9.0](https://github.com/grafana/loki-release/compare/v1.8.15-alpha.1...v1.9.0) (2024-02-14)
 
 
