@@ -114,9 +114,9 @@ local releaseLibStep = common.releaseLibStep;
                  + step.withId('get-secrets')
                  + step.withRun(|||
                    echo "key<<EOF" >> $GITHUB_OUTPUT
-                   echo "${NFPM_SIGNING_KEY}" >> $GITHUB_OUTPUT
+                   echo "$(echo ${NFPM_SIGNING_KEY} | base64 -w 0)" >> $GITHUB_OUTPUT
                    echo "EOF" >> $GITHUB_OUTPUT
-                   echo "passphrase=${NFPM_PASSPHRASE}" >> $GITHUB_OUTPUT
+                   echo "passphrase=$(echo ${NFPM_PASSPHRASE} | base64 -w 0)" >> $GITHUB_OUTPUT
                  |||),
                ])
                + job.withOutputs({
@@ -140,7 +140,8 @@ local releaseLibStep = common.releaseLibStep;
         NFPM_SIGNING_KEY_FILE: '${GITHUB_WORKSPACE}/nfpm-private-key.key',
       })
       + step.withRun(|||
-        printf "%s" "$NFPM_SIGNING_KEY" > $NFPM_SIGNING_KEY_FILE
+        printf "%s" "$( echo ${NFPM_SIGNING_KEY} | base64 --decode)" > $NFPM_SIGNING_KEY_FILE
+        export NFPM_PASSPHRASE="$( echo ${{ needs.nfpmSecrets.outputs.nfpm_passphrase }} | base64 --decode )"
       |||),
 
       releaseStep('build artifacts')
@@ -150,7 +151,6 @@ local releaseLibStep = common.releaseLibStep;
         IMAGE_TAG: '${{ needs.version.outputs.version }}',
         DRONE_TAG: '${{ needs.version.outputs.version }}',
         NFPM_SIGNING_KEY_FILE: '${GITHUB_WORKSPACE}/nfpm-private-key.key',
-        NFPM_PASSPHRASE: '${{ needs.nfpmSecrets.outputs.nfpm_passphrase }}',
       })
       + step.withRun('make dist packages'),
 
