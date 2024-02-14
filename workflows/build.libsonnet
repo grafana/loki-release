@@ -144,6 +144,7 @@ local releaseLibStep = common.releaseLibStep;
         path: 'release/dist',
         destination: 'loki-build-artifacts/${{ github.sha }}/packages',  //TODO: make bucket configurable
         process_gcloudignore: false,
+        parent: false,
       }),
     ]),
 }

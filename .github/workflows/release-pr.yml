@@ -298,6 +298,7 @@ jobs:
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}/packages"
+        parent: false
         path: "release/dist"
         process_gcloudignore: false
   test:
