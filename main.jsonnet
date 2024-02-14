@@ -59,6 +59,7 @@
     permissions: {
       contents: 'write',
       'pull-requests': 'write',
+      'id-token': 'write',
     },
     concurrency: {
       group: 'create-release-${{ github.sha }}',
