@@ -124,13 +124,10 @@ local releaseLibStep = common.releaseLibStep;
         NFPM_SIGNING_KEY_FILE: 'nfpm-private-key.key',
       })
       + step.withRun(|||
-        cat <<EOF | docker exec --interactive --volume .:/src/loki --workdir /src/loki "%s" sh
+        cat <<EOF | docker run --interactive --volume .:/src/loki --workdir /src/loki --entrypoint /bin/sh "%s"
           echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
           make dist packages
         EOF
-
-        ls
-        ls dist
       ||| % buildImage),
 
       step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v2')
