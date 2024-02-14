@@ -109,6 +109,22 @@ local releaseLibStep = common.releaseLibStep;
     + job.withSteps([
       common.fetchReleaseRepo,
       common.googleAuth,
+      step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
+      + step.withId('get-secrets')
+      + step.with({
+        common_secrets: |||
+          NFPM_SIGNING_KEY=packages-gpg:gpg_private_key
+          NFPM_PASSPHRASE=packages-gpg:passphrase
+        |||,
+      }),
+
+      step.new('write nfpm signing key file')
+      + step.withEnv({
+        NFPM_SIGNING_KEY_FILE: '${GITHUB_WORKSPACE}/nfpm-private-key.key',
+      })
+      + step.withRun(|||
+        printf "%s" "$NFPM_SIGNING_KEY" > $NFPM_SIGNING_KEY_FILE
+      |||),
 
       releaseStep('build artifacts')
       + step.withEnv({
@@ -116,6 +132,7 @@ local releaseLibStep = common.releaseLibStep;
         SKIP_ARM: skipArm,
         IMAGE_TAG: '${{ needs.version.outputs.version }}',
         DRONE_TAG: '${{ needs.version.outputs.version }}',
+        NFPM_SIGNING_KEY_FILE: '${GITHUB_WORKSPACE}/nfpm-private-key.key',
       })
       + step.withRun('make dist packages'),
 

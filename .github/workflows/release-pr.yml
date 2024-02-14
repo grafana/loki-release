@@ -145,10 +145,24 @@ jobs:
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+    - id: "get-secrets"
+      name: "get nfpm signing keys"
+      uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
+      with:
+        common_secrets: |
+          NFPM_SIGNING_KEY=packages-gpg:gpg_private_key
+          NFPM_PASSPHRASE=packages-gpg:passphrase
+    - env:
+        NFPM_SIGNING_KEY_FILE: "${GITHUB_WORKSPACE}/nfpm-private-key.key"
+      name: "write nfpm signing key file"
+      run: |
+        printf "%s" "$NFPM_SIGNING_KEY" > $NFPM_SIGNING_KEY_FILE
+      shell: "bash"
     - env:
         BUILD_IN_CONTAINER: false
         DRONE_TAG: "${{ needs.version.outputs.version }}"
         IMAGE_TAG: "${{ needs.version.outputs.version }}"
+        NFPM_SIGNING_KEY_FILE: "${GITHUB_WORKSPACE}/nfpm-private-key.key"
         SKIP_ARM: true
       name: "build artifacts"
       run: "make dist packages"
