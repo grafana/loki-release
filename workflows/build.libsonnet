@@ -104,14 +104,14 @@ local releaseLibStep = common.releaseLibStep;
   nfpmSecrets: job.new()
                + job.withSteps([
                  step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
-                 + step.withId('get-secrets')
                  + step.with({
                    common_secrets: |||
                      NFPM_SIGNING_KEY=packages-gpg:private-key
                      NFPM_PASSPHRASE=packages-gpg:passphrase
                    |||,
                  }),
-                 step.new('set outputs')
+                 step.new('get secrets')
+                 + step.withId('get-secrets')
                  + step.withRun(|||
                    echo "key=${NFPM_SIGNING_KEY}" >> $GITHUB_OUTPUT
                    echo "passphrase=${NFPM_PASSPHRASE}" >> $GITHUB_OUTPUT

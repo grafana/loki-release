@@ -291,14 +291,14 @@ jobs:
       nfpm_signing_key: "${{ steps.get-secrets.outputs.key }}"
     runs-on: "ubuntu-latest"
     steps:
-    - id: "get-secrets"
-      name: "get nfpm signing keys"
+    - name: "get nfpm signing keys"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
       with:
         common_secrets: |
           NFPM_SIGNING_KEY=packages-gpg:private-key
           NFPM_PASSPHRASE=packages-gpg:passphrase
-    - name: "set outputs"
+    - id: "get-secrets"
+      name: "get secrets"
       run: |
         echo "key=${NFPM_SIGNING_KEY}" >> $GITHUB_OUTPUT
         echo "passphrase=${NFPM_PASSPHRASE}" >> $GITHUB_OUTPUT
