@@ -1,7 +1,7 @@
 concurrency:
   group: "create-release-${{ github.sha }}"
 env:
-  IMAGE_PREFIX: "grafana"
+  IMAGE_PREFIX: "trevorwhitney075"
   RELEASE_REPO: "grafana/loki-release"
 jobs:
   createRelease:
@@ -83,8 +83,11 @@ jobs:
       uses: "docker/setup-qemu-action@v3"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@v3"
-    - name: "Login to DockerHub (from vault)"
-      uses: "grafana/shared-workflows/actions/dockerhub-login@main"
+    - name: "Login to DockerHub (from secrets)"
+      uses: "docker/login-action@v3"
+      with:
+        password: "${{ secrets.DOCKER_PASSWORD }}"
+        username: "trevorwhitney075"
     - name: "download images"
       run: |
         echo "downloading images to $(pwd)/images"
