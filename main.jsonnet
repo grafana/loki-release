@@ -4,7 +4,7 @@
   release: import './workflows/release.libsonnet',
   validate: import './workflows/validate.libsonnet',
   releasePRWorkflow: function(
-    branches=['release-[0-9].[0-9].x', 'k[0-9]*'],
+    branches=['release-[0-9]+.[0-9]+.x', 'k[0-9]+'],
     buildImage='grafana/loki-build-image:0.33.0',
     dockerUsername='grafana',
     imageJobs={},
