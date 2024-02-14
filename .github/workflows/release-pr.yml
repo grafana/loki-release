@@ -282,6 +282,10 @@ jobs:
         - "linux/arm64"
         - "linux/arm"
   nfpmSecrets:
+    needs:
+    - "test"
+    - "lint"
+    - "check"
     outputs:
       nfpm_passphrase: "${{ steps.get-secrets.outputs.passphrase }}"
       nfpm_signing_key: "${{ steps.get-secrets.outputs.key }}"
@@ -292,7 +296,7 @@ jobs:
       uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
       with:
         common_secrets: |
-          NFPM_SIGNING_KEY=packages-gpg:gpg_private_key
+          NFPM_SIGNING_KEY=packages-gpg:private_key
           NFPM_PASSPHRASE=packages-gpg:passphrase
     - name: "set outputs"
       run: |

@@ -107,7 +107,7 @@ local releaseLibStep = common.releaseLibStep;
                  + step.withId('get-secrets')
                  + step.with({
                    common_secrets: |||
-                     NFPM_SIGNING_KEY=packages-gpg:gpg_private_key
+                     NFPM_SIGNING_KEY=packages-gpg:private_key
                      NFPM_PASSPHRASE=packages-gpg:passphrase
                    |||,
                  }),

@@ -38,7 +38,7 @@
     local validationSteps = ['test', 'lint', 'check'],
     jobs: $.validate(buildImage) {
       version: $.build.version + $.common.job.withNeeds(validationSteps),
-      nfpmSecrets: $.build.nfpmSecrets,
+      nfpmSecrets: $.build.nfpmSecrets + $.common.job.withNeeds(validationSteps),
       dist: $.build.dist(buildImage, skipArm) + $.common.job.withNeeds(['version', 'nfpmSecrets']),
     } + std.mapWithKey(function(name, job) job + $.common.job.withNeeds(['version']), imageJobs) + {
       local buildImageSteps = ['dist'] + std.objectFields(imageJobs),
