@@ -130,11 +130,8 @@ jobs:
       shell: "bash"
       working-directory: "lib"
   dist:
-    container:
-      image: "grafana/loki-build-image:0.33.0"
     needs:
     - "version"
-    - "nfpmSecrets"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -146,22 +143,28 @@ jobs:
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-    - env:
-        NFPM_SIGNING_KEY: "${{ needs.nfpmSecrets.outputs.nfpm_signing_key }}"
-        NFPM_SIGNING_KEY_FILE: "${GITHUB_WORKSPACE}/nfpm-private-key.key"
-      name: "write nfpm signing key file"
-      run: |
-        printf "%s" "$( echo ${NFPM_SIGNING_KEY} | base64 --decode)" > $NFPM_SIGNING_KEY_FILE
-        export NFPM_PASSPHRASE="$( echo ${{ needs.nfpmSecrets.outputs.nfpm_passphrase }} | base64 --decode )"
-      shell: "bash"
+    - id: "get-secrets"
+      name: "get nfpm signing keys"
+      uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
+      with:
+        common_secrets: |
+          NFPM_SIGNING_KEY=packages-gpg:gpg_private_key
+          NFPM_PASSPHRASE=packages-gpg:passphrase
     - env:
         BUILD_IN_CONTAINER: false
         DRONE_TAG: "${{ needs.version.outputs.version }}"
         IMAGE_TAG: "${{ needs.version.outputs.version }}"
-        NFPM_SIGNING_KEY_FILE: "${GITHUB_WORKSPACE}/nfpm-private-key.key"
+        NFPM_SIGNING_KEY_FILE: "nfpm-private-key.key"
         SKIP_ARM: true
       name: "build artifacts"
-      run: "make dist packages"
+      run: |
+        cat <<EOF | docker exec --interactive --volume .:/src/loki --workdir /src/loki "grafana/loki-build-image:0.33.0" sh
+          echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
+          make dist packages
+        EOF
+        
+        ls
+        ls dist
       shell: "bash"
       working-directory: "release"
     - name: "upload build artifacts"
@@ -281,30 +284,6 @@ jobs:
         - "linux/amd64"
         - "linux/arm64"
         - "linux/arm"
-  nfpmSecrets:
-    needs:
-    - "test"
-    - "lint"
-    - "check"
-    outputs:
-      nfpm_passphrase: "${{ steps.get-secrets.outputs.passphrase }}"
-      nfpm_signing_key: "${{ steps.get-secrets.outputs.key }}"
-    runs-on: "ubuntu-latest"
-    steps:
-    - name: "get nfpm signing keys"
-      uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
-      with:
-        common_secrets: |
-          NFPM_SIGNING_KEY=packages-gpg:private-key
-          NFPM_PASSPHRASE=packages-gpg:passphrase
-    - id: "get-secrets"
-      name: "get secrets"
-      run: |
-        echo "key<<EOF" >> $GITHUB_OUTPUT
-        echo "$(echo ${NFPM_SIGNING_KEY} | base64 -w 0)" >> $GITHUB_OUTPUT
-        echo "EOF" >> $GITHUB_OUTPUT
-        echo "passphrase=$(echo ${NFPM_PASSPHRASE} | base64 -w 0)" >> $GITHUB_OUTPUT
-      shell: "bash"
   test:
     container:
       image: "grafana/loki-build-image:0.33.0"

@@ -101,48 +101,19 @@ local releaseLibStep = common.releaseLibStep;
       pr_created: '${{ steps.version.outputs.pr_created }}',
     }),
 
-  nfpmSecrets: job.new()
-               + job.withSteps([
-                 step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
-                 + step.with({
-                   common_secrets: |||
-                     NFPM_SIGNING_KEY=packages-gpg:private-key
-                     NFPM_PASSPHRASE=packages-gpg:passphrase
-                   |||,
-                 }),
-                 step.new('get secrets')
-                 + step.withId('get-secrets')
-                 + step.withRun(|||
-                   echo "key<<EOF" >> $GITHUB_OUTPUT
-                   echo "$(echo ${NFPM_SIGNING_KEY} | base64 -w 0)" >> $GITHUB_OUTPUT
-                   echo "EOF" >> $GITHUB_OUTPUT
-                   echo "passphrase=$(echo ${NFPM_PASSPHRASE} | base64 -w 0)" >> $GITHUB_OUTPUT
-                 |||),
-               ])
-               + job.withOutputs({
-                 nfpm_signing_key: '${{ steps.get-secrets.outputs.key }}',
-                 nfpm_passphrase: '${{ steps.get-secrets.outputs.passphrase }}',
-               }),
-
   dist: function(buildImage, skipArm=true)
     job.new()
-    + job.withNeeds(['nfpmSecrets'])
-    + job.withContainer({
-      image: buildImage,
-    })
     + job.withSteps([
       common.fetchReleaseRepo,
       common.googleAuth,
-
-      step.new('write nfpm signing key file')
-      + step.withEnv({
-        NFPM_SIGNING_KEY: '${{ needs.nfpmSecrets.outputs.nfpm_signing_key }}',
-        NFPM_SIGNING_KEY_FILE: '${GITHUB_WORKSPACE}/nfpm-private-key.key',
-      })
-      + step.withRun(|||
-        printf "%s" "$( echo ${NFPM_SIGNING_KEY} | base64 --decode)" > $NFPM_SIGNING_KEY_FILE
-        export NFPM_PASSPHRASE="$( echo ${{ needs.nfpmSecrets.outputs.nfpm_passphrase }} | base64 --decode )"
-      |||),
+      step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
+      + step.withId('get-secrets')
+      + step.with({
+        common_secrets: |||
+          NFPM_SIGNING_KEY=packages-gpg:gpg_private_key
+          NFPM_PASSPHRASE=packages-gpg:passphrase
+        |||,
+      }),
 
       releaseStep('build artifacts')
       + step.withEnv({
@@ -150,9 +121,17 @@ local releaseLibStep = common.releaseLibStep;
         SKIP_ARM: skipArm,
         IMAGE_TAG: '${{ needs.version.outputs.version }}',
         DRONE_TAG: '${{ needs.version.outputs.version }}',
-        NFPM_SIGNING_KEY_FILE: '${GITHUB_WORKSPACE}/nfpm-private-key.key',
+        NFPM_SIGNING_KEY_FILE: 'nfpm-private-key.key',
       })
-      + step.withRun('make dist packages'),
+      + step.withRun(|||
+        cat <<EOF | docker exec --interactive --volume .:/src/loki --workdir /src/loki "%s" sh
+          echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
+          make dist packages
+        EOF
+
+        ls
+        ls dist
+      ||| % buildImage),
 
       step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v2')
       + step.with({
