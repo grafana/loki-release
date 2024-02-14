@@ -132,6 +132,7 @@ local releaseLibStep = common.releaseLibStep;
     })
     + job.withSteps([
       common.fetchReleaseRepo,
+      common.googleAuth,
       releaseStep('package')
       + step.withEnv({
         BUILD_IN_CONTAINER: false,

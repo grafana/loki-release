@@ -283,6 +283,10 @@ jobs:
       with:
         path: "release"
         repository: "${{ env.RELEASE_REPO }}"
+    - name: "auth gcs"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - env:
         BUILD_IN_CONTAINER: false
         DRONE_TAG: "${{ needs.version.outputs.version }}"
