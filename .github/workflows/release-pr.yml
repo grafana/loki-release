@@ -170,9 +170,7 @@ jobs:
         - "linux/arm"
   version:
     needs:
-    - "check/test"
-    - "check/lint"
-    - "check/check"
+    - "check"
     outputs:
       pr_created: "${{ steps.version.outputs.pr_created }}"
       version: "${{ steps.version.outputs.version }}"

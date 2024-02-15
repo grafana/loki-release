@@ -37,7 +37,7 @@
       SKIP_VALIDATION: skipValidation,
       VERSIONING_STRATEGY: versioningStrategy,
     },
-    local validationSteps = ['check/test', 'check/lint', 'check/check'],
+    local validationSteps = ['check'],
     jobs: {
       check: {} + $.job.withUses('./.github/workflows/check.yml')
              + $.job.withSecrets({
