@@ -19,11 +19,13 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "name": "install tar"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install tar"
       "run": |
         apt update
         apt install -qy tar xz-utils
-    - "name": "install shellcheck"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
       "with":
         "binary": "shellcheck"
@@ -32,7 +34,8 @@
         "tar_args": "xvf"
         "tarball_binary_path": "*/${binary}"
         "version": "0.9.0"
-    - "name": "install jsonnetfmt"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install jsonnetfmt"
       "uses": "./lib/actions/install-binary"
       "with":
         "binary": "jsonnetfmt"
@@ -79,11 +82,13 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "name": "install tar"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install tar"
       "run": |
         apt update
         apt install -qy tar xz-utils
-    - "name": "install shellcheck"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
       "with":
         "binary": "shellcheck"
@@ -92,7 +97,8 @@
         "tar_args": "xvf"
         "tarball_binary_path": "*/${binary}"
         "version": "0.9.0"
-    - "name": "install jsonnetfmt"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install jsonnetfmt"
       "uses": "./lib/actions/install-binary"
       "with":
         "binary": "jsonnetfmt"
@@ -109,7 +115,8 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "lint scripts"
       "run": "make lint-scripts"
-    - "name": "golangci-lint"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
       "with":
         "only-new-issues": true
@@ -132,11 +139,13 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "name": "install tar"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install tar"
       "run": |
         apt update
         apt install -qy tar xz-utils
-    - "name": "install shellcheck"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
       "with":
         "binary": "shellcheck"
@@ -145,7 +154,8 @@
         "tar_args": "xvf"
         "tarball_binary_path": "*/${binary}"
         "version": "0.9.0"
-    - "name": "install jsonnetfmt"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install jsonnetfmt"
       "uses": "./lib/actions/install-binary"
       "with":
         "binary": "jsonnetfmt"
