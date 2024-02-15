@@ -8,8 +8,6 @@ env:
   VERSIONING_STRATEGY: "always-bump-patch"
 jobs:
   check:
-    secrets:
-      GH_TOKEN: "${{ secrets.GH_TOKEN }}"
     uses: "grafana/loki-release/workflow-templates/check.yml@release-1.10.x"
     with:
       skip_validation: false
