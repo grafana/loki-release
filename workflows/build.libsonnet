@@ -118,13 +118,22 @@ local releaseLibStep = common.releaseLibStep;
       releaseStep('build artifacts')
       + step.withEnv({
         BUILD_IN_CONTAINER: false,
-        SKIP_ARM: skipArm,
-        IMAGE_TAG: '${{ needs.version.outputs.version }}',
         DRONE_TAG: '${{ needs.version.outputs.version }}',
+        IMAGE_TAG: '${{ needs.version.outputs.version }}',
         NFPM_SIGNING_KEY_FILE: 'nfpm-private-key.key',
+        SKIP_ARM: skipArm,
       })
       + step.withRun(|||
-        cat <<EOF | docker run --interactive --volume .:/src/loki --workdir /src/loki --entrypoint /bin/sh "%s"
+        cat <<EOF | docker run \
+          --interactive \
+          --env BUILD_IN_CONTAINER \
+          --env DRONE_TAG \
+          --env IMAGE_TAG \
+          --env NFPM_SIGNING_KEY_FILE \
+          --env SKIP_ARM \
+          --volume .:/src/loki \
+          --workdir /src/loki \
+          --entrypoint /bin/sh "%s"
           echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
           make dist packages
         EOF
