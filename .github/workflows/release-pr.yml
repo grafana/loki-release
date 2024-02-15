@@ -8,7 +8,6 @@ env:
   VERSIONING_STRATEGY: "always-bump-patch"
 jobs:
   check:
-    runs-on: "ubuntu-latest"
     secrets:
       GH_TOKEN: "${{ secrets.GH_TOKEN }}"
     uses: "./.github/workflows/check.yml"

@@ -39,8 +39,7 @@
     },
     local validationSteps = ['check/test', 'check/lint', 'check/check'],
     jobs: {
-      check: $.job.new()
-             + $.job.withUses('./.github/workflows/check.yml')
+      check: {} + $.job.withUses('./.github/workflows/check.yml')
              + $.job.withSecrets({
                GH_TOKEN: '${{ secrets.GH_TOKEN }}',
              })
