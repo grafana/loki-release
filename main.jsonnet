@@ -39,7 +39,7 @@
     },
     local validationSteps = ['check'],
     jobs: {
-      check: {} + $.job.withUses('.github/workflows/check.yml')
+      check: {} + $.job.withUses('./.github/workflows/check.yml')
              + $.job.with({
                skip_validation: skipValidation,
              }),

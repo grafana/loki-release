@@ -8,7 +8,7 @@ env:
   VERSIONING_STRATEGY: "always-bump-patch"
 jobs:
   check:
-    uses: ".github/workflows/check.yml"
+    uses: "./.github/workflows/check.yml"
     with:
       skip_validation: false
   create-release-pr:
