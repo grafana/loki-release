@@ -8,12 +8,13 @@
   releasePRWorkflow: function(
     branches=['release-[0-9]+.[0-9]+.x', 'k[0-9]+'],
     buildImage='grafana/loki-build-image:0.33.0',
+    checkTemplate='./.github/workflows/check.yml',
     dockerUsername='grafana',
     imageJobs={},
     imagePrefix='grafana',
     releaseRepo='grafana/loki-release',
-    skipValidation=false,
     skipArm=true,
+    skipValidation=false,
     versioningStrategy='always-bump-patch',
                     ) {
     name: 'create release PR',
@@ -39,7 +40,7 @@
     },
     local validationSteps = ['check'],
     jobs: {
-      check: {} + $.job.withUses('./.github/workflows/check.yml')
+      check: {} + $.job.withUses(checkTemplate)
              + $.job.with({
                skip_validation: skipValidation,
              }),
