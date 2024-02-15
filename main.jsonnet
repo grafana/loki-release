@@ -1,5 +1,7 @@
 {
   common: import './workflows/common.libsonnet',
+  job: $.common.job,
+  step: $.common.step,
   build: import './workflows/build.libsonnet',
   release: import './workflows/release.libsonnet',
   validate: import './workflows/validate.libsonnet',
@@ -35,8 +37,18 @@
       SKIP_VALIDATION: skipValidation,
       VERSIONING_STRATEGY: versioningStrategy,
     },
-    local validationSteps = ['test', 'lint', 'check'],
-    jobs: $.validate(buildImage) {
+    local validationSteps = ['check/test', 'check/lint', 'check/check'],
+    jobs: {
+      check: $.job.new()
+             + $.job.withSteps([
+               $.step.new('check', './.github/workflows/check.yml')
+               + $.step.withSecrets({
+                 GH_TOKEN: '${{ secrets.GH_TOKEN }}',
+               })
+               + $.step.with({
+                 skip_validation: skipValidation,
+               }),
+             ]),
       version: $.build.version + $.common.job.withNeeds(validationSteps),
       dist: $.build.dist(buildImage, skipArm) + $.common.job.withNeeds(['version']),
     } + std.mapWithKey(function(name, job) job + $.common.job.withNeeds(['version']), imageJobs) + {
@@ -74,5 +86,36 @@
       createRelease: $.release.createRelease,
       publishImages: $.release.publishImages(getDockerCredsFromVault, dockerUsername),
     },
+  },
+  check: function(
+    buildImage='grafana/loki-build-image:0.33.0',
+        ) {
+    name: 'check',
+    on: {
+      workflow_call: {
+        inputs: {
+          skip_validation: {
+            default: false,
+            description: 'skip validation steps',
+            required: false,
+            type: 'boolean',
+          },
+        },
+        secrets: {
+          GH_TOKEN: {
+            required: true,
+          },
+        },
+      },
+    },
+    permissions: {
+      contents: 'write',
+      'pull-requests': 'write',
+      'id-token': 'write',
+    },
+    concurrency: {
+      group: 'check-${{ github.sha }}',
+    },
+    jobs: $.validate(buildImage),
   },
 }

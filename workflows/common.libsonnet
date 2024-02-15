@@ -24,6 +24,9 @@
     withEnv: function(env) {
       env: env,
     },
+    withSecrets: function(env) {
+      secrets: env,
+    },
   },
   job: {
     new: function(runsOn='ubuntu-latest') {
@@ -50,6 +53,9 @@
     withEnv: function(env) {
       env: env,
     },
+    withSecrets: function(env) {
+      secrets: env,
+    },
   },
 
   releaseStep: function(name, uses=null) $.step.new(name, uses) +
@@ -57,6 +63,9 @@
 
   releaseLibStep: function(name, uses=null) $.step.new(name, uses) +
                                             $.step.withWorkingDirectory('lib'),
+
+  checkout:
+    $.step.new('checkout', 'actions/checkout@v4'),
 
   fetchReleaseRepo:
     $.step.new('pull code to release', 'actions/checkout@v4')
