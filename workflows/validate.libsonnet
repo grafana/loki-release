@@ -76,13 +76,4 @@ function(buildImage) {
       validationMakeStep('check drone drift', 'check-drone-drift'),
     ])
   ),
-
-  'check-title': job.new()
-                 + job.withIf("github.event_name == 'pull-request'")
-                 + job.withSteps([
-                   step.new('enforce conventional commit title', 'amannn/action-semantic-pull-request@v5')
-                   + step.withEnv({
-                     GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}',
-                   }),
-                 ]),
 }
