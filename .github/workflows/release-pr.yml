@@ -10,7 +10,7 @@ jobs:
   check:
     secrets:
       GH_TOKEN: "${{ secrets.GH_TOKEN }}"
-    uses: "./workflow-templates/check.yml"
+    uses: "grafana/loki-release/workflow-templates/check.yml@release-1.10.x"
     with:
       skip_validation: false
   create-release-pr:
