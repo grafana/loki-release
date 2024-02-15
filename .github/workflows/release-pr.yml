@@ -8,7 +8,7 @@ env:
   VERSIONING_STRATEGY: "always-bump-patch"
 jobs:
   check:
-    uses: "grafana/loki-release/workflow-templates/check.yml@release-1.10.x"
+    uses: ".github/workflows/check.yml"
     with:
       skip_validation: false
   create-release-pr:

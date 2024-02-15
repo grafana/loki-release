@@ -39,7 +39,7 @@
     },
     local validationSteps = ['check'],
     jobs: {
-      check: {} + $.job.withUses('grafana/loki-release/workflow-templates/check.yml@release-1.10.x')
+      check: {} + $.job.withUses('.github/workflows/check.yml')
              + $.job.with({
                skip_validation: skipValidation,
              }),
