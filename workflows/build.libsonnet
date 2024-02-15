@@ -129,6 +129,8 @@ local releaseLibStep = common.releaseLibStep;
           --env BUILD_IN_CONTAINER \
           --env DRONE_TAG \
           --env IMAGE_TAG \
+          --env NFPM_PASSPHRASE \
+          --enc NFPM_SIGNING_KEY \
           --env NFPM_SIGNING_KEY_FILE \
           --env SKIP_ARM \
           --volume .:/src/loki \
