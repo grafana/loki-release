@@ -95,11 +95,6 @@
             type: 'boolean',
           },
         },
-        secrets: {
-          GH_TOKEN: {
-            required: true,
-          },
-        },
       },
     },
     permissions: {

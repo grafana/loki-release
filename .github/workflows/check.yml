@@ -165,9 +165,6 @@
         "description": "skip validation steps"
         "required": false
         "type": "boolean"
-    "secrets":
-      "GH_TOKEN":
-        "required": true
 "permissions":
   "contents": "write"
   "id-token": "write"
