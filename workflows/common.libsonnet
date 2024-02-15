@@ -32,6 +32,12 @@
     new: function(runsOn='ubuntu-latest') {
       'runs-on': runsOn,
     },
+    with: function(with) {
+      with+: with,
+    },
+    withUses: function(uses) {
+      uses: uses,
+    },
     withSteps: function(steps) {
       steps: steps,
     },

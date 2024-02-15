@@ -40,15 +40,13 @@
     local validationSteps = ['check/test', 'check/lint', 'check/check'],
     jobs: {
       check: $.job.new()
-             + $.job.withSteps([
-               $.step.new('check', './.github/workflows/check.yml')
-               + $.step.withSecrets({
-                 GH_TOKEN: '${{ secrets.GH_TOKEN }}',
-               })
-               + $.step.with({
-                 skip_validation: skipValidation,
-               }),
-             ]),
+             + $.job.withUses('./.github/workflows/check.yml')
+             + $.job.withSecrets({
+               GH_TOKEN: '${{ secrets.GH_TOKEN }}',
+             })
+             + $.job.with({
+               skip_validation: skipValidation,
+             }),
       version: $.build.version + $.common.job.withNeeds(validationSteps),
       dist: $.build.dist(buildImage, skipArm) + $.common.job.withNeeds(['version']),
     } + std.mapWithKey(function(name, job) job + $.common.job.withNeeds(['version']), imageJobs) + {

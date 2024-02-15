@@ -9,13 +9,11 @@ env:
 jobs:
   check:
     runs-on: "ubuntu-latest"
-    steps:
-    - name: "check"
-      secrets:
-        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
-      uses: "./.github/workflows/check.yml"
-      with:
-        skip_validation: false
+    secrets:
+      GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+    uses: "./.github/workflows/check.yml"
+    with:
+      skip_validation: false
   create-release-pr:
     needs:
     - "dist"
