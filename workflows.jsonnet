@@ -1,7 +1,7 @@
-local lokiRelease = import '../main.jsonnet';
+local lokiRelease = import 'main.jsonnet';
 local build = lokiRelease.build;
 {
-  'release-pr.yml': std.manifestYamlDoc(
+  '.github/workflows/release-pr.yml': std.manifestYamlDoc(
     lokiRelease.releasePRWorkflow(
       imageJobs={
         loki: build.image('fake-loki', 'cmd/loki'),
@@ -13,7 +13,7 @@ local build = lokiRelease.build;
       versioningStrategy='always-bump-patch',
     ), false, false
   ),
-  'release.yml': std.manifestYamlDoc(
+  '.github/workflows/release.yml': std.manifestYamlDoc(
     lokiRelease.releaseWorkflow(
       branches=['release-[0-9]+.[0-9]+.x'],
       dockerUsername='trevorwhitney075',
@@ -22,7 +22,7 @@ local build = lokiRelease.build;
       releaseRepo='grafana/loki-release',
     ), false, false
   ),
-  'check.yml': std.manifestYamlDoc(
+  'workflow-templates/check.yml': std.manifestYamlDoc(
     lokiRelease.check(
       buildImage='grafana/loki-build-image:0.33.0'
     )

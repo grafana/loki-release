@@ -10,7 +10,7 @@ jobs:
   check:
     secrets:
       GH_TOKEN: "${{ secrets.GH_TOKEN }}"
-    uses: "./.github/workflows/check.yml"
+    uses: "./workflow-templates/check.yml"
     with:
       skip_validation: false
   create-release-pr:

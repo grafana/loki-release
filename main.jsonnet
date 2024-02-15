@@ -39,7 +39,7 @@
     },
     local validationSteps = ['check'],
     jobs: {
-      check: {} + $.job.withUses('./.github/workflows/check.yml')
+      check: {} + $.job.withUses('./workflow-templates/check.yml')
              + $.job.withSecrets({
                GH_TOKEN: '${{ secrets.GH_TOKEN }}',
              })
