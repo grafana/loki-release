@@ -8,84 +8,9 @@ env:
   VERSIONING_STRATEGY: "always-bump-patch"
 jobs:
   check:
-    container:
-      image: "grafana/loki-build-image:0.33.0"
-    runs-on: "ubuntu-latest"
-    steps:
-    - name: "pull code to release"
-      uses: "actions/checkout@v4"
-      with:
-        path: "release"
-        repository: "${{ env.RELEASE_REPO }}"
-    - name: "pull release library code"
-      uses: "actions/checkout@v4"
-      with:
-        path: "lib"
-        repository: "grafana/loki-release"
-    - name: "install tar"
-      run: |
-        apt update
-        apt install -qy tar xz-utils
-      shell: "bash"
-    - name: "install shellcheck"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "shellcheck"
-        download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
-        smoke_test: "${binary} --version"
-        tar_args: "xvf"
-        tarball_binary_path: "*/${binary}"
-        version: "0.9.0"
-    - name: "install jsonnetfmt"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "jsonnetfmt"
-        download_url: "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
-        smoke_test: "${binary} --version"
-        tarball_binary_path: "${binary}"
-        version: "0.18.0"
-    - env:
-        BUILD_IN_CONTAINER: false
-      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      name: "check generated files"
-      run: "make check-generated-files"
-      shell: "bash"
-      working-directory: "release"
-    - env:
-        BUILD_IN_CONTAINER: false
-      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      name: "check mod"
-      run: "make check-mod"
-      shell: "bash"
-      working-directory: "release"
-    - env:
-        BUILD_IN_CONTAINER: false
-      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      name: "shellcheck"
-      run: "make lint-scripts"
-      shell: "bash"
-      working-directory: "release"
-    - env:
-        BUILD_IN_CONTAINER: false
-      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      name: "check docs"
-      run: "make check-doc"
-      shell: "bash"
-      working-directory: "release"
-    - env:
-        BUILD_IN_CONTAINER: false
-      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      name: "validate example configs"
-      run: "make check-example-config-doc"
-      shell: "bash"
-      working-directory: "release"
-    - env:
-        BUILD_IN_CONTAINER: false
-      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      name: "check helm reference doc"
-      run: "make documentation-helm-reference-check"
-      shell: "bash"
-      working-directory: "release"
+    uses: "./.github/workflows/check.yml"
+    with:
+      skip_validation: false
   create-release-pr:
     needs:
     - "dist"
@@ -110,7 +35,6 @@ jobs:
       name: "extract branch name"
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      shell: "bash"
       working-directory: "release"
     - env:
         SHA: "${{ github.sha }}"
@@ -118,20 +42,20 @@ jobs:
       name: "release please"
       run: |
         npm install
+        echo "Pull request footer: Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}"
         npm exec -- release-please release-pr \
           --consider-all-branches \
           --label "backport main,autorelease: pending,type/docs" \
           --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
           --release-type simple \
-          --repo-url="${{ env.RELEASE_REPO }}" \
+          --repo-url "${{ env.RELEASE_REPO }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --token="${{ secrets.GH_TOKEN }}" \
-          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
-      shell: "bash"
+          --token "${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
+          --separate-pull-requests false \
+          --debug
       working-directory: "lib"
   dist:
-    container:
-      image: "grafana/loki-build-image:0.33.0"
     needs:
     - "version"
     runs-on: "ubuntu-latest"
@@ -145,13 +69,37 @@ jobs:
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+    - id: "get-secrets"
+      name: "get nfpm signing keys"
+      uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
+      with:
+        common_secrets: |
+          NFPM_SIGNING_KEY=packages-gpg:private-key
+          NFPM_PASSPHRASE=packages-gpg:passphrase
     - env:
         BUILD_IN_CONTAINER: false
+        DRONE_TAG: "${{ needs.version.outputs.version }}"
         IMAGE_TAG: "${{ needs.version.outputs.version }}"
+        NFPM_SIGNING_KEY_FILE: "nfpm-private-key.key"
         SKIP_ARM: true
       name: "build artifacts"
-      run: "make dist"
-      shell: "bash"
+      run: |
+        cat <<EOF | docker run \
+          --interactive \
+          --env BUILD_IN_CONTAINER \
+          --env DRONE_TAG \
+          --env IMAGE_TAG \
+          --env NFPM_PASSPHRASE \
+          --env NFPM_SIGNING_KEY \
+          --env NFPM_SIGNING_KEY_FILE \
+          --env SKIP_ARM \
+          --volume .:/src/loki \
+          --workdir /src/loki \
+          --entrypoint /bin/sh "grafana/loki-build-image:0.33.0"
+          git config --global --add safe.directory /src/loki
+          echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
+          make dist packages
+        EOF
       working-directory: "release"
     - name: "upload build artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
@@ -159,57 +107,6 @@ jobs:
         destination: "loki-build-artifacts/${{ github.sha }}"
         path: "release/dist"
         process_gcloudignore: false
-  lint:
-    container:
-      image: "grafana/loki-build-image:0.33.0"
-    runs-on: "ubuntu-latest"
-    steps:
-    - name: "pull code to release"
-      uses: "actions/checkout@v4"
-      with:
-        path: "release"
-        repository: "${{ env.RELEASE_REPO }}"
-    - name: "pull release library code"
-      uses: "actions/checkout@v4"
-      with:
-        path: "lib"
-        repository: "grafana/loki-release"
-    - name: "install tar"
-      run: |
-        apt update
-        apt install -qy tar xz-utils
-      shell: "bash"
-    - name: "install shellcheck"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "shellcheck"
-        download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
-        smoke_test: "${binary} --version"
-        tar_args: "xvf"
-        tarball_binary_path: "*/${binary}"
-        version: "0.9.0"
-    - name: "install jsonnetfmt"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "jsonnetfmt"
-        download_url: "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
-        smoke_test: "${binary} --version"
-        tarball_binary_path: "${binary}"
-        version: "0.18.0"
-    - env:
-        BUILD_IN_CONTAINER: false
-      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      name: "lint"
-      run: "make lint"
-      shell: "bash"
-      working-directory: "release"
-    - env:
-        BUILD_IN_CONTAINER: false
-      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      name: "lint jsonnet"
-      run: "make lint-jsonnet"
-      shell: "bash"
-      working-directory: "release"
   loki:
     needs:
     - "version"
@@ -245,10 +142,10 @@ jobs:
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         echo "platform_short=$(echo ${{ matrix.platform }} | cut -d / -f 2)" >> $GITHUB_OUTPUT
-      shell: "bash"
       working-directory: "release"
     - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "Build and export"
+      timeout-minutes: 25
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
@@ -270,54 +167,8 @@ jobs:
         - "linux/amd64"
         - "linux/arm64"
         - "linux/arm"
-  test:
-    container:
-      image: "grafana/loki-build-image:0.33.0"
-    runs-on: "ubuntu-latest"
-    steps:
-    - name: "pull code to release"
-      uses: "actions/checkout@v4"
-      with:
-        path: "release"
-        repository: "${{ env.RELEASE_REPO }}"
-    - name: "pull release library code"
-      uses: "actions/checkout@v4"
-      with:
-        path: "lib"
-        repository: "grafana/loki-release"
-    - name: "install tar"
-      run: |
-        apt update
-        apt install -qy tar xz-utils
-      shell: "bash"
-    - name: "install shellcheck"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "shellcheck"
-        download_url: "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
-        smoke_test: "${binary} --version"
-        tar_args: "xvf"
-        tarball_binary_path: "*/${binary}"
-        version: "0.9.0"
-    - name: "install jsonnetfmt"
-      uses: "./lib/actions/install-binary"
-      with:
-        binary: "jsonnetfmt"
-        download_url: "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
-        smoke_test: "${binary} --version"
-        tarball_binary_path: "${binary}"
-        version: "0.18.0"
-    - env:
-        BUILD_IN_CONTAINER: false
-      if: "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      name: "test"
-      run: "make test"
-      shell: "bash"
-      working-directory: "release"
   version:
     needs:
-    - "test"
-    - "lint"
     - "check"
     outputs:
       pr_created: "${{ steps.version.outputs.pr_created }}"
@@ -342,7 +193,6 @@ jobs:
       name: "extract branch name"
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      shell: "bash"
       working-directory: "release"
     - id: "version"
       name: "get release version"
@@ -372,13 +222,13 @@ jobs:
           echo "version=${version}" >> $GITHUB_OUTPUT
           echo "pr_created=true" >> $GITHUB_OUTPUT
         fi
-      shell: "bash"
       working-directory: "lib"
 name: "create release PR"
 "on":
   push:
     branches:
-    - "release-[0-9].[0-9].x"
+    - "release-[0-9]+.[0-9]+.x"
 permissions:
   contents: "write"
+  id-token: "write"
   pull-requests: "write"

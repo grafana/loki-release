@@ -9,7 +9,6 @@
       with+: with,
     },
     withRun: function(run) {
-      shell: 'bash',
       run: run,
     },
     withId: function(id) {
@@ -24,10 +23,22 @@
     withEnv: function(env) {
       env: env,
     },
+    withSecrets: function(env) {
+      secrets: env,
+    },
+    withTimeoutMinutes: function(timeout) {
+      'timeout-minutes': timeout,
+    },
   },
   job: {
     new: function(runsOn='ubuntu-latest') {
       'runs-on': runsOn,
+    },
+    with: function(with) {
+      with+: with,
+    },
+    withUses: function(uses) {
+      uses: uses,
     },
     withSteps: function(steps) {
       steps: steps,
@@ -50,6 +61,9 @@
     withEnv: function(env) {
       env: env,
     },
+    withSecrets: function(env) {
+      secrets: env,
+    },
   },
 
   releaseStep: function(name, uses=null) $.step.new(name, uses) +
@@ -57,6 +71,9 @@
 
   releaseLibStep: function(name, uses=null) $.step.new(name, uses) +
                                             $.step.withWorkingDirectory('lib'),
+
+  checkout:
+    $.step.new('checkout', 'actions/checkout@v4'),
 
   fetchReleaseRepo:
     $.step.new('pull code to release', 'actions/checkout@v4')
@@ -99,4 +116,9 @@
                      + $.step.withRun(|||
                        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
                      |||),
+
+  fixDubiousOwnership: $.step.new('fix git dubious ownership')
+                       + $.step.withRun(|||
+                         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+                       |||),
 }

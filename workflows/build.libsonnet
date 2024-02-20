@@ -42,6 +42,7 @@ local releaseLibStep = common.releaseLibStep;
       |||),
 
       step.new('Build and export', 'docker/build-push-action@v5')
+      + step.withTimeoutMinutes(25)
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.with({
         context: context,
@@ -103,20 +104,45 @@ local releaseLibStep = common.releaseLibStep;
 
   dist: function(buildImage, skipArm=true)
     job.new()
-    + job.withContainer({
-      image: buildImage,
-    })
     + job.withSteps([
       common.fetchReleaseRepo,
       common.googleAuth,
+      step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
+      + step.withId('get-secrets')
+      + step.with({
+        common_secrets: |||
+          NFPM_SIGNING_KEY=packages-gpg:private-key
+          NFPM_PASSPHRASE=packages-gpg:passphrase
+        |||,
+      }),
 
       releaseStep('build artifacts')
       + step.withEnv({
         BUILD_IN_CONTAINER: false,
-        SKIP_ARM: skipArm,
+        DRONE_TAG: '${{ needs.version.outputs.version }}',
         IMAGE_TAG: '${{ needs.version.outputs.version }}',
+        NFPM_SIGNING_KEY_FILE: 'nfpm-private-key.key',
+        SKIP_ARM: skipArm,
       })
-      + step.withRun('make dist'),
+      //TODO: the workdir here is loki specific
+      + step.withRun(|||
+        cat <<EOF | docker run \
+          --interactive \
+          --env BUILD_IN_CONTAINER \
+          --env DRONE_TAG \
+          --env IMAGE_TAG \
+          --env NFPM_PASSPHRASE \
+          --env NFPM_SIGNING_KEY \
+          --env NFPM_SIGNING_KEY_FILE \
+          --env SKIP_ARM \
+          --volume .:/src/loki \
+          --workdir /src/loki \
+          --entrypoint /bin/sh "%s"
+          git config --global --add safe.directory /src/loki
+          echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
+          make dist packages
+        EOF
+      ||| % buildImage),
 
       step.new('upload build artifacts', 'google-github-actions/upload-cloud-storage@v2')
       + step.with({

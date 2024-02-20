@@ -30,16 +30,19 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       //TODO backport action should not bring over autorelease: pending label
       + step.withRun(|||
         npm install
+        echo "Pull request footer: %s"
         npm exec -- release-please release-pr \
           --consider-all-branches \
           --label "backport main,autorelease: pending,type/docs" \
           --pull-request-footer "%s" \
           --release-type simple \
-          --repo-url="${{ env.RELEASE_REPO }}" \
+          --repo-url "${{ env.RELEASE_REPO }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --token="${{ secrets.GH_TOKEN }}" \
-          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
-      ||| % pullRequestFooter),
+          --token "${{ secrets.GH_TOKEN }}" \
+          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
+          --separate-pull-requests false \
+          --debug
+      ||| % [pullRequestFooter, pullRequestFooter]),
     ]),
 
   shouldRelease: job.new()

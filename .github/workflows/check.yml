@@ -1,0 +1,200 @@
+"concurrency":
+  "group": "check-${{ github.sha }}"
+"jobs":
+  "check":
+    "container":
+      "image": "grafana/loki-build-image:0.33.0"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "repository": "grafana/loki-release"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install tar"
+      "run": |
+        apt update
+        apt install -qy tar xz-utils
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install shellcheck"
+      "uses": "./lib/actions/install-binary"
+      "with":
+        "binary": "shellcheck"
+        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
+        "smoke_test": "${binary} --version"
+        "tar_args": "xvf"
+        "tarball_binary_path": "*/${binary}"
+        "version": "0.9.0"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install jsonnetfmt"
+      "uses": "./lib/actions/install-binary"
+      "with":
+        "binary": "jsonnetfmt"
+        "download_url": "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
+        "smoke_test": "${binary} --version"
+        "tarball_binary_path": "${binary}"
+        "version": "0.18.0"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "check generated files"
+      "run": "make check-generated-files"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "check mod"
+      "run": "make check-mod"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "check docs"
+      "run": "make check-doc"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "validate example configs"
+      "run": "make validate-example-configs"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "validate dev cluster config"
+      "run": "make validate-dev-cluster-config"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "check example config docs"
+      "run": "make check-example-config-doc"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "check helm reference doc"
+      "run": "make documentation-helm-reference-check"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "check drone drift"
+      "run": "make check-drone-drift"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "build docs website"
+      "run": |
+        cat <<EOF | docker run \
+          --interactive \
+          --env BUILD_IN_CONTAINER \
+          --env DRONE_TAG \
+          --env IMAGE_TAG \
+          --volume .:/src/loki \
+          --workdir /src/loki \
+          --entrypoint /bin/sh "grafana/docs-base:e6ef023f8b8"
+          git config --global --add safe.directory /src/loki
+          mkdir -p /hugo/content/docs/loki/latest
+          cp -r docs/sources/* /hugo/content/docs/loki/latest/
+          cd /hugo && make prod
+        EOF
+  "lint":
+    "container":
+      "image": "grafana/loki-build-image:0.33.0"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "repository": "grafana/loki-release"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install tar"
+      "run": |
+        apt update
+        apt install -qy tar xz-utils
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install shellcheck"
+      "uses": "./lib/actions/install-binary"
+      "with":
+        "binary": "shellcheck"
+        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
+        "smoke_test": "${binary} --version"
+        "tar_args": "xvf"
+        "tarball_binary_path": "*/${binary}"
+        "version": "0.9.0"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install jsonnetfmt"
+      "uses": "./lib/actions/install-binary"
+      "with":
+        "binary": "jsonnetfmt"
+        "download_url": "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
+        "smoke_test": "${binary} --version"
+        "tarball_binary_path": "${binary}"
+        "version": "0.18.0"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "lint"
+      "run": "make lint"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "lint jsonnet"
+      "run": "make lint-jsonnet"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "lint scripts"
+      "run": "make lint-scripts"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "golangci-lint"
+      "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
+      "with":
+        "only-new-issues": true
+        "version": "v1.55.1"
+  "test":
+    "container":
+      "image": "grafana/loki-build-image:0.33.0"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "repository": "grafana/loki-release"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install tar"
+      "run": |
+        apt update
+        apt install -qy tar xz-utils
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install shellcheck"
+      "uses": "./lib/actions/install-binary"
+      "with":
+        "binary": "shellcheck"
+        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
+        "smoke_test": "${binary} --version"
+        "tar_args": "xvf"
+        "tarball_binary_path": "*/${binary}"
+        "version": "0.9.0"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install jsonnetfmt"
+      "uses": "./lib/actions/install-binary"
+      "with":
+        "binary": "jsonnetfmt"
+        "download_url": "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
+        "smoke_test": "${binary} --version"
+        "tarball_binary_path": "${binary}"
+        "version": "0.18.0"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "test"
+      "run": "make test"
+"name": "check"
+"on":
+  "workflow_call":
+    "inputs":
+      "skip_validation":
+        "default": false
+        "description": "skip validation steps"
+        "required": false
+        "type": "boolean"
+"permissions":
+  "contents": "write"
+  "id-token": "write"
+  "pull-requests": "write"
