@@ -139,7 +139,7 @@
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
       "with":
         "only-new-issues": true
-        "version": "v1.55.1"
+        "version": "${{ inputs.golang_ci_lint_version }}"
   "test":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -192,6 +192,11 @@
       "build_image":
         "description": "loki build image to use"
         "required": true
+        "type": "string"
+      "golang_ci_lint_version":
+        "default": "v1.55.1"
+        "description": "version of golangci-lint to use"
+        "required": false
         "type": "string"
       "skip_validation":
         "default": false
