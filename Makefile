@@ -40,6 +40,9 @@ check-drone-drift:
 validate-example-configs:
 	echo "validating example configs"
 
+validate-dev-cluster-config:
+	echo "validating dev cluster config"
+
 dist:
 	mkdir -p dist
 	cp CHANGELOG.md dist/
