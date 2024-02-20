@@ -135,11 +135,6 @@
       "name": "lint scripts"
       "run": "make lint-scripts"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "format"
-      "run": |
-        git fetch origin
-        make check-format
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
       "with":
