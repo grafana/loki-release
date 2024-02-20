@@ -3,7 +3,7 @@
 "jobs":
   "check":
     "container":
-      "image": "grafana/loki-build-image:0.33.0"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -85,7 +85,7 @@
         EOF
   "lint":
     "container":
-      "image": "grafana/loki-build-image:0.33.0"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -147,7 +147,7 @@
         "version": "v1.55.1"
   "test":
     "container":
-      "image": "grafana/loki-build-image:0.33.0"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -194,6 +194,10 @@
 "on":
   "workflow_call":
     "inputs":
+      "build_image":
+        "description": "loki build image to use"
+        "required": true
+        "type": "string"
       "skip_validation":
         "default": false
         "description": "skip validation steps"
