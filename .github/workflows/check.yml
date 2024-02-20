@@ -126,6 +126,10 @@
         "tarball_binary_path": "${binary}"
         "version": "0.18.0"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "how to do a git diff"
+      "run": |
+        git remote -v
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "lint"
       "run": "make lint"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
