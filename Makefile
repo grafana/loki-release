@@ -43,6 +43,9 @@ validate-example-configs:
 validate-dev-cluster-config:
 	echo "validating dev cluster config"
 
+check-format:
+	echo "checking the format"
+
 dist:
 	mkdir -p dist
 	cp CHANGELOG.md dist/
