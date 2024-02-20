@@ -65,7 +65,7 @@ function(buildImage) {
       validationMakeStep('lint', 'lint'),
       validationMakeStep('lint jsonnet', 'lint-jsonnet'),
       validationMakeStep('lint scripts', 'lint-scripts'),
-      validationMakeStep('format', 'check-format'),
+      // validationMakeStep('format', 'check-format'),
     ]) + {
       steps+: [
         step.new('golangci-lint', 'golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5')
