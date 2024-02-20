@@ -56,6 +56,9 @@
       "name": "validate example configs"
       "run": "make validate-example-configs"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "validate dev cluster config"
+      "run": "make validate-dev-cluster-config"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check example config docs"
       "run": "make check-example-config-doc"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
@@ -64,6 +67,22 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check drone drift"
       "run": "make check-drone-drift"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "build docs website"
+      "run": |
+        cat <<EOF | docker run \
+          --interactive \
+          --env BUILD_IN_CONTAINER \
+          --env DRONE_TAG \
+          --env IMAGE_TAG \
+          --volume .:/src/loki \
+          --workdir /src/loki \
+          --entrypoint /bin/sh "grafana/docs-base:e6ef023f8b8"
+          git config --global --add safe.directory /src/loki
+          mkdir -p /hugo/content/docs/loki/latest
+          cp -r docs/sources/* /hugo/content/docs/loki/latest/
+          cd /hugo && make prod
+        EOF
   "lint":
     "container":
       "image": "grafana/loki-build-image:0.33.0"
@@ -115,6 +134,9 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "lint scripts"
       "run": "make lint-scripts"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "format"
+      "run": "make check-format"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
