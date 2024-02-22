@@ -34,14 +34,14 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           --consider-all-branches \
           --label "backport main,autorelease: pending,type/docs" \
           --pull-request-footer "%s" \
+          --pull-request-title-pattern "chore${scope}: release ${version}" \
           --release-type simple \
           --repo-url "${{ env.RELEASE_REPO }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token "${{ secrets.GH_TOKEN }}" \
           --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
           --separate-pull-requests false \
-          --manifest-file .release-please-manifest.json \
-          --debug
+          --manifest-file .release-please-manifest.json
       ||| % pullRequestFooter),
     ]),
 
@@ -89,6 +89,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      npm install
                      npm exec -- release-please github-release \
                        --draft \
+                       --pull-request-title-pattern "chore${scope}: release ${version}" \
                        --release-type simple \
                        --repo-url="${{ env.RELEASE_REPO }}" \
                        --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
