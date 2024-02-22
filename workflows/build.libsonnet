@@ -75,7 +75,7 @@ local releaseLibStep = common.releaseLibStep;
           --consider-all-branches \
           --dry-run \
           --dry-run-output release.json \
-          --pull-request-title-pattern "chore${scope}: release ${version}" \
+          --pull-request-title-pattern "chore$${scope}: release $${version}" \
           --release-type simple \
           --repo-url="${{ env.RELEASE_REPO }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
