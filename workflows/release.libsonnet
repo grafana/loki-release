@@ -47,6 +47,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           --repo-url "${{ env.RELEASE_REPO }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token "${{ secrets.GH_TOKEN }}" \
+          --config-file ./release-please-config.json \
           --debug
       ||| % pullRequestFooter),
     ]),
