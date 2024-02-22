@@ -51,7 +51,7 @@ jobs:
           --consider-all-branches \
           --label "backport main,autorelease: pending,type/docs" \
           --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
-          --pull-request-title-pattern "chore$${scope}: release $${version}" \
+          --pull-request-title-pattern "chore\${scope}: release \${version}" \
           --release-type simple \
           --repo-url "${{ env.RELEASE_REPO }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
@@ -211,7 +211,7 @@ jobs:
           --consider-all-branches \
           --dry-run \
           --dry-run-output release.json \
-          --pull-request-title-pattern "chore$${scope}: release $${version}" \
+          --pull-request-title-pattern "chore\${scope}: release \${version}" \
           --release-type simple \
           --repo-url="${{ env.RELEASE_REPO }}" \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
