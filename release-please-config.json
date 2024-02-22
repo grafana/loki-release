@@ -1,3 +1,6 @@
 {
-  "separate-pull-requests": false
+  "separate-pull-requests": false,
+  "release-type": "simple",
+  "versioning-strategy": "always-bump-patch",
+  "consider-all-branches": true
 }
