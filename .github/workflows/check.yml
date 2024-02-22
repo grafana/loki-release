@@ -1,5 +1,7 @@
 "concurrency":
   "group": "check-${{ github.sha }}"
+"env":
+  "RELEASE_LIB_REF": "${{ inputs.release_lib_ref }}"
 "jobs":
   "check":
     "container":
@@ -15,7 +17,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
-        "ref": "release-1.11.x"
+        "ref": "{{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
       "run": |
@@ -98,7 +100,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
-        "ref": "release-1.11.x"
+        "ref": "{{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
       "run": |
@@ -156,7 +158,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
-        "ref": "release-1.11.x"
+        "ref": "{{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
       "run": |
@@ -199,6 +201,11 @@
       "golang_ci_lint_version":
         "default": "v1.55.1"
         "description": "version of golangci-lint to use"
+        "required": false
+        "type": "string"
+      "release_lib_ref":
+        "default": "main"
+        "description": "git ref of release library to use"
         "required": false
         "type": "string"
       "skip_validation":
