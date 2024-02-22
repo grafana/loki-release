@@ -87,6 +87,7 @@ jobs:
         IMAGE_TAG: "${{ needs.version.outputs.version }}"
         NFPM_SIGNING_KEY_FILE: "nfpm-private-key.key"
         SKIP_ARM: true
+      if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "build artifacts"
       run: |
         cat <<EOF | docker run \
@@ -106,7 +107,8 @@ jobs:
           make dist packages
         EOF
       working-directory: "release"
-    - name: "upload build artifacts"
+    - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
+      name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "loki-build-artifacts/${{ github.sha }}"
