@@ -220,6 +220,8 @@ jobs:
           --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
           --manifest-file .release-please-manifest.json
         
+        cat release.json
+        
         if [[ `jq length release.json` -gt 1 ]]; then 
           echo 'release-please would create more than 1 PR, so cannot determine correct version'
           echo "pr_created=false" >> $GITHUB_OUTPUT
