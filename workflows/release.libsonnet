@@ -104,11 +104,11 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    })
                    + step.withRun(|||
                      gh release upload ${{ needs.shouldRelease.outputs.name }} dist/*
-                     gh release edit ${{ needs.shouldRelease.outputs.name }} --draft=false
                    |||),
                  ])
                  + job.withOutputs({
                    sha: '${{ needs.shouldRelease.outputs.sha }}',
+                   name: '${{ needs.shouldRelease.outputs.name }}',
                  }),
 
   publishImages: function(getDockerCredsFromVault=false, dockerUsername='grafanabot')
@@ -143,4 +143,16 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         }),
       ]
     ),
+
+  publishRelease: job.new()
+                  + job.withNeeds(['createRelease', 'publishImages'])
+                  + job.withSteps([
+                    releaseStep('publish release')
+                    + step.withEnv({
+                      GH_TOKEN: '${{ secrets.GH_TOKEN }}',
+                    })
+                    + step.withRun(|||
+                      gh release edit ${{ needs.createRelease.outputs.name }} --draft=false
+                    |||),
+                  ]),
 }

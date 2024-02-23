@@ -10,6 +10,7 @@ jobs:
     needs:
     - "shouldRelease"
     outputs:
+      name: "${{ needs.shouldRelease.outputs.name }}"
       sha: "${{ needs.shouldRelease.outputs.sha }}"
     runs-on: "ubuntu-latest"
     steps:
@@ -58,7 +59,6 @@ jobs:
       name: "upload artifacts"
       run: |
         gh release upload ${{ needs.shouldRelease.outputs.name }} dist/*
-        gh release edit ${{ needs.shouldRelease.outputs.name }} --draft=false
       working-directory: "release"
   publishImages:
     needs:
@@ -97,6 +97,18 @@ jobs:
       with:
         imageDir: "images"
         imagePrefix: "${{ env.IMAGE_PREFIX }}"
+  publishRelease:
+    needs:
+    - "createRelease"
+    - "publishImages"
+    runs-on: "ubuntu-latest"
+    steps:
+    - env:
+        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+      name: "publish release"
+      run: |
+        gh release edit ${{ needs.createRelease.outputs.name }} --draft=false
+      working-directory: "release"
   shouldRelease:
     outputs:
       branch: "${{ steps.extract_branch.outputs.branch }}"
