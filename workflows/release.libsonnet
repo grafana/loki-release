@@ -32,16 +32,18 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         npm install
         npm exec -- release-please release-pr \
           --consider-all-branches \
-          --label "backport main,autorelease: pending,type/docs" \
-          --pull-request-footer "%s" \
           --group-pull-request-title-pattern "chore\${scope}: release\${component} \${version}" \
+          --label "backport main,autorelease: pending,product-approved" \
+          --manifest-file .release-please-manifest.json \
+          --pull-request-footer "%s" \
+          --pull-request-title-pattern "chore\${scope}: release\${component} \${version}" \
           --release-type simple \
           --repo-url "${{ env.RELEASE_REPO }}" \
+          --separate-pull-requests false \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token "${{ secrets.GH_TOKEN }}" \
-          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
-          --separate-pull-requests false \
-          --manifest-file .release-please-manifest.json
+          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
+
       ||| % pullRequestFooter),
     ]),
 
