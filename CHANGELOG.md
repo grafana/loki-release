@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.2](https://github.com/grafana/loki-release/compare/v1.11.1...v1.11.2) (2024-02-23)
+
+
+### Features
+
+* publish release after successful image upload ([b070206](https://github.com/grafana/loki-release/commit/b07020616720019767585f49ce2d616fc719d000))
+
 ## [1.11.1](https://github.com/grafana/loki-release/compare/v1.11.0...v1.11.1) (2024-02-23)
 
 
