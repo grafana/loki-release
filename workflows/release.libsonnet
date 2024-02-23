@@ -147,6 +147,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
   publishRelease: job.new()
                   + job.withNeeds(['createRelease', 'publishImages'])
                   + job.withSteps([
+                    common.fetchReleaseRepo,
                     releaseStep('publish release')
                     + step.withEnv({
                       GH_TOKEN: '${{ secrets.GH_TOKEN }}',
