@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.1](https://github.com/grafana/loki-release/compare/v1.11.0...v1.11.1) (2024-02-23)
+
+
+### Features
+
+* simulate feature ([21a4469](https://github.com/grafana/loki-release/commit/21a446999dc8c3c970e1a821ac89bcaf745cc66a))
+
 ## [1.11.0](https://github.com/grafana/loki-release/compare/v1.11.0...v1.11.0) (2024-02-23)
 
 
