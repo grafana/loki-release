@@ -7,6 +7,19 @@
 
 * publish release after successful image upload ([b070206](https://github.com/grafana/loki-release/commit/b07020616720019767585f49ce2d616fc719d000))
 
+
+### Bug Fixes
+
+* need to clone release repo to publish release ([a2c3dc8](https://github.com/grafana/loki-release/commit/a2c3dc89ca732dcfac3c154d1c9a7860226ac845))
+* remove release that didn't happen ([176753f](https://github.com/grafana/loki-release/commit/176753f79a7adbe7c0aef2d88331ed8450e099b5))
+
+## [1.11.2](https://github.com/grafana/loki-release/compare/v1.11.1...v1.11.2) (2024-02-23)
+
+
+### Features
+
+* publish release after successful image upload ([b070206](https://github.com/grafana/loki-release/commit/b07020616720019767585f49ce2d616fc719d000))
+
 ## [1.11.1](https://github.com/grafana/loki-release/compare/v1.11.0...v1.11.1) (2024-02-23)
 
 
