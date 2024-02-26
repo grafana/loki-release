@@ -6,6 +6,7 @@ env:
   RELEASE_LIB_REF: "release-1.11.x"
   RELEASE_REPO: "grafana/loki-release"
   SKIP_VALIDATION: false
+  USE_GITHUB_APP_TOKEN: true
   VERSIONING_STRATEGY: "always-bump-patch"
 jobs:
   check:
@@ -15,6 +16,7 @@ jobs:
       golang_ci_lint_version: "v1.55.1"
       release_lib_ref: "release-1.11.x"
       skip_validation: false
+      use_github_app_token: true
   create-release-pr:
     needs:
     - "dist"
@@ -41,13 +43,22 @@ jobs:
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       working-directory: "release"
-    - id: "github_app_token"
+    - id: "get_github_app_token"
+      if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
       uses: "actions/github-app-token@v1"
       with:
         app-id: "${{ secrets.APP_ID }}"
         owner: "${{ github.repository_owner }}"
         private-key: "${{ secrets.APP_PRIVATE_KEY }}"
+    - id: "github_app_token"
+      name: "set github token"
+      run: |
+        if [[ "${USE_GITHUB_APP_TOKEN}" == "true" ]]; then
+          echo "token=${{ steps.get_github_app_token.outputs.token }}" >> $GITHUB_OUTPUT
+        else
+          echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
+        end
     - env:
         SHA: "${{ github.sha }}"
       id: "release"
@@ -65,7 +76,7 @@ jobs:
           --repo-url "${{ env.RELEASE_REPO }}" \
           --separate-pull-requests false \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --token ${{ steps.github_app_token.outputs.token }} \
+          --token "${{ steps.github_app_token.outputs.token }}" \
           --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
         
       working-directory: "lib"
@@ -212,7 +223,8 @@ jobs:
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       working-directory: "release"
-    - id: "github_app_token"
+    - id: "get_github_app_token"
+      if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
       uses: "actions/github-app-token@v1"
       with:
@@ -231,10 +243,10 @@ jobs:
           --manifest-file .release-please-manifest.json \
           --pull-request-title-pattern "chore\${scope}: release\${component} \${version}" \
           --release-type simple \
-          --repo-url="${{ env.RELEASE_REPO }}" \
+          --repo-url "${{ env.RELEASE_REPO }}" \
           --separate-pull-requests false \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --token="${{ steps.github_app_token.outputs.token }}" \
+          --token "${{ steps.github_app_token.outputs.token }}" \
           --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
         
         cat release.json

@@ -4,6 +4,7 @@ env:
   IMAGE_PREFIX: "trevorwhitney075"
   RELEASE_LIB_REF: "release-1.11.x"
   RELEASE_REPO: "grafana/loki-release"
+  USE_GITHUB_APP_TOKEN: false
 jobs:
   createRelease:
     if: "${{ fromJSON(needs.shouldRelease.outputs.shouldRelease) }}"
@@ -39,7 +40,8 @@ jobs:
       uses: "google-github-actions/setup-gcloud@v2"
       with:
         version: ">= 452.0.0"
-    - id: "github_app_token"
+    - id: "get_github_app_token"
+      if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
       uses: "actions/github-app-token@v1"
       with:
@@ -79,7 +81,7 @@ jobs:
           --release-type simple \
           --repo-url "${{ env.RELEASE_REPO }}" \
           --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
-          --token ${{ steps.github_app_token.outputs.token }}
+          --token "${{ steps.github_app_token.outputs.token }}"
       working-directory: "lib"
     - env:
         GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
@@ -136,7 +138,8 @@ jobs:
       with:
         path: "release"
         repository: "${{ env.RELEASE_REPO }}"
-    - id: "github_app_token"
+    - id: "get_github_app_token"
+      if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
       uses: "actions/github-app-token@v1"
       with:

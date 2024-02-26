@@ -2,6 +2,7 @@
   "group": "check-${{ github.sha }}"
 "env":
   "RELEASE_LIB_REF": "${{ inputs.release_lib_ref }}"
+  "USE_GITHUB_APP_TOKEN": "${{ inputs.use_github_app_token }}"
 "jobs":
   "check":
     "container":
@@ -211,6 +212,11 @@
       "skip_validation":
         "default": false
         "description": "skip validation steps"
+        "required": false
+        "type": "boolean"
+      "use_github_app_token":
+        "default": true
+        "description": "whether to use the GitHub App token for GH_TOKEN secret"
         "required": false
         "type": "boolean"
 "permissions":

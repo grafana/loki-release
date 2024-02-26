@@ -20,6 +20,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       common.setupNode,
       common.extractBranchName,
       common.githubAppToken,
+      common.setToken,
 
       releaseLibStep('release please')
       + step.withId('release')
@@ -42,7 +43,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           --repo-url "${{ env.RELEASE_REPO }}" \
           --separate-pull-requests false \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --token ${{ steps.github_app_token.outputs.token }} \
+          --token "${{ steps.github_app_token.outputs.token }}" \
           --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
 
       ||| % pullRequestFooter),
@@ -117,7 +118,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                        --release-type simple \
                        --repo-url "${{ env.RELEASE_REPO }}" \
                        --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
-                       --token ${{ steps.github_app_token.outputs.token }}
+                       --token "${{ steps.github_app_token.outputs.token }}"
                    |||),
 
                    releaseStep('upload artifacts')
