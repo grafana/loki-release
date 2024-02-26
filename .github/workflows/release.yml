@@ -55,7 +55,7 @@ jobs:
           echo "token=${{ steps.get_github_app_token.outputs.token }}" >> $GITHUB_OUTPUT
         else
           echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
-        end
+        fi
     - name: "download binaries"
       run: |
         echo "downloading binaries to $(pwd)/dist"
@@ -161,7 +161,7 @@ jobs:
           echo "token=${{ steps.get_github_app_token.outputs.token }}" >> $GITHUB_OUTPUT
         else
           echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
-        end
+        fi
     - env:
         GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
       if: "${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}"

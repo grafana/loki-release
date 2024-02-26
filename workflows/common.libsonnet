@@ -140,6 +140,6 @@
                 echo "token=${{ steps.get_github_app_token.outputs.token }}" >> $GITHUB_OUTPUT
               else
                 echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
-              end
+              fi
             |||),
 }
