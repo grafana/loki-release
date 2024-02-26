@@ -77,9 +77,9 @@ jobs:
         npm exec -- release-please github-release \
           --draft \
           --release-type simple \
-          --repo-url="${{ env.RELEASE_REPO }}" \
+          --repo-url "${{ env.RELEASE_REPO }}" \
           --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
-          --token="${{ steps.github_app_token.outputs.token }}"
+          --token ${{ steps.github_app_token.outputs.token }}
       working-directory: "lib"
     - env:
         GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
@@ -184,4 +184,7 @@ name: "create release"
   push:
     branches:
     - "release-[0-9]+.[0-9]+.x"
-permissions: "write-all"
+permissions:
+  contents: "write"
+  id-token: "write"
+  pull-requests: "write"
