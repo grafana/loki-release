@@ -19,6 +19,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       common.fetchReleaseLib,
       common.setupNode,
       common.extractBranchName,
+      common.githubAppToken,
 
       releaseLibStep('release please')
       + step.withId('release')
@@ -41,7 +42,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           --repo-url "${{ env.RELEASE_REPO }}" \
           --separate-pull-requests false \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-          --token "${{ secrets.GH_TOKEN }}" \
+          --token "${{ steps.github_app_token.outputs.token }}" \
           --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
 
       ||| % pullRequestFooter),
@@ -75,6 +76,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    common.setupNode,
                    common.googleAuth,
                    common.setupGoogleCloudSdk,
+                   common.githubAppToken,
 
                    // exits with code 1 if the url does not match
                    // meaning there are no artifacts for that sha
@@ -88,7 +90,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    releaseStep('check if release exists')
                    + step.withId('check_release')
                    + step.withEnv({
-                     GH_TOKEN: '${{ secrets.GH_TOKEN }}',
+                     GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
                    })
                    + step.withRun(|||
                      isDraft="$(gh release view --json isDraft --jq .isDraft ${{ needs.shouldRelease.outputs.name }} 2>&1)"
@@ -113,13 +115,13 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                        --release-type simple \
                        --repo-url="${{ env.RELEASE_REPO }}" \
                        --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
-                       --token="${{ secrets.GH_TOKEN }}"
+                       --token="${{ steps.github_app_token.outputs.token }}"
                    |||),
 
                    releaseStep('upload artifacts')
                    + step.withId('upload')
                    + step.withEnv({
-                     GH_TOKEN: '${{ secrets.GH_TOKEN }}',
+                     GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
                    })
                    + step.withRun(|||
                      gh release upload --clobber ${{ needs.shouldRelease.outputs.name }} dist/*
@@ -169,10 +171,11 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                   + job.withNeeds(['createRelease', 'publishImages'])
                   + job.withSteps([
                     common.fetchReleaseRepo,
+                    common.githubAppToken,
                     releaseStep('publish release')
                     + step.withIf('${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}')
                     + step.withEnv({
-                      GH_TOKEN: '${{ secrets.GH_TOKEN }}',
+                      GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
                     })
                     + step.withRun(|||
                       gh release edit ${{ needs.createRelease.outputs.name }} --draft=false

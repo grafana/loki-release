@@ -39,13 +39,19 @@ jobs:
       uses: "google-github-actions/setup-gcloud@v2"
       with:
         version: ">= 452.0.0"
+    - id: "github_app_token"
+      name: "get github app token"
+      uses: "grafana/github-app-token@v1"
+      with:
+        app_id: "${{ secrets.APP_ID }}"
+        private_key: "${{ secrets.APP_PRIVATE_KEY }}"
     - name: "download binaries"
       run: |
         echo "downloading binaries to $(pwd)/dist"
         gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/dist .
       working-directory: "release"
     - env:
-        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+        GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
       id: "check_release"
       name: "check if release exists"
       run: |
@@ -70,10 +76,10 @@ jobs:
           --release-type simple \
           --repo-url="${{ env.RELEASE_REPO }}" \
           --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
-          --token="${{ secrets.GH_TOKEN }}"
+          --token="${{ steps.github_app_token.outputs.token }}"
       working-directory: "lib"
     - env:
-        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+        GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
       id: "upload"
       name: "upload artifacts"
       run: |
@@ -127,8 +133,14 @@ jobs:
       with:
         path: "release"
         repository: "${{ env.RELEASE_REPO }}"
+    - id: "github_app_token"
+      name: "get github app token"
+      uses: "grafana/github-app-token@v1"
+      with:
+        app_id: "${{ secrets.APP_ID }}"
+        private_key: "${{ secrets.APP_PRIVATE_KEY }}"
     - env:
-        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+        GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
       if: "${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}"
       name: "publish release"
       run: |
