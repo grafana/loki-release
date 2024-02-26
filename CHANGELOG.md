@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.4](https://github.com/grafana/loki-release/compare/v1.11.3...v1.11.4) (2024-02-26)
+
+
+### Features
+
+* guard against draft being empty ([7d737bf](https://github.com/grafana/loki-release/commit/7d737bfc076f7371d25c198ddef5ddd402a48cbb))
+* make gh app token optional ([f4989af](https://github.com/grafana/loki-release/commit/f4989af7760d343a8685c9d161f3af3ad3e8fbdb))
+
 ## [1.11.3](https://github.com/grafana/loki-release/compare/v1.11.2...v1.11.3) (2024-02-26)
 
 
