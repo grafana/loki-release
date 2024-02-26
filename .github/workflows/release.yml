@@ -56,7 +56,9 @@ jobs:
       id: "check_release"
       name: "check if release exists"
       run: |
+        set +e
         isDraft="$(gh release view --json isDraft --jq .isDraft ${{ needs.shouldRelease.outputs.name }} 2>&1)"
+        set -e
         if [[ "$isDraft" == "release not found" ]]; then
           echo "exists=false" >> $GITHUB_ENV
         else

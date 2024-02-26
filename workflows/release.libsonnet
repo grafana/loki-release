@@ -93,7 +93,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
                    })
                    + step.withRun(|||
+                     set +e
                      isDraft="$(gh release view --json isDraft --jq .isDraft ${{ needs.shouldRelease.outputs.name }} 2>&1)"
+                     set -e
                      if [[ "$isDraft" == "release not found" ]]; then
                        echo "exists=false" >> $GITHUB_ENV
                      else
