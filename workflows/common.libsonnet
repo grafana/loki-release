@@ -123,7 +123,7 @@
                          git config --global --add safe.directory "$GITHUB_WORKSPACE"
                        |||),
 
-  githubAppToken: $.step.new('get github app token', 'grafana/github-app-token@v1')
+  githubAppToken: $.step.new('get github app token', 'actions/github-app-token@v1')
                   + $.step.withId('github_app_token')
                   + $.step.with({
                     app_id: '${{ secrets.APP_ID }}',

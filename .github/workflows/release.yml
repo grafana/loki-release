@@ -41,7 +41,7 @@ jobs:
         version: ">= 452.0.0"
     - id: "github_app_token"
       name: "get github app token"
-      uses: "grafana/github-app-token@v1"
+      uses: "actions/github-app-token@v1"
       with:
         app_id: "${{ secrets.APP_ID }}"
         private_key: "${{ secrets.APP_PRIVATE_KEY }}"
@@ -135,7 +135,7 @@ jobs:
         repository: "${{ env.RELEASE_REPO }}"
     - id: "github_app_token"
       name: "get github app token"
-      uses: "grafana/github-app-token@v1"
+      uses: "actions/github-app-token@v1"
       with:
         app_id: "${{ secrets.APP_ID }}"
         private_key: "${{ secrets.APP_PRIVATE_KEY }}"
