@@ -85,8 +85,27 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/dist .
                    |||),
 
+                   releaseStep('check if release exists')
+                   + step.withId('check_release')
+                   + step.withEnv({
+                     GH_TOKEN: '${{ secrets.GH_TOKEN }}',
+                   })
+                   + step.withRun(|||
+                     isDraft="$(gh release view --json isDraft --jq .isDraft ${{ needs.shouldRelease.outputs.name }} 2>&1)"
+                     if [[ "$isDraft" == "release not found" ]]; then
+                       echo "exists=false" >> $GITHUB_ENV
+                     else
+                       echo "exists=true" >> $GITHUB_ENV
+                     fi
+
+                     if [[ "$isDraft" == "true" ]]; then
+                       echo "draft=true" >> $GITHUB_ENV
+                     fi
+                   |||),
+
                    releaseLibStep('create release')
                    + step.withId('release')
+                   + step.withIf('${{ !fromJSON(steps.check_release.outputs.exists) }}')
                    + step.withRun(|||
                      npm install
                      npm exec -- release-please github-release \
@@ -103,12 +122,14 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      GH_TOKEN: '${{ secrets.GH_TOKEN }}',
                    })
                    + step.withRun(|||
-                     gh release upload ${{ needs.shouldRelease.outputs.name }} dist/*
+                     gh release upload --clobber ${{ needs.shouldRelease.outputs.name }} dist/*
                    |||),
                  ])
                  + job.withOutputs({
                    sha: '${{ needs.shouldRelease.outputs.sha }}',
                    name: '${{ needs.shouldRelease.outputs.name }}',
+                   draft: '${{ steps.check_release.outputs.draft }}',
+                   exists: '${{ steps.check_release.outputs.exists }}',
                  }),
 
   publishImages: function(getDockerCredsFromVault=false, dockerUsername='grafanabot')
@@ -149,6 +170,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                   + job.withSteps([
                     common.fetchReleaseRepo,
                     releaseStep('publish release')
+                    + step.withIf('${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}')
                     + step.withEnv({
                       GH_TOKEN: '${{ secrets.GH_TOKEN }}',
                     })

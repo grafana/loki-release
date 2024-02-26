@@ -10,6 +10,8 @@ jobs:
     needs:
     - "shouldRelease"
     outputs:
+      draft: "${{ steps.check_release.outputs.draft }}"
+      exists: "${{ steps.check_release.outputs.exists }}"
       name: "${{ needs.shouldRelease.outputs.name }}"
       sha: "${{ needs.shouldRelease.outputs.sha }}"
     runs-on: "ubuntu-latest"
@@ -42,7 +44,24 @@ jobs:
         echo "downloading binaries to $(pwd)/dist"
         gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/dist .
       working-directory: "release"
+    - env:
+        GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+      id: "check_release"
+      name: "check if release exists"
+      run: |
+        isDraft="$(gh release view --json isDraft --jq .isDraft ${{ needs.shouldRelease.outputs.name }} 2>&1)"
+        if [[ "$isDraft" == "release not found" ]]; then
+          echo "exists=false" >> $GITHUB_ENV
+        else
+          echo "exists=true" >> $GITHUB_ENV
+        fi
+        
+        if [[ "$isDraft" == "true" ]]; then
+          echo "draft=true" >> $GITHUB_ENV
+        fi
+      working-directory: "release"
     - id: "release"
+      if: "${{ !fromJSON(steps.check_release.outputs.exists) }}"
       name: "create release"
       run: |
         npm install
@@ -58,7 +77,7 @@ jobs:
       id: "upload"
       name: "upload artifacts"
       run: |
-        gh release upload ${{ needs.shouldRelease.outputs.name }} dist/*
+        gh release upload --clobber ${{ needs.shouldRelease.outputs.name }} dist/*
       working-directory: "release"
   publishImages:
     needs:
@@ -110,6 +129,7 @@ jobs:
         repository: "${{ env.RELEASE_REPO }}"
     - env:
         GH_TOKEN: "${{ secrets.GH_TOKEN }}"
+      if: "${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}"
       name: "publish release"
       run: |
         gh release edit ${{ needs.createRelease.outputs.name }} --draft=false
