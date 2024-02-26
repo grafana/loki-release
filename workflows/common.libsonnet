@@ -126,7 +126,9 @@
   githubAppToken: $.step.new('get github app token', 'actions/github-app-token@v1')
                   + $.step.withId('github_app_token')
                   + $.step.with({
-                    app_id: '${{ secrets.APP_ID }}',
-                    private_key: '${{ secrets.APP_PRIVATE_KEY }}',
+                    'app-id': '${{ secrets.APP_ID }}',
+                    'private-key': '${{ secrets.APP_PRIVATE_KEY }}',
+                    // By setting owner, we should get access to all repositories in current owner's installation: https://github.com/marketplace/actions/create-github-app-token#create-a-token-for-all-repositories-in-the-current-owners-installation
+                    owner: '${{ github.repository_owner }}',
                   }),
 }

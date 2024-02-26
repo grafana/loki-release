@@ -43,8 +43,9 @@ jobs:
       name: "get github app token"
       uses: "actions/github-app-token@v1"
       with:
-        app_id: "${{ secrets.APP_ID }}"
-        private_key: "${{ secrets.APP_PRIVATE_KEY }}"
+        app-id: "${{ secrets.APP_ID }}"
+        owner: "${{ github.repository_owner }}"
+        private-key: "${{ secrets.APP_PRIVATE_KEY }}"
     - name: "download binaries"
       run: |
         echo "downloading binaries to $(pwd)/dist"
@@ -137,8 +138,9 @@ jobs:
       name: "get github app token"
       uses: "actions/github-app-token@v1"
       with:
-        app_id: "${{ secrets.APP_ID }}"
-        private_key: "${{ secrets.APP_PRIVATE_KEY }}"
+        app-id: "${{ secrets.APP_ID }}"
+        owner: "${{ github.repository_owner }}"
+        private-key: "${{ secrets.APP_PRIVATE_KEY }}"
     - env:
         GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
       if: "${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}"
