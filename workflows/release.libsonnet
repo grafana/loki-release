@@ -78,6 +78,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    common.googleAuth,
                    common.setupGoogleCloudSdk,
                    common.githubAppToken,
+                   common.setToken,
 
                    // exits with code 1 if the url does not match
                    // meaning there are no artifacts for that sha
@@ -175,6 +176,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                   + job.withSteps([
                     common.fetchReleaseRepo,
                     common.githubAppToken,
+                    common.setToken,
                     releaseStep('publish release')
                     + step.withIf('${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}')
                     + step.withEnv({

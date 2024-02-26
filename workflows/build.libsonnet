@@ -68,6 +68,7 @@ local releaseLibStep = common.releaseLibStep;
       common.setupNode,
       common.extractBranchName,
       common.githubAppToken,
+      common.setToken,
       releaseLibStep('get release version')
       + step.withId('version')
       + step.withRun(|||

@@ -231,6 +231,14 @@ jobs:
         app-id: "${{ secrets.APP_ID }}"
         owner: "${{ github.repository_owner }}"
         private-key: "${{ secrets.APP_PRIVATE_KEY }}"
+    - id: "github_app_token"
+      name: "set github token"
+      run: |
+        if [[ "${USE_GITHUB_APP_TOKEN}" == "true" ]]; then
+          echo "token=${{ steps.get_github_app_token.outputs.token }}" >> $GITHUB_OUTPUT
+        else
+          echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
+        end
     - id: "version"
       name: "get release version"
       run: |
