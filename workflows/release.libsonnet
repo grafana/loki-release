@@ -94,16 +94,19 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    })
                    + step.withRun(|||
                      set +e
-                     isDraft="$(gh release view --json="isDraft" --jq=".isDraft" ${{ needs.shouldRelease.outputs.name }} 2>&1)"
+                     exists="$(gh release view ${{ needs.shouldRelease.outputs.name }} 2>&1)"
                      set -e
-                     if [[ "$isDraft" == "release not found" ]]; then
+                     if [[ "$exists" == "release not found" ]]; then
+                       echo "release ${{ needs.shouldRelease.outputs.name }} does not exist"
                        echo "exists=false" >> $GITHUB_ENV
                      else
+                       echo "release ${{ needs.shouldRelease.outputs.name }} exists, checking if published"
                        echo "exists=true" >> $GITHUB_ENV
-                     fi
-
-                     if [[ "$isDraft" == "true" ]]; then
-                       echo "draft=true" >> $GITHUB_ENV
+                       
+                       gh release view --json="isDraft" ${{ needs.shouldRelease.outputs.name }}
+                       isDraft="$(gh release view --json="isDraft" ${{ needs.shouldRelease.outputs.name }} | jq -r '.isDraft')"
+                       echo "release draft state: ${isDraft}"
+                       echo "draft=${isDraft}" >> $GITHUB_ENV
                      fi
                    |||),
 
