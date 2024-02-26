@@ -178,7 +178,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                     common.githubAppToken,
                     common.setToken,
                     releaseStep('publish release')
-                    + step.withIf('${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}')
+                    + step.withIf('${{ !fromJSON(needs.createRelease.outputs.exists) || (needs.createRelease.outputs.draft && fromJSON(needs.createRelease.outputs.draft)) }}')
                     + step.withEnv({
                       GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
                     })

@@ -164,7 +164,7 @@ jobs:
         fi
     - env:
         GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
-      if: "${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}"
+      if: "${{ !fromJSON(needs.createRelease.outputs.exists) || (needs.createRelease.outputs.draft && fromJSON(needs.createRelease.outputs.draft)) }}"
       name: "publish release"
       run: |
         gh release edit ${{ needs.createRelease.outputs.name }} --draft=false
