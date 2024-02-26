@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.11.3](https://github.com/grafana/loki-release/compare/v1.11.2...v1.11.3) (2024-02-26)
+
+
+### Features
+
+* make createRelease idempotent ([cf69d2a](https://github.com/grafana/loki-release/commit/cf69d2a84846369dc4a6595a64747c3f44f24750))
+* use GH App token ([5a61a23](https://github.com/grafana/loki-release/commit/5a61a23baf5c331499e98002295b50c628fbc027))
+
+
+### Bug Fixes
+
+* guthub app token action reference ([5cd54fc](https://github.com/grafana/loki-release/commit/5cd54fca8fe569bc8eb386e524eb1853942d942e))
+
 ## [1.11.2](https://github.com/grafana/loki-release/compare/v1.11.1...v1.11.2) (2024-02-23)
 
 
