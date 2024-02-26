@@ -97,19 +97,19 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      isDraft="$(gh release view --json="isDraft" --jq=".isDraft" ${{ needs.shouldRelease.outputs.name }} 2>&1)"
                      set -e
                      if [[ "$isDraft" == "release not found" ]]; then
-                       echo "exists=false" >> $GITHUB_ENV
+                       echo "exists=false" >> $GITHUB_OUTPUT
                      else
-                       echo "exists=true" >> $GITHUB_ENV
+                       echo "exists=true" >> $GITHUB_OUTPUT
                      fi
 
                      if [[ "$isDraft" == "true" ]]; then
-                       echo "draft=true" >> $GITHUB_ENV
+                       echo "draft=true" >> $GITHUB_OUTPUT
                      fi
                    |||),
 
                    releaseLibStep('create release')
                    + step.withId('release')
-                   + step.withIf('${{ ! fromJSON(steps.check_release.outputs.exists) }}')
+                   + step.withIf('${{ !fromJSON(steps.check_release.outputs.exists) }}')
                    + step.withRun(|||
                      npm install
                      npm exec -- release-please github-release \
@@ -175,7 +175,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                     common.fetchReleaseRepo,
                     common.githubAppToken,
                     releaseStep('publish release')
-                    + step.withIf('${{ fromJSON(needs.createRelease.outputs.draft) || ! fromJSON(needs.createRelease.outputs.exists) }}')
+                    + step.withIf('${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}')
                     + step.withEnv({
                       GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
                     })
