@@ -109,7 +109,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
 
                    releaseLibStep('create release')
                    + step.withId('release')
-                   + step.withIf('${{ !fromJSON(steps.check_release.outputs.exists) }}')
+                   + step.withIf('${{ ! fromJSON(steps.check_release.outputs.exists) }}')
                    + step.withRun(|||
                      npm install
                      npm exec -- release-please github-release \
@@ -175,7 +175,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                     common.fetchReleaseRepo,
                     common.githubAppToken,
                     releaseStep('publish release')
-                    + step.withIf('${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}')
+                    + step.withIf('${{ fromJSON(needs.createRelease.outputs.draft) || ! fromJSON(needs.createRelease.outputs.exists) }}')
                     + step.withEnv({
                       GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
                     })

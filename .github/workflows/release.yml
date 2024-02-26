@@ -70,7 +70,7 @@ jobs:
         fi
       working-directory: "release"
     - id: "release"
-      if: "${{ !fromJSON(steps.check_release.outputs.exists) }}"
+      if: "${{ ! fromJSON(steps.check_release.outputs.exists) }}"
       name: "create release"
       run: |
         npm install
@@ -145,7 +145,7 @@ jobs:
         private-key: "${{ secrets.APP_PRIVATE_KEY }}"
     - env:
         GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
-      if: "${{ fromJSON(needs.createRelease.outputs.draft) || !fromJSON(needs.createRelease.outputs.exists) }}"
+      if: "${{ fromJSON(needs.createRelease.outputs.draft) || ! fromJSON(needs.createRelease.outputs.exists) }}"
       name: "publish release"
       run: |
         gh release edit ${{ needs.createRelease.outputs.name }} --draft=false
