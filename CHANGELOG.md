@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.11.5](https://github.com/grafana/loki-release/compare/v1.11.4...v1.11.5) (2024-02-27)
+
+
+### Features
+
+* bump release-please ([713f2a3](https://github.com/grafana/loki-release/commit/713f2a3c8ae6fe2e4ce32249379fd34a2baf469b))
+
+
+### Bug Fixes
+
+* give release pipeline write-all permission ([e5f3695](https://github.com/grafana/loki-release/commit/e5f369532d30a4f83e3abdd1f58bd52a4871a419))
+* roll back over-zealous permissions ([3b28682](https://github.com/grafana/loki-release/commit/3b286820484ce116fe976c9289da975fed2abecf))
+
 ## [1.11.4](https://github.com/grafana/loki-release/compare/v1.11.3...v1.11.4) (2024-02-26)
 
 
