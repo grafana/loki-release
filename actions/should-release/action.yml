@@ -15,6 +15,10 @@ inputs:
     description: 'configure github repository URL. Default `process.env.GITHUB_REPOSITORY`'
     required: false
     default: ''
+  pullRequestTitlePattern:
+    description: 'pattern of the pull request title to parse version from'
+    required: false
+    default: "chore${scope}: release${component} ${version}"
 
 # Define your outputs here.
 outputs: { }

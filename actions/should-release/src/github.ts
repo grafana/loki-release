@@ -3,7 +3,8 @@ import { GitHub, OctokitAPIs } from 'release-please/build/src/github'
 import { getInput, info, debug } from '@actions/core'
 import { PullRequest } from 'release-please/build/src/pull-request'
 import {
-  DEFAULT_RELEASE_LABELS,
+  DEFAULT_PENDING_LABELS,
+  DEFAULT_TAGGED_LABELS,
   GITHUB_API_URL,
   GITHUB_GRAPHQL_URL
 } from './constants'
@@ -26,7 +27,6 @@ export interface GitHubCreateOptions {
   proxy?: ProxyOption
 }
 
-//TODO: copied from release-please, needs tests
 export async function findMergedReleasePullRequests(
   baseBranch: string,
   github: GitHub
@@ -40,13 +40,16 @@ export async function findMergedReleasePullRequests(
     true
   )
   for await (const pullRequest of pullRequestGenerator) {
-    //TODO: found bug from this logic being flipped, do we have a test for that?
-    if (hasAllLabels(DEFAULT_RELEASE_LABELS, pullRequest.labels)) {
+    if (hasAllLabels(DEFAULT_TAGGED_LABELS, pullRequest.labels)) {
+      continue
+    }
+
+    if (!hasAllLabels(DEFAULT_PENDING_LABELS, pullRequest.labels)) {
       continue
     }
 
     debug(
-      `Found merged pull request #${pullRequest.number}: '${pullRequest.title}' without labeles ${DEFAULT_RELEASE_LABELS} in ${pullRequest.labels}`
+      `Found pending merged pull request #${pullRequest.number}: '${pullRequest.title}' with labels ${pullRequest.labels}`
     )
 
     mergedPullRequests.push({

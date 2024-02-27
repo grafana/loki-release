@@ -8,10 +8,12 @@ import { shouldRelease } from './release'
 export async function run(): Promise<void> {
   try {
     const baseBranch = getInput('baseBranch')
+    const pullRequestTitlePattern = getInput('pullRequestTitlePattern')
 
-    info(`baseBranch:            ${baseBranch}`)
+    info(`baseBranch:                 ${baseBranch}`)
+    info(`pullRequestTitlePattern:    ${pullRequestTitlePattern}`)
 
-    const release = await shouldRelease(baseBranch)
+    const release = await shouldRelease(baseBranch, pullRequestTitlePattern)
 
     if (release === undefined) {
       info('nothing to release')

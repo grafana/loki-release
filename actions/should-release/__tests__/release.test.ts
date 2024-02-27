@@ -23,6 +23,8 @@ const defaultNextVersion = Version.parse('1.3.2')
 const footer =
   'Merging this PR will release the [artifacts](https://loki-build-artifacts.storage.googleapis.com/def456) of def456'
 
+const prTitlePattern = 'chore${scope}: release${component} ${version}'
+
 const commits = parseConventionalCommits([
   // This feature will be release in 1.3.2
   {
@@ -114,7 +116,7 @@ describe('release', () => {
         }
       ])
 
-      const release = await shouldRelease('main')
+      const release = await shouldRelease('main', prTitlePattern)
       expect(release).toBeDefined()
       expect(release?.name).toEqual('v1.3.2')
     })
@@ -143,7 +145,7 @@ describe('release', () => {
         }
       ])
 
-      const release = await shouldRelease('main')
+      const release = await shouldRelease('main', prTitlePattern)
       expect(release).toBeDefined()
       expect(release?.sha).toEqual('def456')
     })
@@ -172,7 +174,7 @@ describe('release', () => {
         }
       ])
 
-      const release = await shouldRelease('main')
+      const release = await shouldRelease('main', prTitlePattern)
       expect(release).not.toBeDefined()
     })
   })

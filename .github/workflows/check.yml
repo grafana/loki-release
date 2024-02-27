@@ -1,9 +1,12 @@
 "concurrency":
   "group": "check-${{ github.sha }}"
+"env":
+  "RELEASE_LIB_REF": "${{ inputs.release_lib_ref }}"
+  "USE_GITHUB_APP_TOKEN": "${{ inputs.use_github_app_token }}"
 "jobs":
   "check":
     "container":
-      "image": "grafana/loki-build-image:0.33.0"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -15,6 +18,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
       "run": |
@@ -85,7 +89,7 @@
         EOF
   "lint":
     "container":
-      "image": "grafana/loki-build-image:0.33.0"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -97,6 +101,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
       "run": |
@@ -139,10 +144,10 @@
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
       "with":
         "only-new-issues": true
-        "version": "v1.55.1"
+        "version": "${{ inputs.golang_ci_lint_version }}"
   "test":
     "container":
-      "image": "grafana/loki-build-image:0.33.0"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -154,6 +159,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
       "run": |
@@ -189,9 +195,28 @@
 "on":
   "workflow_call":
     "inputs":
+      "build_image":
+        "description": "loki build image to use"
+        "required": true
+        "type": "string"
+      "golang_ci_lint_version":
+        "default": "v1.55.1"
+        "description": "version of golangci-lint to use"
+        "required": false
+        "type": "string"
+      "release_lib_ref":
+        "default": "main"
+        "description": "git ref of release library to use"
+        "required": false
+        "type": "string"
       "skip_validation":
         "default": false
         "description": "skip validation steps"
+        "required": false
+        "type": "boolean"
+      "use_github_app_token":
+        "default": true
+        "description": "whether to use the GitHub App token for GH_TOKEN secret"
         "required": false
         "type": "boolean"
 "permissions":
