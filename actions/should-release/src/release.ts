@@ -4,11 +4,12 @@ import { PullRequest } from 'release-please/build/src/pull-request'
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
 import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
 
-import { error, warning } from '@actions/core'
+import { info, error, warning } from '@actions/core'
 import { CheckpointLogger } from 'release-please/build/src/util/logger'
 
 export async function shouldRelease(
-  baseBranch: string
+  baseBranch: string,
+  pullRequestTitlePattern: string
 ): Promise<ReleaseMeta | undefined> {
   const gh = await createGitHubInstance(baseBranch)
   const mergedReleasePRs = await findMergedReleasePullRequests(baseBranch, gh)
@@ -20,7 +21,10 @@ export async function shouldRelease(
       continue
     }
 
-    const release = await prepareSingleRelease(pullRequest)
+    const release = await prepareSingleRelease(
+      pullRequest,
+      pullRequestTitlePattern
+    )
 
     if (release !== undefined) {
       candidateReleases.push({
@@ -51,18 +55,28 @@ const footerPattern =
   /^Merging this PR will release the \[artifacts\]\(.*\) of (?<sha>\S+)$/
 
 async function prepareSingleRelease(
-  pullRequest: PullRequest
+  pullRequest: PullRequest,
+  pullRequestTitlePattern: string
 ): Promise<ReleaseMeta | undefined> {
   if (!pullRequest.sha) {
     error('Pull request should have been merged')
     return
   }
 
-  const prTitle = PullRequestTitle.parse(pullRequest.title)
+  info(
+    `parsing pull request ${pullRequest.number} with title ${pullRequest.title} using pattern ${pullRequestTitlePattern} to find release version`
+  )
+  const prTitle = PullRequestTitle.parse(
+    pullRequest.title,
+    pullRequestTitlePattern
+  )
   const version = prTitle?.getVersion()
   if (version === undefined) {
+    warning('Could not parse version from title')
     return
   }
+
+  info(`found version ${version.toString()}`)
 
   const pullRequestBody = PullRequestBody.parse(
     pullRequest.body,
