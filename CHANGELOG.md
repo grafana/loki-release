@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.12.0](https://github.com/grafana/loki-release/compare/v1.11.5...v1.12.0) (2024-02-27)
+
+
+### Features
+
+* add integration tests back to check workflow ([ec581ae](https://github.com/grafana/loki-release/commit/ec581ae26092ccf91304183c800a57c2ea4c96e4))
+* bring in v1.11.5 that was used to release 2.8.9 ([#104](https://github.com/grafana/loki-release/issues/104)) ([08c4d14](https://github.com/grafana/loki-release/commit/08c4d14f38743e58d0dcb73c09591a1da77412bd))
+
+
+### Bug Fixes
+
+* add dummy test-integration target ([d2b2d3a](https://github.com/grafana/loki-release/commit/d2b2d3a5b026db25d671ec4d951f73cfa8bc35d2))
+
 ## [1.11.4](https://github.com/grafana/loki-release/compare/v1.11.3...v1.11.4) (2024-02-26)
 
 ### Features
