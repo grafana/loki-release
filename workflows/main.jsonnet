@@ -64,7 +64,7 @@
   },
   releaseWorkflow: function(
     branches=['release-[0-9].[0-9].x', 'k[0-9]*'],
-    dockerUsername='grafana',
+    dockerUsername='grafanabot',
     getDockerCredsFromVault=false,
     imagePrefix='grafana',
     releaseLibRef='main',
