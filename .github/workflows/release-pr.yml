@@ -1,6 +1,7 @@
 concurrency:
   group: "create-release-pr-${{ github.sha }}"
 env:
+  BUILD_TIMEOUT: 25
   DOCKER_USERNAME: "grafana"
   IMAGE_PREFIX: "trevorwhitney075"
   RELEASE_LIB_REF: "release-1.11.x"
@@ -173,7 +174,7 @@ jobs:
       working-directory: "release"
     - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "Build and export"
-      timeout-minutes: 25
+      timeout-minutes: "${{ fromJSON(env.BUILD_TIMEOUT) }}"
       uses: "docker/build-push-action@v5"
       with:
         context: "release"
