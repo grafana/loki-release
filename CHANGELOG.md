@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.2](https://github.com/grafana/loki-release/compare/v1.12.1...v1.12.2) (2024-02-28)
+
+
+### Features
+
+* docker username fixes ([87a081c](https://github.com/grafana/loki-release/commit/87a081c36464e59f0687b93efd3766a1633dae8e))
+
 ## [1.12.1](https://github.com/grafana/loki-release/compare/v1.12.0...v1.12.1) (2024-02-28)
 
 
