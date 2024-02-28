@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.1](https://github.com/grafana/loki-release/compare/v1.12.0...v1.12.1) (2024-02-28)
+
+
+### Features
+
+* make image build timeout configurable ([7658239](https://github.com/grafana/loki-release/commit/76582397cc4698d5a805ed60a5fe8ef4537a9edf))
+
 ## [1.12.0](https://github.com/grafana/loki-release/compare/v1.11.5...v1.12.0) (2024-02-27)
 
 
