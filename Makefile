@@ -1,6 +1,9 @@
 test:
 	echo "testing"
 
+test-integration:
+	echo "integration testing"
+
 lint:
 	echo "linting"
 
