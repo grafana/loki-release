@@ -18,7 +18,7 @@ local build = lokiRelease.build;
     lokiRelease.releaseWorkflow(
       branches=['release-[0-9]+.[0-9]+.x'],
       dockerUsername='trevorwhitney075',
-      getDockerCredsFromVault=false,
+      getDockerCredsFromVault=true,
       imagePrefix='trevorwhitney075',
       releaseLibRef='release-1.11.x',
       releaseRepo='grafana/loki-release',
