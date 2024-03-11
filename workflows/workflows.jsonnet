@@ -27,4 +27,7 @@ local build = lokiRelease.build;
   '.github/workflows/check.yml': std.manifestYamlDoc(
     lokiRelease.check
   ),
+  '.github/workflows/gel-check.yml': std.manifestYamlDoc(
+    lokiRelease.checkGel
+  ),
 }
