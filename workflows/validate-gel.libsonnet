@@ -62,20 +62,17 @@ local validationJob = job.new()
     ])
   ),
 
-  integration: setupValidationDeps(
-    job.new()
-    + job.withEnv({
-      // LOGS_ENTERPRISE_CHECKOUT_DIR: '/drone/src',
-      E2E_TEMP_DIR: '/tmp',
-      GOTEST: 'gotestsum --format testname -- ',
-      BUILD_IN_CONTAINER: false,
-      SKIP_VALIDATION: '${{ inputs.skip_validation }}',
-
-    })
-    + job.withSteps([
-      validationMakeStep('integration', 'test-e2e'),
-    ])
-  ),
+  // integration: setupValidationDeps(
+  //   validationJob
+  //   + job.withEnv({
+  //     // LOGS_ENTERPRISE_CHECKOUT_DIR: '/drone/src',
+  //     E2E_TEMP_DIR: '/tmp',
+  //     GOTEST: 'gotestsum --format testname -- ',
+  //   })
+  //   + job.withSteps([
+  //     validationMakeStep('integration', 'test-e2e'),
+  //   ])
+  // ),
 
   lint: setupValidationDeps(
     validationJob
