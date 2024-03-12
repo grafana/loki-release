@@ -97,6 +97,10 @@ jobs:
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+    - name: "Set up Cloud SDK"
+      uses: "google-github-actions/setup-gcloud@v2"
+      with:
+        version: ">= 452.0.0"
     - id: "get-secrets"
       name: "get nfpm signing keys"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
