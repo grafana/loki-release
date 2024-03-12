@@ -61,8 +61,8 @@
     withEnv: function(env) {
       env: env,
     },
-    withSecrets: function(env) {
-      secrets: env,
+    withSecrets: function(secrets) {
+      secrets: secrets,
     },
   },
 

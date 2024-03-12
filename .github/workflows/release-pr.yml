@@ -11,6 +11,8 @@ env:
   VERSIONING_STRATEGY: "always-bump-patch"
 jobs:
   check:
+    secrets:
+      GCS_SERVICE_ACCOUNT_KEY: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     uses: "./.github/workflows/check.yml"
     with:
       build_image: "grafana/loki-build-image:0.33.0"

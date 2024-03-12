@@ -55,6 +55,9 @@
                golang_ci_lint_version: golangCiLintVersion,
                release_lib_ref: releaseLibRef,
                use_github_app_token: useGitHubAppToken,
+             })
+             + $.job.withSecrets({
+               GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
              }),
       version: $.build.version + $.common.job.withNeeds(validationSteps),
       dist: $.build.dist(buildImage, skipArm) + $.common.job.withNeeds(['version']),
