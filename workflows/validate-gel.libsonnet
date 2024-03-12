@@ -12,8 +12,6 @@ local setupValidationDeps = function(job) job {
     + step.withRun(|||
       apt update
       apt install -qy tar xz-utils
-      curl -L https://git.io/misspell | bash
-      mkdir -p /data /tmp
     |||),
     step.new('install shellcheck', './lib/actions/install-binary')
     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')

@@ -28,8 +28,6 @@
       "run": |
         apt update
         apt install -qy tar xz-utils
-        curl -L https://git.io/misspell | bash
-        mkdir -p /data /tmp
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
@@ -98,8 +96,6 @@
       "run": |
         apt update
         apt install -qy tar xz-utils
-        curl -L https://git.io/misspell | bash
-        mkdir -p /data /tmp
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
@@ -146,8 +142,6 @@
       "run": |
         apt update
         apt install -qy tar xz-utils
-        curl -L https://git.io/misspell | bash
-        mkdir -p /data /tmp
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
@@ -204,8 +198,6 @@
       "run": |
         apt update
         apt install -qy tar xz-utils
-        curl -L https://git.io/misspell | bash
-        mkdir -p /data /tmp
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
