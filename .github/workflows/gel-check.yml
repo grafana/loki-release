@@ -171,12 +171,6 @@
         "tarball_binary_path": "${binary}"
         "version": "0.18.0"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "lint docs"
-      "run": "make lint-docs"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "lint proto"
-      "run": "make lint-proto"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
       "with":

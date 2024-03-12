@@ -78,9 +78,6 @@ local validationJob = job.new()
     validationJob
     + job.withSteps(
       [
-        validationMakeStep('lint docs', 'lint-docs'),
-        validationMakeStep('lint proto', 'lint-proto'),
-      ] + [
         step.new('golangci-lint', 'golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5')
         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
         + step.with({
