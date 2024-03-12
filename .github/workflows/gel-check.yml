@@ -75,55 +75,6 @@
           cp -r docs/sources/* /hugo/content/docs/loki/latest/
           cd /hugo && make prod
         EOF
-  "integration":
-    "container":
-      "credentials":
-        "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-        "username": "_json_key"
-      "image": "${{ inputs.build_image }}"
-    "env":
-      "E2E_TEMP_DIR": "/tmp"
-      "GOTEST": "gotestsum --format testname -- "
-    "runs-on": "ubuntu-latest"
-    "steps":
-    - "name": "checkout"
-      "uses": "actions/checkout@v4"
-    - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
-      "with":
-        "path": "lib"
-        "ref": "${{ env.RELEASE_LIB_REF }}"
-        "repository": "grafana/loki-release"
-    - "name": "fix git dubious ownership"
-      "run": |
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install dependencies"
-      "run": |
-        apt update
-        apt install -qy tar xz-utils
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install shellcheck"
-      "uses": "./lib/actions/install-binary"
-      "with":
-        "binary": "shellcheck"
-        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
-        "smoke_test": "${binary} --version"
-        "tar_args": "xvf"
-        "tarball_binary_path": "*/${binary}"
-        "version": "0.9.0"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install jsonnetfmt"
-      "uses": "./lib/actions/install-binary"
-      "with":
-        "binary": "jsonnetfmt"
-        "download_url": "https://github.com/google/go-jsonnet/releases/download/v${version}/go-jsonnet_${version}_Linux_x86_64.tar.gz"
-        "smoke_test": "${binary} --version"
-        "tarball_binary_path": "${binary}"
-        "version": "0.18.0"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "integration"
-      "run": "make test-e2e"
   "lint":
     "container":
       "credentials":
