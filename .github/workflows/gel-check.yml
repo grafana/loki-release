@@ -8,7 +8,7 @@
     "container":
       "credentials":
         "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-        "username": "_json_key_base64"
+        "username": "_json_key"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
@@ -79,7 +79,7 @@
     "container":
       "credentials":
         "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-        "username": "_json_key_base64"
+        "username": "_json_key"
       "image": "${{ inputs.build_image }}"
     "env":
       "E2E_TEMP_DIR": "/tmp"
@@ -128,7 +128,7 @@
     "container":
       "credentials":
         "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-        "username": "_json_key_base64"
+        "username": "_json_key"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
@@ -187,7 +187,7 @@
     "container":
       "credentials":
         "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-        "username": "_json_key_base64"
+        "username": "_json_key"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false

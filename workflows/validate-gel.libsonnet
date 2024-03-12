@@ -39,7 +39,7 @@ local validationJob = job.new()
                       + job.withContainer({
                         image: '${{ inputs.build_image }}',
                         credentials: {
-                          username: '_json_key_base64',
+                          username: '_json_key',
                           password: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
                         },
                       })
