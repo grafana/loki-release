@@ -12,7 +12,7 @@ local setupValidationDeps = function(job) job {
     + step.withRun(|||
       apt update
       apt install -qy tar xz-utils
-      go get -u github.com/client9/misspell/cmd/misspell
+      curl -L https://git.io/misspell | bash
       mkdir -p /data /tmp
     |||),
     step.new('install shellcheck', './lib/actions/install-binary')
