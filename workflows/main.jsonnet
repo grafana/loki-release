@@ -10,6 +10,7 @@
     branches=['release-[0-9]+.[0-9]+.x', 'k[0-9]+'],
     buildImage='grafana/loki-build-image:0.33.0',
     checkTemplate='./.github/workflows/check.yml',
+    distMakeTargets=['dist', 'packages'],
     dockerUsername='grafana',
     golangCiLintVersion='v1.55.1',
     imageBuildTimeoutMin=25,
@@ -20,6 +21,7 @@
     skipArm=false,
     skipValidation=false,
     useGitHubAppToken=true,
+    useGCR=false,
     versioningStrategy='always-bump-patch',
                     ) {
     name: 'create release PR',
@@ -60,7 +62,7 @@
                GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
              }),
       version: $.build.version + $.common.job.withNeeds(validationSteps),
-      dist: $.build.dist(buildImage, skipArm) + $.common.job.withNeeds(['version']),
+      dist: $.build.dist(buildImage, skipArm, useGCR, distMakeTargets) + $.common.job.withNeeds(['version']),
     } + std.mapWithKey(function(name, job) job + $.common.job.withNeeds(['version']), imageJobs) + {
       local buildImageSteps = ['dist'] + std.objectFields(imageJobs),
       'create-release-pr': $.release.createReleasePR + $.common.job.withNeeds(buildImageSteps),

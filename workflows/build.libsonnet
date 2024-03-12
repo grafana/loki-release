@@ -110,7 +110,7 @@ local releaseLibStep = common.releaseLibStep;
       pr_created: '${{ steps.version.outputs.pr_created }}',
     }),
 
-  dist: function(buildImage, skipArm=true)
+  dist: function(buildImage, skipArm=true, useGCR=false, makeTargets=['dist', 'packages'])
     job.new()
     + job.withSteps([
       common.fetchReleaseRepo,
@@ -134,24 +134,28 @@ local releaseLibStep = common.releaseLibStep;
         SKIP_ARM: skipArm,
       })
       //TODO: the workdir here is loki specific
-      + step.withRun(|||
-        cat <<EOF | docker run \
-          --interactive \
-          --env BUILD_IN_CONTAINER \
-          --env DRONE_TAG \
-          --env IMAGE_TAG \
-          --env NFPM_PASSPHRASE \
-          --env NFPM_SIGNING_KEY \
-          --env NFPM_SIGNING_KEY_FILE \
-          --env SKIP_ARM \
-          --volume .:/src/loki \
-          --workdir /src/loki \
-          --entrypoint /bin/sh "%s"
-          git config --global --add safe.directory /src/loki
-          echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
-          make dist packages
-        EOF
-      ||| % buildImage),
+      + step.withRun(if useGCR then |||
+        echo "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}" \
+          | docker login -u _json_key --password-stdin us.gcr.io
+      ||| else '' +
+               |||
+                 cat <<EOF | docker run \
+                   --interactive \
+                   --env BUILD_IN_CONTAINER \
+                   --env DRONE_TAG \
+                   --env IMAGE_TAG \
+                   --env NFPM_PASSPHRASE \
+                   --env NFPM_SIGNING_KEY \
+                   --env NFPM_SIGNING_KEY_FILE \
+                   --env SKIP_ARM \
+                   --volume .:/src/loki \
+                   --workdir /src/loki \
+                   --entrypoint /bin/sh "%s"
+                   git config --global --add safe.directory /src/loki
+                   echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
+                   make %s
+                 EOF
+               ||| % [buildImage, std.join(' ', makeTargets)]),
 
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
