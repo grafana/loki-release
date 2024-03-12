@@ -7,11 +7,13 @@ local setupValidationDeps = function(job) job {
     common.checkout,
     common.fetchReleaseLib,
     common.fixDubiousOwnership,
-    step.new('install tar')
+    step.new('install dependencies')
     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
     + step.withRun(|||
       apt update
       apt install -qy tar xz-utils
+      go get -u github.com/client9/misspell/cmd/misspell
+      mkdir -p /data /tmp
     |||),
     step.new('install shellcheck', './lib/actions/install-binary')
     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
@@ -60,6 +62,11 @@ local validationJob = job.new()
 
   integration: setupValidationDeps(
     validationJob
+    + job.withEnv({
+      // LOGS_ENTERPRISE_CHECKOUT_DIR: '/drone/src',
+      E2E_TEMP_DIR: '/tmp',
+      GOTEST: 'gotestsum --format testname -- ',
+    })
     + job.withSteps([
       validationMakeStep('integration', 'test-e2e'),
     ])
@@ -86,7 +93,7 @@ local validationJob = job.new()
   check: setupValidationDeps(
     validationJob
     + job.withSteps([
-      validationMakeStep('build enterprise logs', 'make all'),
+      validationMakeStep('build enterprise logs', 'all'),
       validationMakeStep('check mod', 'check-mod'),
       validationMakeStep('check docs', 'check-docs'),
     ]) + {

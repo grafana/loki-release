@@ -24,10 +24,12 @@
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install tar"
+      "name": "install dependencies"
       "run": |
         apt update
         apt install -qy tar xz-utils
+        go get -u github.com/client9/misspell/cmd/misspell
+        mkdir -p /data /tmp
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
@@ -49,7 +51,7 @@
         "version": "0.18.0"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "build enterprise logs"
-      "run": "make make all"
+      "run": "make all"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check mod"
       "run": "make check-mod"
@@ -76,8 +78,8 @@
     "container":
       "image": "${{ inputs.build_image }}"
     "env":
-      "BUILD_IN_CONTAINER": false
-      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+      "E2E_TEMP_DIR": "/tmp"
+      "GOTEST": "gotestsum --format testname -- "
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
@@ -92,10 +94,12 @@
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install tar"
+      "name": "install dependencies"
       "run": |
         apt update
         apt install -qy tar xz-utils
+        go get -u github.com/client9/misspell/cmd/misspell
+        mkdir -p /data /tmp
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
@@ -138,10 +142,12 @@
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install tar"
+      "name": "install dependencies"
       "run": |
         apt update
         apt install -qy tar xz-utils
+        go get -u github.com/client9/misspell/cmd/misspell
+        mkdir -p /data /tmp
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
@@ -194,10 +200,12 @@
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install tar"
+      "name": "install dependencies"
       "run": |
         apt update
         apt install -qy tar xz-utils
+        go get -u github.com/client9/misspell/cmd/misspell
+        mkdir -p /data /tmp
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
