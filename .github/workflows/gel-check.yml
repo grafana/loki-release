@@ -6,6 +6,9 @@
 "jobs":
   "check":
     "container":
+      "credentials":
+        "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+        "username": "_json_key_base64"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
@@ -74,6 +77,9 @@
         EOF
   "integration":
     "container":
+      "credentials":
+        "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+        "username": "_json_key_base64"
       "image": "${{ inputs.build_image }}"
     "env":
       "E2E_TEMP_DIR": "/tmp"
@@ -120,6 +126,9 @@
       "run": "make test-e2e"
   "lint":
     "container":
+      "credentials":
+        "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+        "username": "_json_key_base64"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
@@ -176,6 +185,9 @@
         "version": "${{ inputs.golang_ci_lint_version }}"
   "test":
     "container":
+      "credentials":
+        "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+        "username": "_json_key_base64"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false

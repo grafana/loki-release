@@ -38,6 +38,10 @@ local setupValidationDeps = function(job) job {
 local validationJob = job.new()
                       + job.withContainer({
                         image: '${{ inputs.build_image }}',
+                        credentials: {
+                          username: '_json_key_base64',
+                          password: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
+                        },
                       })
                       + job.withEnv({
                         BUILD_IN_CONTAINER: false,
