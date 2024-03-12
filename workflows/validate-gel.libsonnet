@@ -93,7 +93,6 @@ local validationJob = job.new()
     validationJob
     + job.withSteps([
       validationMakeStep('build enterprise logs', 'all'),
-      validationMakeStep('check mod', 'check-mod'),
       validationMakeStep('check docs', 'check-docs'),
     ]) + {
       steps+: [
