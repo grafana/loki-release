@@ -122,8 +122,8 @@
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
       "with":
+        "args": "--skip-files cmd/enterprise-logs/fips.go"
         "only-new-issues": true
-        "skip-files": "cmd/enterprise-logs/fips.go"
         "version": "${{ inputs.golang_ci_lint_version }}"
   "test":
     "container":

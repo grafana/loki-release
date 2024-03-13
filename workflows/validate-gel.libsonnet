@@ -71,7 +71,7 @@ local validationJob = job.new()
         + step.with({
           version: '${{ inputs.golang_ci_lint_version }}',
           'only-new-issues': true,
-          'skip-files': 'cmd/enterprise-logs/fips.go',
+          args: '--skip-files cmd/enterprise-logs/fips.go',
         }),
       ],
     )
