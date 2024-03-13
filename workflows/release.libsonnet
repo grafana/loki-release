@@ -130,6 +130,15 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    + step.withRun(|||
                      gh release upload --clobber ${{ needs.shouldRelease.outputs.name }} dist/*
                    |||),
+
+                   step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
+                   + step.withIf('${{ fromJSON(env.PUBLISH_TO_GCS) }}')
+                   + step.with({
+                     path: 'release/dist',
+                     destination: '${{ env.PUBLISH_BUCKET }}',
+                     parent: false,
+                     process_gcloudignore: false,
+                   }),
                  ])
                  + job.withOutputs({
                    sha: '${{ needs.shouldRelease.outputs.sha }}',

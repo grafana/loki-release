@@ -16,6 +16,8 @@
     imageBuildTimeoutMin=25,
     imageJobs={},
     imagePrefix='grafana',
+    publishBucket='',
+    publishToGCS=false,
     releaseLibRef='main',
     releaseRepo='grafana/loki-release',
     skipArm=false,
@@ -47,6 +49,11 @@
       SKIP_VALIDATION: skipValidation,
       USE_GITHUB_APP_TOKEN: useGitHubAppToken,
       VERSIONING_STRATEGY: versioningStrategy,
+    } + if publishToGCS then {
+      PUBLISH_BUCKET: publishBucket,
+      PUBLISH_TO_GCS: true,
+    } else {
+      PUBLISH_TO_GCS: false,
     },
     local validationSteps = ['check'],
     jobs: {
