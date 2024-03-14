@@ -100,7 +100,7 @@ jobs:
         gh release upload --clobber ${{ needs.shouldRelease.outputs.name }} dist/*
       working-directory: "release"
     - if: "${{ fromJSON(env.PUBLISH_TO_GCS) }}"
-      name: "upload artifacts"
+      name: "release artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
         destination: "${{ env.PUBLISH_BUCKET }}"
