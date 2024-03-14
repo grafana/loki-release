@@ -44,6 +44,9 @@ local releaseLibStep = common.releaseLibStep;
       step.new('Build and export', 'docker/build-push-action@v5')
       + step.withTimeoutMinutes('${{ fromJSON(env.BUILD_TIMEOUT) }}')
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
+      + step.withEnv({
+        IMAGE_TAG: '${{ needs.version.outputs.version }}',
+      })
       + step.with({
         context: context,
         file: 'release/%s/Dockerfile' % path,
