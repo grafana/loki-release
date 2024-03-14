@@ -7,8 +7,8 @@
   "check":
     "container":
       "credentials":
-        "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-        "username": "_json_key"
+        "password": "${{ inputs.access_token }}"
+        "username": "oauth2accesstoken"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
