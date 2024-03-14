@@ -2,6 +2,7 @@ concurrency:
   group: "create-release-pr-${{ github.sha }}"
 env:
   BUILD_TIMEOUT: 25
+  CHANGELOG_PATH: "CHANGELOG.md"
   DOCKER_USERNAME: "grafana"
   IMAGE_PREFIX: "trevorwhitney075"
   RELEASE_LIB_REF: "release-1.11.x"
@@ -69,6 +70,7 @@ jobs:
       run: |
         npm install
         npm exec -- release-please release-pr \
+          --changelog-path "${CHANGELOG_PATH}" \
           --consider-all-branches \
           --group-pull-request-title-pattern "chore\${scope}: release\${component} \${version}" \
           --label "backport main,autorelease: pending,product-approved" \

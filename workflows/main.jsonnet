@@ -9,6 +9,7 @@
   releasePRWorkflow: function(
     branches=['release-[0-9]+.[0-9]+.x', 'k[0-9]+'],
     buildImage='grafana/loki-build-image:0.33.0',
+    changelogPath='CHANGELOG.md',
     checkTemplate='./.github/workflows/check.yml',
     distMakeTargets=['dist', 'packages'],
     dockerUsername='grafana',
@@ -40,6 +41,7 @@
     },
     env: {
       BUILD_TIMEOUT: imageBuildTimeoutMin,
+      CHANGELOG_PATH: changelogPath,
       DOCKER_USERNAME: dockerUsername,
       IMAGE_PREFIX: imagePrefix,
       RELEASE_LIB_REF: releaseLibRef,

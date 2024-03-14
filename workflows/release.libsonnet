@@ -33,6 +33,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       + step.withRun(|||
         npm install
         npm exec -- release-please release-pr \
+          --changelog-path "${CHANGELOG_PATH}" \
           --consider-all-branches \
           --group-pull-request-title-pattern "chore\${scope}: release\${component} \${version}" \
           --label "backport main,autorelease: pending,product-approved" \
