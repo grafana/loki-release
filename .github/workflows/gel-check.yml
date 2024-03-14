@@ -197,6 +197,11 @@
         "description": "skip validation steps"
         "required": false
         "type": "boolean"
+      "access_token":
+        "default": false
+        "description": "access_token"
+        "required": false
+        "type": "boolean"
       "use_github_app_token":
         "default": true
         "description": "whether to use the GitHub App token for GH_TOKEN secret"
