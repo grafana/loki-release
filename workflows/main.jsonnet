@@ -60,9 +60,9 @@
                release_lib_ref: releaseLibRef,
                use_github_app_token: useGitHubAppToken,
              })
-             + $.job.withSecrets({
+             + if useGCR then $.job.withSecrets({
                GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
-             }),
+             }) else {},
       version: $.build.version + $.common.job.withNeeds(validationSteps),
       dist: $.build.dist(buildImage, skipArm, useGCR, distMakeTargets) + $.common.job.withNeeds(['version']),
     } + std.mapWithKey(function(name, job) job + $.common.job.withNeeds(['version']), imageJobs) + {
