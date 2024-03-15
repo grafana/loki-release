@@ -51,6 +51,10 @@ local validationJob = job.new()
     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
     + step.withRun(common.makeTarget(target)),
 
+  local validationOperatorMakeStep = function(name, target)
+    validationMakeStep(name, target)
+    + step.withWorkingDirectory('./operator'),
+
   test: setupValidationDeps(
     validationJob
     + job.withSteps([
