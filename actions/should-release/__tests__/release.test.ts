@@ -1,5 +1,5 @@
 import { createSandbox, SinonStub } from 'sinon'
-import { shouldRelease } from '../src/release'
+import { isLatestVersion, shouldRelease } from '../src/release'
 
 import * as github from '../src/github'
 
@@ -176,6 +176,43 @@ describe('release', () => {
 
       const release = await shouldRelease('main', prTitlePattern)
       expect(release).not.toBeDefined()
+    })
+  })
+
+  describe('isLastestVersion', () => {
+    const tags = {
+      'v1.3.1': {
+        name: 'v1.3.1',
+        sha: 'abc123'
+      },
+      'v1.3.2': {
+        name: 'v1.3.2',
+        sha: 'def456'
+      }
+    }
+
+    it('returns true if the version is the latest', () => {
+      let ver = Version.parse('1.3.3')
+      expect(isLatestVersion(ver, tags)).toBe(true)
+
+      ver = Version.parse('1.4.0')
+      expect(isLatestVersion(ver, tags)).toBe(true)
+
+      ver = Version.parse('2.0.0')
+      expect(isLatestVersion(ver, tags)).toBe(true)
+    })
+    it('returns flase if the version is not the latest', () => {
+      let ver = Version.parse('1.2.9')
+      expect(isLatestVersion(ver, tags)).toBe(false)
+
+      ver = Version.parse('1.3.2')
+      expect(isLatestVersion(ver, tags)).toBe(false)
+
+      ver = Version.parse('1.2.0')
+      expect(isLatestVersion(ver, tags)).toBe(false)
+
+      ver = Version.parse('0.2.0')
+      expect(isLatestVersion(ver, tags)).toBe(false)
     })
   })
 })
