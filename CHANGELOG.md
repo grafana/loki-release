@@ -11,6 +11,29 @@
 * configurable changelog path ([4b02163](https://github.com/grafana/loki-release/commit/4b02163e647ff7ed41e94a48cb031ba2bd8a3e19))
 * pass IMAGE_TAG as build arg ([dc2bb7a](https://github.com/grafana/loki-release/commit/dc2bb7a3ce492301c2d5fd46cf62d86b46d945aa))
 * publish artifacts to GCS bucket ([f2b4793](https://github.com/grafana/loki-release/commit/f2b479314e0d94139fbf6efdde8b0f8a3027e415))
+* tag specific sha and set isLatest on release ([#118](https://github.com/grafana/loki-release/issues/118)) ([24126d9](https://github.com/grafana/loki-release/commit/24126d9dd3e77c137f158b3d52eccefd76be4bb0))
+* try exposing IMAGE_TAG to docker build step ([a618abe](https://github.com/grafana/loki-release/commit/a618abea1086940fa92ba5670c906274dba321b5))
+* try using gcloud for docker auth ([4b77ba8](https://github.com/grafana/loki-release/commit/4b77ba8a9c7b363bef67f24c235caeda2d9b975e))
+
+
+### Bug Fixes
+
+* build job concat ([b2fa59c](https://github.com/grafana/loki-release/commit/b2fa59c0e492d55966b812eaaf1dd8351fad41ba))
+* move publish bucket stuff to correct place ([a44e81d](https://github.com/grafana/loki-release/commit/a44e81dd20813cfc8da6e54482387c63ac1c8709))
+* release version ([c82545f](https://github.com/grafana/loki-release/commit/c82545fdd67e3e236064dba89cbec7585121b214))
+* remove unused secret from OSS workflow ([c0962b5](https://github.com/grafana/loki-release/commit/c0962b56f933c757c3dcfde17ce06f2673b2664b))
+
+## [1.12.3](https://github.com/grafana/loki-release/compare/v1.12.2...v1.12.3) (2024-03-18)
+
+
+### Features
+
+* add check template for GEL ([5cc124c](https://github.com/grafana/loki-release/commit/5cc124c05effe802e8b65b51efd199e889b0f00e))
+* add secret to check template reuse ([764eed8](https://github.com/grafana/loki-release/commit/764eed81656db54f9dcbb717daf471d0c1644799))
+* added build config needed for GEL ([76f853d](https://github.com/grafana/loki-release/commit/76f853dd8a50667df7201a608bcafa09ef4ef8c3))
+* configurable changelog path ([4b02163](https://github.com/grafana/loki-release/commit/4b02163e647ff7ed41e94a48cb031ba2bd8a3e19))
+* pass IMAGE_TAG as build arg ([dc2bb7a](https://github.com/grafana/loki-release/commit/dc2bb7a3ce492301c2d5fd46cf62d86b46d945aa))
+* publish artifacts to GCS bucket ([f2b4793](https://github.com/grafana/loki-release/commit/f2b479314e0d94139fbf6efdde8b0f8a3027e415))
 * tag specific sha and set isLatest on release ([eb384ea](https://github.com/grafana/loki-release/commit/eb384eaa862b4b7349b305ced404729078719233))
 * try exposing IMAGE_TAG to docker build step ([a618abe](https://github.com/grafana/loki-release/commit/a618abea1086940fa92ba5670c906274dba321b5))
 * try using gcloud for docker auth ([4b77ba8](https://github.com/grafana/loki-release/commit/4b77ba8a9c7b363bef67f24c235caeda2d9b975e))
