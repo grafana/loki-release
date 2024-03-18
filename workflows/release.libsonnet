@@ -121,7 +121,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                        --repo-url "${{ env.RELEASE_REPO }}" \
                        --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
                        --token "${{ steps.github_app_token.outputs.token }}" \
-                       --tag-shas "${{ needs.shouldRelease.outputs.prNumber }}:${{ needs.shouldRelease.outputs.sha }}"
+                       --shas-to-tag "${{ needs.shouldRelease.outputs.prNumber }}:${{ needs.shouldRelease.outputs.sha }}"
                    |||),
 
                    releaseStep('upload artifacts')

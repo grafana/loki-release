@@ -92,7 +92,7 @@ jobs:
           --repo-url "${{ env.RELEASE_REPO }}" \
           --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
           --token "${{ steps.github_app_token.outputs.token }}" \
-          --tag-shas "${{ needs.shouldRelease.outputs.prNumber }}:${{ needs.shouldRelease.outputs.sha }}"
+          --shas-to-tag "${{ needs.shouldRelease.outputs.prNumber }}:${{ needs.shouldRelease.outputs.sha }}"
       working-directory: "lib"
     - env:
         GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
