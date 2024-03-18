@@ -8,6 +8,7 @@ local releaseLibStep = common.releaseLibStep;
   image: function(
     name,
     path,
+    dockerfile='Dockerfile',
     context='release',
     platform=[
       'linux/amd64',
@@ -49,7 +50,7 @@ local releaseLibStep = common.releaseLibStep;
       })
       + step.with({
         context: context,
-        file: 'release/%s/Dockerfile' % path,
+        file: 'release/%s/%s' % [path, dockerfile],
         platforms: '${{ matrix.platform }}',
         tags: '${{ env.IMAGE_PREFIX }}/%s:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
         outputs: 'type=docker,dest=release/images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
@@ -81,7 +82,6 @@ local releaseLibStep = common.releaseLibStep;
       common.fetchReleaseLib,
       common.fetchReleaseRepo,
       common.setupNode,
-      common.googleAuth,
 
       step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
       step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
