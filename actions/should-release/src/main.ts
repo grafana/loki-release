@@ -26,7 +26,7 @@ export async function run(): Promise<void> {
     setOutput('sha', JSON.stringify(release.sha))
     setOutput('name', JSON.stringify(release.name))
     setOutput('prNumber', JSON.stringify(release.prNumber))
-    setOutput('isLatest', JSON.stringify(release.isLatest))
+    setOutput('isLatest', release.isLatest)
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) setFailed(error.message)

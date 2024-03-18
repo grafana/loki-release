@@ -180,6 +180,7 @@ jobs:
   shouldRelease:
     outputs:
       branch: "${{ steps.extract_branch.outputs.branch }}"
+      isLatest: "${{ steps.should_release.outputs.isLatest }}"
       name: "${{ steps.should_release.outputs.name }}"
       sha: "${{ steps.should_release.outputs.sha }}"
       shouldRelease: "${{ steps.should_release.outputs.shouldRelease }}"
