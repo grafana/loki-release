@@ -87,6 +87,12 @@ local releaseLibStep = common.releaseLibStep;
       step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
       step.new('Login to DockerHub (from vault)', 'grafana/shared-workflows/actions/dockerhub-login@main'),
 
+      releaseStep('Get weekly version')
+      + step.withId('weekly-version')
+      + step.withRun(|||
+        echo "version=$(./tools/image-tag)" >> $GITHUB_OUTPUT
+      |||),
+
       step.new('Build and push', 'docker/build-push-action@v5')
       + step.withTimeoutMinutes('${{ fromJSON(env.BUILD_TIMEOUT) }}')
       + step.with({
@@ -94,8 +100,8 @@ local releaseLibStep = common.releaseLibStep;
         file: 'release/%s/%s' % [path, dockerfile],
         platforms: '%s' % std.join(',', platform),
         push: true,
-        tags: '${{ env.IMAGE_PREFIX }}/%s:$(./release/tools/image-tag)' % [name],
-        'build-args': 'IMAGE_TAG=$(./release/tools/image-tag)',
+        tags: '${{ env.IMAGE_PREFIX }}/%s:${{ steps.weekly-version.outputs.version }}' % [name],
+        'build-args': 'IMAGE_TAG=${{ steps.weekly-version.outputs.version }}',
       }),
     ]),
 
