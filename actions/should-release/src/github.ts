@@ -1,4 +1,4 @@
-import { GitHub, OctokitAPIs } from 'release-please/build/src/github'
+import { GitHub, GitHubTag, OctokitAPIs } from 'release-please/build/src/github'
 
 import { getInput, info, debug } from '@actions/core'
 import { PullRequest } from 'release-please/build/src/pull-request'
@@ -59,6 +59,16 @@ export async function findMergedReleasePullRequests(
 
   info(`found ${mergedPullRequests.length} merged release pull requests.`)
   return mergedPullRequests
+}
+
+export async function getAllTags(
+  github: GitHub
+): Promise<Record<string, GitHubTag>> {
+  const allTags: Record<string, GitHubTag> = {}
+  for await (const tag of github.tagIterator()) {
+    allTags[tag.name] = tag
+  }
+  return allTags
 }
 
 /**
