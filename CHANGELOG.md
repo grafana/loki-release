@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.13.1](https://github.com/grafana/loki-release/compare/v1.13.0...v1.13.1) (2024-03-18)
+
+
+### Features
+
+* add dockerfile arg ([dd49c0a](https://github.com/grafana/loki-release/commit/dd49c0af0fd82e7d5f83fe7d1b49c00b71ebd6a4))
+* expose job for building weekly image ([94bfeda](https://github.com/grafana/loki-release/commit/94bfedab4b1b2db5da42b6124eb5f4a8401a0168))
+* get weekly version from image-tag script ([54074c1](https://github.com/grafana/loki-release/commit/54074c151d58bd364cb2c5a66c4f3ed3e34b1c7d))
+
 ## [1.13.0](https://github.com/grafana/loki-release/compare/v1.12.3...v1.13.0) (2024-03-18)
 
 
