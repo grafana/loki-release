@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.12.4](https://github.com/grafana/loki-release/compare/v1.12.3...v1.12.4) (2024-03-18)
+
+
+### Bug Fixes
+
+* add prNumber to shouldRelease outputs ([e3d7a6d](https://github.com/grafana/loki-release/commit/e3d7a6d1a391eb4ff8d793772dad20570e3f908e))
+* output isLatest from should release job ([dc4ba4b](https://github.com/grafana/loki-release/commit/dc4ba4b903a98f122ea2e4dd27b3cc27ef034502))
+
 ## [1.12.3](https://github.com/grafana/loki-release/compare/v1.12.2...v1.12.3) (2024-03-18)
 
 
