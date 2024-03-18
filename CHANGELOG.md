@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.5](https://github.com/grafana/loki-release/compare/v1.12.4...v1.12.5) (2024-03-18)
+
+
+### Features
+
+* test non-latest release ([3def0c2](https://github.com/grafana/loki-release/commit/3def0c23fc79bd850b751cc560f542bd9a8cb339))
+
 ## [1.12.4](https://github.com/grafana/loki-release/compare/v1.12.3...v1.12.4) (2024-03-18)
 
 
