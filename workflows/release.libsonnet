@@ -66,6 +66,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    shouldRelease: '${{ steps.should_release.outputs.shouldRelease }}',
                    sha: '${{ steps.should_release.outputs.sha }}',
                    name: '${{ steps.should_release.outputs.name }}',
+                   prNumber: '${{ steps.should_release.outputs.prNumber }}',
                    isLatest: '${{ steps.should_release.outputs.isLatest }}',
                    branch: '${{ steps.extract_branch.outputs.branch }}',
 

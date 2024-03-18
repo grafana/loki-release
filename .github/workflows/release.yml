@@ -182,6 +182,7 @@ jobs:
       branch: "${{ steps.extract_branch.outputs.branch }}"
       isLatest: "${{ steps.should_release.outputs.isLatest }}"
       name: "${{ steps.should_release.outputs.name }}"
+      prNumber: "${{ steps.should_release.outputs.prNumber }}"
       sha: "${{ steps.should_release.outputs.sha }}"
       shouldRelease: "${{ steps.should_release.outputs.shouldRelease }}"
     runs-on: "ubuntu-latest"
