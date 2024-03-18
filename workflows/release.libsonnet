@@ -120,7 +120,8 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                        --release-type simple \
                        --repo-url "${{ env.RELEASE_REPO }}" \
                        --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
-                       --token "${{ steps.github_app_token.outputs.token }}"
+                       --token "${{ steps.github_app_token.outputs.token }}" \
+                       --tag-shas "${{ needs.shouldRelease.outputs.prNumber }}:${{ needs.shouldRelease.outputs.sha }}"
                    |||),
 
                    releaseStep('upload artifacts')
@@ -144,6 +145,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                  + job.withOutputs({
                    sha: '${{ needs.shouldRelease.outputs.sha }}',
                    name: '${{ needs.shouldRelease.outputs.name }}',
+                   isLatest: '${{ needs.shouldRelease.outputs.isLatest }}',
                    draft: '${{ steps.check_release.outputs.draft }}',
                    exists: '${{ steps.check_release.outputs.exists }}',
                  }),
@@ -193,7 +195,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                       GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
                     })
                     + step.withRun(|||
-                      gh release edit ${{ needs.createRelease.outputs.name }} --draft=false
+                      gh release edit ${{ needs.createRelease.outputs.name }} --draft=false --latest=${{ needs.createRelease.outputs.isLatest }}
                     |||),
                   ]),
 }

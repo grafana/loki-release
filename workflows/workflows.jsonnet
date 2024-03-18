@@ -6,11 +6,11 @@ local build = lokiRelease.build;
       imageJobs={
         loki: build.image('fake-loki', 'cmd/loki'),
       },
-      branches=['release-[0-9]+.[0-9]+.x'],
+      branches=['release-[0-9]+.[0-9]+.x', 'test-release-tagging'],
       imagePrefix='trevorwhitney075',
       releaseLibRef='release-1.11.x',
       releaseRepo='grafana/loki-release',
-      skipValidation=false,
+      skipValidation=true,
       versioningStrategy='always-bump-patch',
     ), false, false
   ),

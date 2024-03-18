@@ -7,7 +7,7 @@ env:
   IMAGE_PREFIX: "trevorwhitney075"
   RELEASE_LIB_REF: "release-1.11.x"
   RELEASE_REPO: "grafana/loki-release"
-  SKIP_VALIDATION: false
+  SKIP_VALIDATION: true
   USE_GITHUB_APP_TOKEN: true
   VERSIONING_STRATEGY: "always-bump-patch"
 jobs:
@@ -17,7 +17,7 @@ jobs:
       build_image: "grafana/loki-build-image:0.33.0"
       golang_ci_lint_version: "v1.55.1"
       release_lib_ref: "release-1.11.x"
-      skip_validation: false
+      skip_validation: true
       use_github_app_token: true
   create-release-pr:
     needs:
@@ -289,6 +289,7 @@ name: "create release PR"
   push:
     branches:
     - "release-[0-9]+.[0-9]+.x"
+    - "test-release-tagging"
 permissions:
   contents: "write"
   id-token: "write"
