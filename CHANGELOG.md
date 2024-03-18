@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.13.0](https://github.com/grafana/loki-release/compare/v1.12.3...v1.13.0) (2024-03-18)
+
+
+### Features
+
+* big new feature ([05da2cc](https://github.com/grafana/loki-release/commit/05da2cc558dae0ac43c47065492db329c5d4eb9b))
+* merge 1.12 back to main ([#121](https://github.com/grafana/loki-release/issues/121)) ([fa791cb](https://github.com/grafana/loki-release/commit/fa791cb3a8d96df7e62a0a520a9e55bd5ea182dc))
+* merge 1.12.0 ([#107](https://github.com/grafana/loki-release/issues/107)) ([ec17e6a](https://github.com/grafana/loki-release/commit/ec17e6aed57025d3c6a8d2f76839c746da9bc5cc))
+
 ## [1.12.3](https://github.com/grafana/loki-release/compare/v1.12.2...v1.12.3) (2024-03-18)
 
 ### Features
