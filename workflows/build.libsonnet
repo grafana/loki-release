@@ -64,6 +64,42 @@ local releaseLibStep = common.releaseLibStep;
       }),
     ]),
 
+
+  weeklyImage: function(
+    name,
+    path,
+    dockerfile='Dockerfile',
+    context='release',
+    platform=[
+      'linux/amd64',
+      'linux/arm64',
+      'linux/arm',
+    ]
+              )
+    job.new()
+    + job.withSteps([
+      common.fetchReleaseLib,
+      common.fetchReleaseRepo,
+      common.setupNode,
+      common.googleAuth,
+
+      step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
+      step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
+      step.new('Login to DockerHub (from vault)', 'grafana/shared-workflows/actions/dockerhub-login@main'),
+
+      step.new('Build and push', 'docker/build-push-action@v5')
+      + step.withTimeoutMinutes('${{ fromJSON(env.BUILD_TIMEOUT) }}')
+      + step.with({
+        context: context,
+        file: 'release/%s/%s' % [path, dockerfile],
+        platforms: '%s' % std.join(',', platform),
+        push: true,
+        tags: '${{ env.IMAGE_PREFIX }}/%s:$(./release/tools/image-tag)' % [name],
+        'build-args': 'IMAGE_TAG=$(./release/tools/image-tag)',
+      }),
+    ]),
+
+
   version:
     job.new()
     + job.withSteps([
