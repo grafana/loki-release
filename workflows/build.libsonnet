@@ -8,6 +8,7 @@ local releaseLibStep = common.releaseLibStep;
   image: function(
     name,
     path,
+    dockerfile='Dockerfile',
     context='release',
     platform=[
       'linux/amd64',
@@ -49,7 +50,7 @@ local releaseLibStep = common.releaseLibStep;
       })
       + step.with({
         context: context,
-        file: 'release/%s/Dockerfile' % path,
+        file: 'release/%s/%s' % [path, dockerfile],
         platforms: '${{ matrix.platform }}',
         tags: '${{ env.IMAGE_PREFIX }}/%s:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
         outputs: 'type=docker,dest=release/images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
@@ -63,6 +64,47 @@ local releaseLibStep = common.releaseLibStep;
         process_gcloudignore: false,
       }),
     ]),
+
+
+  weeklyImage: function(
+    name,
+    path,
+    dockerfile='Dockerfile',
+    context='release',
+    platform=[
+      'linux/amd64',
+      'linux/arm64',
+      'linux/arm',
+    ]
+              )
+    job.new()
+    + job.withSteps([
+      common.fetchReleaseLib,
+      common.fetchReleaseRepo,
+      common.setupNode,
+
+      step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
+      step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
+      step.new('Login to DockerHub (from vault)', 'grafana/shared-workflows/actions/dockerhub-login@main'),
+
+      releaseStep('Get weekly version')
+      + step.withId('weekly-version')
+      + step.withRun(|||
+        echo "version=$(./tools/image-tag)" >> $GITHUB_OUTPUT
+      |||),
+
+      step.new('Build and push', 'docker/build-push-action@v5')
+      + step.withTimeoutMinutes('${{ fromJSON(env.BUILD_TIMEOUT) }}')
+      + step.with({
+        context: context,
+        file: 'release/%s/%s' % [path, dockerfile],
+        platforms: '%s' % std.join(',', platform),
+        push: true,
+        tags: '${{ env.IMAGE_PREFIX }}/%s:${{ steps.weekly-version.outputs.version }}' % [name],
+        'build-args': 'IMAGE_TAG=${{ steps.weekly-version.outputs.version }}',
+      }),
+    ]),
+
 
   version:
     job.new()
