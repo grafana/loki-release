@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.13.2](https://github.com/grafana/loki-release/compare/v1.13.1...v1.13.2) (2024-03-21)
+
+
+### Features
+
+* bring back check format task ([#128](https://github.com/grafana/loki-release/issues/128)) ([d9bfe17](https://github.com/grafana/loki-release/commit/d9bfe17ed706fdfbd02445a576eb820dea4811a3))
+* dockerfile and weekly images ([#127](https://github.com/grafana/loki-release/issues/127)) ([6c326b8](https://github.com/grafana/loki-release/commit/6c326b84f35d69f9d01732b2805eb645a52b69cc))
+* make build artifacts bucket configurable ([2a6046d](https://github.com/grafana/loki-release/commit/2a6046d2f3d383528d3dc1b02405c1607551b5b5))
+
 ## [1.13.1](https://github.com/grafana/loki-release/compare/v1.13.0...v1.13.1) (2024-03-18)
 
 ### Features
