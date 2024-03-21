@@ -1,4 +1,5 @@
-import { createSandbox, SinonStub } from 'sinon'
+import * as sinon from 'sinon'
+import { createSandbox } from 'sinon'
 import { isLatestVersion, shouldRelease } from '../src/release'
 
 import * as github from '../src/github'
@@ -13,7 +14,7 @@ import { parseConventionalCommits } from 'release-please/build/src/commit'
 
 const sandbox = createSandbox()
 
-let findMergedReleasePullRequests: SinonStub
+let findMergedReleasePullRequests: sinon.SinonStub
 let fakeGitHub: GitHub
 let defaultPRNotes: string
 let defaultPRTitle: string
