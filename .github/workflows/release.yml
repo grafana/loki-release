@@ -1,6 +1,7 @@
 concurrency:
   group: "create-release-${{ github.sha }}"
 env:
+  BUILD_ARTIFACTS_BUCKET: "loki-build-artifacts"
   IMAGE_PREFIX: "trevorwhitney075"
   PUBLISH_TO_GCS: false
   RELEASE_LIB_REF: "release-1.12.x"
@@ -61,7 +62,7 @@ jobs:
     - name: "download binaries"
       run: |
         echo "downloading binaries to $(pwd)/dist"
-        gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/dist .
+        gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/${{ needs.shouldRelease.outputs.sha }}/dist .
       working-directory: "release"
     - env:
         GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
@@ -210,6 +211,7 @@ jobs:
         baseBranch: "${{ steps.extract_branch.outputs.branch }}"
 name: "create release"
 "on":
+  pull_request: {}
   push:
     branches:
     - "release-[0-9]+.[0-9]+.x"
