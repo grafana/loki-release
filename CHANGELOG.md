@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.13.2](https://github.com/grafana/loki-release/compare/v1.13.1...v1.13.2) (2024-03-22)
+
+
+### Features
+
+* add check for workflows and actions ([cbc495f](https://github.com/grafana/loki-release/commit/cbc495f4948269cbe9d4ff989ab4ce82f9b887c8))
+* bring back check format task ([#128](https://github.com/grafana/loki-release/issues/128)) ([d9bfe17](https://github.com/grafana/loki-release/commit/d9bfe17ed706fdfbd02445a576eb820dea4811a3))
+* dockerfile and weekly images ([#127](https://github.com/grafana/loki-release/issues/127)) ([6c326b8](https://github.com/grafana/loki-release/commit/6c326b84f35d69f9d01732b2805eb645a52b69cc))
+* make build artifacts bucket configurable ([2a6046d](https://github.com/grafana/loki-release/commit/2a6046d2f3d383528d3dc1b02405c1607551b5b5))
+
+
+### Bug Fixes
+
+* add jsonnet ([059f0e1](https://github.com/grafana/loki-release/commit/059f0e1d93d2e89135ff810581801c83a29c78d3))
+* linter ([fefdc33](https://github.com/grafana/loki-release/commit/fefdc33824a3bef5cba17ad90fd6c09d8da8c857))
+* npm install ([597bab2](https://github.com/grafana/loki-release/commit/597bab218aee8f7656142643f9a8fb40a405bb00))
+* npm invocations ([8c488a0](https://github.com/grafana/loki-release/commit/8c488a00bf2bd8167ab62f1075651a3c4456d5be))
+* tests ([cc98b10](https://github.com/grafana/loki-release/commit/cc98b1078851598b7800f5bfd306a82803801258))
+
 ## [1.13.1](https://github.com/grafana/loki-release/compare/v1.13.0...v1.13.1) (2024-03-18)
 
 ### Features
