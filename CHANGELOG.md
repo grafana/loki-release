@@ -1,5 +1,69 @@
 # Changelog
 
+## [1.13.8](https://github.com/grafana/loki-release/compare/v1.13.7...v1.13.8) (2024-03-22)
+
+
+### Features
+
+* add artifacts to release ([4fea492](https://github.com/grafana/loki-release/commit/4fea4927fe360ce4031fa0553f6536d8fd980d17))
+* add backport action ([4df43c6](https://github.com/grafana/loki-release/commit/4df43c665e46daa36fca0b9be0932b2393ebb5c7))
+* add check for workflows and actions ([cbc495f](https://github.com/grafana/loki-release/commit/cbc495f4948269cbe9d4ff989ab4ce82f9b887c8))
+* add correct updaters to release pull request ([d50db7a](https://github.com/grafana/loki-release/commit/d50db7a6ce579a8b21c0f84b3767eb6f9c24f9dc))
+* add create release step ([fe8c2fb](https://github.com/grafana/loki-release/commit/fe8c2fbe3d6bd7617226b6e7e9f5abdd77aec483))
+* add install binary action ([947ed95](https://github.com/grafana/loki-release/commit/947ed95bf340634e24bfc316eda4f20d356190de))
+* add more functionality from release please ([6c871fc](https://github.com/grafana/loki-release/commit/6c871fc3368e4eece45c7fa807e1831164f4debe))
+* add release steps to jsonnet-build workflow ([55a14d6](https://github.com/grafana/loki-release/commit/55a14d67b6cdbda880abe16ed3cd1db969714b1c))
+* added github interactions to release plugin ([808c34a](https://github.com/grafana/loki-release/commit/808c34aa4bc81a523683b2b345eccff75e628e2f))
+* bring back all steps ([ab86186](https://github.com/grafana/loki-release/commit/ab86186caf0e7218e9be1fd7a84df58545c08517))
+* bring back check format task ([#128](https://github.com/grafana/loki-release/issues/128)) ([d9bfe17](https://github.com/grafana/loki-release/commit/d9bfe17ed706fdfbd02445a576eb820dea4811a3))
+* bring in v1.11.5 that was used to release 2.8.9 ([#104](https://github.com/grafana/loki-release/issues/104)) ([08c4d14](https://github.com/grafana/loki-release/commit/08c4d14f38743e58d0dcb73c09591a1da77412bd))
+* build all the images ([cc8ce7a](https://github.com/grafana/loki-release/commit/cc8ce7a2e7160f59c0d4b17676043d562dad0f5f))
+* build images for multiple platforms ([49a846e](https://github.com/grafana/loki-release/commit/49a846e2da75e56cd22fd4bbadb2469919afed2e))
+* build images in test workflow ([53e8601](https://github.com/grafana/loki-release/commit/53e8601b5a9ba374aca28f9698fa72c627dfe33f))
+* build pipeline using jsonnet for re-use ([b6cc287](https://github.com/grafana/loki-release/commit/b6cc2876ac3a593ede5644ca2e5a3bbec5572837))
+* bump actions to latest node 20 versions ([#59](https://github.com/grafana/loki-release/issues/59)) ([3f75548](https://github.com/grafana/loki-release/commit/3f755480e578c19c7b0e2128f8c492b72cd874ae))
+* **ci:** add prepare workflow ([b100d6f](https://github.com/grafana/loki-release/commit/b100d6fe25669928cb023e4b869af0cfe353b7b1))
+* **ci:** add release-please action ([b994e1b](https://github.com/grafana/loki-release/commit/b994e1bb5a36e7f6e1f0134a1ea104143d0bce3f))
+* **ci:** bump minor for k branches ([44d573d](https://github.com/grafana/loki-release/commit/44d573d107dd71ae26e2884a8d5e75c2e7a6d76f))
+* **ci:** fix default-branch ([fe48dc3](https://github.com/grafana/loki-release/commit/fe48dc34c4e9cbfc42d5afff5ad79c0b1daf464a))
+* **ci:** try to move versioning into workflow definition ([d66d51a](https://github.com/grafana/loki-release/commit/d66d51a562d6384e2966acd1cbf3755b99ff93a4))
+* create images dir ([86c832c](https://github.com/grafana/loki-release/commit/86c832c24d293afd7b3954ec3ff7ab9c7e50ee20))
+* create release branch from k release ([07f2b06](https://github.com/grafana/loki-release/commit/07f2b064a9a0234a0cfe87cf390bb6f055dff967))
+* create release first ([e2d4e73](https://github.com/grafana/loki-release/commit/e2d4e7318ec2f581296b5341363698c222352536))
+* dockerfile and weekly images ([#127](https://github.com/grafana/loki-release/issues/127)) ([6c326b8](https://github.com/grafana/loki-release/commit/6c326b84f35d69f9d01732b2805eb645a52b69cc))
+* exclude component from tag for better release notes ([9841d98](https://github.com/grafana/loki-release/commit/9841d98bbfefd2a1d972c4bb81f5a4d6bcffc5e7))
+* few final tweak to integrate with loki ([0f7c648](https://github.com/grafana/loki-release/commit/0f7c64806adf078cf667b52c8aef079822d0404f))
+* first try at storing build artifacts in GCS ([8801d68](https://github.com/grafana/loki-release/commit/8801d686e7b4084bb8e82f5776c8a7148fa219a5))
+* fix typo in versioing-strategy ([5a47a62](https://github.com/grafana/loki-release/commit/5a47a62cdea90bbf21cefd8085eaf8b47650bd51))
+* fix versioning strategy ([0008487](https://github.com/grafana/loki-release/commit/0008487cad2fe5e54fdacde3ff0b2724c21db979))
+* make build artifacts bucket configurable ([2a6046d](https://github.com/grafana/loki-release/commit/2a6046d2f3d383528d3dc1b02405c1607551b5b5))
+* make it a dry run ([4d63549](https://github.com/grafana/loki-release/commit/4d63549df4170dc67b4fe6a31175693504bab47a))
+* make workflow re-usable ([c01b721](https://github.com/grafana/loki-release/commit/c01b7213100dca261ddf9cad255cf4428bebd8a7))
+* merge 1.12 back to main ([#121](https://github.com/grafana/loki-release/issues/121)) ([fa791cb](https://github.com/grafana/loki-release/commit/fa791cb3a8d96df7e62a0a520a9e55bd5ea182dc))
+* merge 1.12.0 ([#107](https://github.com/grafana/loki-release/issues/107)) ([ec17e6a](https://github.com/grafana/loki-release/commit/ec17e6aed57025d3c6a8d2f76839c746da9bc5cc))
+* nest workflows in folder ([2eab631](https://github.com/grafana/loki-release/commit/2eab6317c6381b2827dac7409bfd8dfcaf96f4eb))
+* output created/updated PR ([3d76523](https://github.com/grafana/loki-release/commit/3d76523376309db2e95d8f05716aa0c3d1b228e7))
+* patch release docker fixes from 1.8.x ([#88](https://github.com/grafana/loki-release/issues/88)) ([5b0f7c1](https://github.com/grafana/loki-release/commit/5b0f7c1a81ba4c28804d11f755148f7bdb7bf7b9))
+* release the correct sha ([#47](https://github.com/grafana/loki-release/issues/47)) ([70b72f2](https://github.com/grafana/loki-release/commit/70b72f26b74f3d999efbdbbd937c422adba27701))
+* remove release-please config file ([#49](https://github.com/grafana/loki-release/issues/49)) ([50b19ae](https://github.com/grafana/loki-release/commit/50b19ae967d0301fce1a00f3837a709753dfad1d))
+* remove unused code ([0ad335c](https://github.com/grafana/loki-release/commit/0ad335cf7b13c6cb374d85ec05d127300c01edba))
+* run create release on release branches ([c8ba75f](https://github.com/grafana/loki-release/commit/c8ba75ffe27b6288de7b048b716173a131352ddc))
+* skip steps not jobs ([#58](https://github.com/grafana/loki-release/issues/58)) ([2fa7aa5](https://github.com/grafana/loki-release/commit/2fa7aa569fe30d8c9ce2a80b12bdb7b7f70844aa))
+* try a merge to main w/ backport strategy ([cf996f4](https://github.com/grafana/loki-release/commit/cf996f4cb2366df03c668af2b572f845c904e7ac))
+* try using release-please for release again ([3ca6579](https://github.com/grafana/loki-release/commit/3ca6579cb00cde5843021c5ccd99c83139db54ed))
+* working pipeline as a jsonnet library ([#81](https://github.com/grafana/loki-release/issues/81)) ([97f0254](https://github.com/grafana/loki-release/commit/97f0254db04c6dba53080aac4f6ec69bf4be7993))
+
+
+### Bug Fixes
+
+* add google auth to image steps ([85cba30](https://github.com/grafana/loki-release/commit/85cba30090373b064159f82c09cd209ae809d2bc))
+* add jsonnet ([059f0e1](https://github.com/grafana/loki-release/commit/059f0e1d93d2e89135ff810581801c83a29c78d3))
+* limit operator to amd64 image ([be93744](https://github.com/grafana/loki-release/commit/be937442802b255e7be3767b0f752000400cb37f))
+* linter ([fefdc33](https://github.com/grafana/loki-release/commit/fefdc33824a3bef5cba17ad90fd6c09d8da8c857))
+* npm install ([597bab2](https://github.com/grafana/loki-release/commit/597bab218aee8f7656142643f9a8fb40a405bb00))
+* npm invocations ([8c488a0](https://github.com/grafana/loki-release/commit/8c488a00bf2bd8167ab62f1075651a3c4456d5be))
+* tests ([cc98b10](https://github.com/grafana/loki-release/commit/cc98b1078851598b7800f5bfd306a82803801258))
+
 ## [1.13.7](https://github.com/grafana/loki-release/compare/v1.13.6...v1.13.7) (2024-03-22)
 
 
