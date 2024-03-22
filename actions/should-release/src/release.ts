@@ -1,5 +1,11 @@
-import { createGitHubInstance, findMergedReleasePullRequests } from './github'
+import {
+  createGitHubInstance,
+  findMergedReleasePullRequests,
+  getAllTags
+} from './github'
 
+import { Version } from 'release-please/build/src/version'
+import { GitHubTag } from 'release-please/build/src/github'
 import { PullRequest } from 'release-please/build/src/pull-request'
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
 import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
@@ -13,6 +19,7 @@ export async function shouldRelease(
 ): Promise<ReleaseMeta | undefined> {
   const gh = await createGitHubInstance(baseBranch)
   const mergedReleasePRs = await findMergedReleasePullRequests(baseBranch, gh)
+  const tags = await getAllTags(gh)
 
   const candidateReleases: ReleaseMeta[] = []
   for (const pullRequest of mergedReleasePRs) {
@@ -23,7 +30,8 @@ export async function shouldRelease(
 
     const release = await prepareSingleRelease(
       pullRequest,
-      pullRequestTitlePattern
+      pullRequestTitlePattern,
+      tags
     )
 
     if (release !== undefined) {
@@ -48,7 +56,9 @@ export async function shouldRelease(
 
 type ReleaseMeta = {
   name: string
+  prNumber: number
   sha?: string | undefined
+  isLatest?: boolean | undefined
 }
 
 const footerPattern =
@@ -56,7 +66,8 @@ const footerPattern =
 
 async function prepareSingleRelease(
   pullRequest: PullRequest,
-  pullRequestTitlePattern: string
+  pullRequestTitlePattern: string,
+  tags: Record<string, GitHubTag>
 ): Promise<ReleaseMeta | undefined> {
   if (!pullRequest.sha) {
     error('Pull request should have been merged')
@@ -93,8 +104,45 @@ async function prepareSingleRelease(
     return
   }
 
+  const isLatest = isLatestVersion(version, tags)
+  const { sha } = match.groups
+
   return {
+    isLatest,
+    sha,
     name: `v${version.toString()}`,
-    sha: match.groups.sha
+    prNumber: pullRequest.number
   }
+}
+
+export function isLatestVersion(
+  version: Version,
+  tags: Record<string, GitHubTag>
+): boolean {
+  for (const tag in tags) {
+    if (compareVersions(Version.parse(tags[tag].name), version) >= 0) {
+      return false
+    }
+  }
+  return true
+}
+
+function compareVersions(v1: Version, v2: Version): number {
+  if (v1.major !== v2.major) {
+    return compareParts(v1.major, v2.major)
+  }
+
+  if (v1.minor !== v2.minor) {
+    return compareParts(v1.minor, v2.minor)
+  }
+
+  if (v1.patch !== v2.patch) {
+    return compareParts(v1.patch, v2.patch)
+  }
+
+  return 0
+}
+
+function compareParts(p1: number, p2: number): number {
+  return p1 < p2 ? -1 : 1
 }

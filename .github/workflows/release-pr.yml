@@ -1,9 +1,13 @@
 concurrency:
   group: "create-release-pr-${{ github.sha }}"
 env:
+  BUILD_ARTIFACTS_BUCKET: "loki-build-artifacts"
+  BUILD_TIMEOUT: 25
+  CHANGELOG_PATH: "CHANGELOG.md"
   DOCKER_USERNAME: "grafana"
+  DRY_RUN: false
   IMAGE_PREFIX: "trevorwhitney075"
-  RELEASE_LIB_REF: "release-1.11.x"
+  RELEASE_LIB_REF: "release-1.12.x"
   RELEASE_REPO: "grafana/loki-release"
   SKIP_VALIDATION: false
   USE_GITHUB_APP_TOKEN: true
@@ -14,7 +18,7 @@ jobs:
     with:
       build_image: "grafana/loki-build-image:0.33.0"
       golang_ci_lint_version: "v1.55.1"
-      release_lib_ref: "release-1.11.x"
+      release_lib_ref: "release-1.12.x"
       skip_validation: false
       use_github_app_token: true
   create-release-pr:
@@ -66,18 +70,20 @@ jobs:
       run: |
         npm install
         npm exec -- release-please release-pr \
+          --changelog-path "${CHANGELOG_PATH}" \
           --consider-all-branches \
           --group-pull-request-title-pattern "chore\${scope}: release\${component} \${version}" \
           --label "backport main,autorelease: pending,product-approved" \
           --manifest-file .release-please-manifest.json \
-          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}" \
+          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/${BUILD_ARTIFACTS_BUCKET}/${SHA}) of ${SHA}" \
           --pull-request-title-pattern "chore\${scope}: release\${component} \${version}" \
           --release-type simple \
           --repo-url "${{ env.RELEASE_REPO }}" \
           --separate-pull-requests false \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token "${{ steps.github_app_token.outputs.token }}" \
-          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
+          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
+          --dry-run ${{ fromJSON(env.DRY_RUN) }}
         
       working-directory: "lib"
   dist:
@@ -94,6 +100,10 @@ jobs:
       uses: "google-github-actions/auth@v2"
       with:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
+    - name: "Set up Cloud SDK"
+      uses: "google-github-actions/setup-gcloud@v2"
+      with:
+        version: ">= 452.0.0"
     - id: "get-secrets"
       name: "get nfpm signing keys"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
@@ -131,7 +141,7 @@ jobs:
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
-        destination: "loki-build-artifacts/${{ github.sha }}"
+        destination: "${{ env.BUILD_ARTIFACTS_BUCKET }}/${{ github.sha }}"
         path: "release/dist"
         process_gcloudignore: false
   loki:
@@ -171,11 +181,14 @@ jobs:
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         echo "platform_short=$(echo ${{ matrix.platform }} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       working-directory: "release"
-    - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
+    - env:
+        IMAGE_TAG: "${{ needs.version.outputs.version }}"
+      if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "Build and export"
-      timeout-minutes: 25
+      timeout-minutes: "${{ fromJSON(env.BUILD_TIMEOUT) }}"
       uses: "docker/build-push-action@v5"
       with:
+        build-args: "IMAGE_TAG=${{ needs.version.outputs.version }}"
         context: "release"
         file: "release/cmd/loki/Dockerfile"
         outputs: "type=docker,dest=release/images/fake-loki-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
@@ -185,7 +198,7 @@ jobs:
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
       with:
-        destination: "loki-build-artifacts/${{ github.sha }}/images"
+        destination: "${{ env.BUILD_ARTIFACTS_BUCKET }}/${{ github.sha }}/images"
         path: "release/images/fake-loki-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
         process_gcloudignore: false
     strategy:
@@ -274,7 +287,7 @@ jobs:
           echo "pr_created=true" >> $GITHUB_OUTPUT
         fi
       working-directory: "lib"
-name: "create release PR"
+name: "Create Release PR"
 "on":
   push:
     branches:

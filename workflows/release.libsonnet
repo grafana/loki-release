@@ -9,7 +9,7 @@ local releaseLibStep = common.releaseLibStep;
 // sha to release and pull aritfacts from. If you need to change this, make sure
 // to change it in both places.
 //TODO: make bucket configurable
-local pullRequestFooter = 'Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/loki-build-artifacts/${SHA}) of ${SHA}';
+local pullRequestFooter = 'Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/${BUILD_ARTIFACTS_BUCKET}/${SHA}) of ${SHA}';
 
 {
   createReleasePR:
@@ -33,6 +33,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       + step.withRun(|||
         npm install
         npm exec -- release-please release-pr \
+          --changelog-path "${CHANGELOG_PATH}" \
           --consider-all-branches \
           --group-pull-request-title-pattern "chore\${scope}: release\${component} \${version}" \
           --label "backport main,autorelease: pending,product-approved" \
@@ -44,7 +45,8 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           --separate-pull-requests false \
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token "${{ steps.github_app_token.outputs.token }}" \
-          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
+          --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
+          --dry-run ${{ fromJSON(env.DRY_RUN) }}
 
       ||| % pullRequestFooter),
     ]),
@@ -65,6 +67,8 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    shouldRelease: '${{ steps.should_release.outputs.shouldRelease }}',
                    sha: '${{ steps.should_release.outputs.sha }}',
                    name: '${{ steps.should_release.outputs.name }}',
+                   prNumber: '${{ steps.should_release.outputs.prNumber }}',
+                   isLatest: '${{ steps.should_release.outputs.isLatest }}',
                    branch: '${{ steps.extract_branch.outputs.branch }}',
 
                  }),
@@ -86,7 +90,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    releaseStep('download binaries')
                    + step.withRun(|||
                      echo "downloading binaries to $(pwd)/dist"
-                     gsutil cp -r gs://loki-build-artifacts/${{ needs.shouldRelease.outputs.sha }}/dist .
+                     gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/${{ needs.shouldRelease.outputs.sha }}/dist .
                    |||),
 
                    releaseStep('check if release exists')
@@ -119,7 +123,8 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                        --release-type simple \
                        --repo-url "${{ env.RELEASE_REPO }}" \
                        --target-branch "${{ needs.shouldRelease.outputs.branch }}" \
-                       --token "${{ steps.github_app_token.outputs.token }}"
+                       --token "${{ steps.github_app_token.outputs.token }}" \
+                       --shas-to-tag "${{ needs.shouldRelease.outputs.prNumber }}:${{ needs.shouldRelease.outputs.sha }}"
                    |||),
 
                    releaseStep('upload artifacts')
@@ -130,10 +135,20 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    + step.withRun(|||
                      gh release upload --clobber ${{ needs.shouldRelease.outputs.name }} dist/*
                    |||),
+
+                   step.new('release artifacts', 'google-github-actions/upload-cloud-storage@v2')
+                   + step.withIf('${{ fromJSON(env.PUBLISH_TO_GCS) }}')
+                   + step.with({
+                     path: 'release/dist',
+                     destination: '${{ env.PUBLISH_BUCKET }}',
+                     parent: false,
+                     process_gcloudignore: false,
+                   }),
                  ])
                  + job.withOutputs({
                    sha: '${{ needs.shouldRelease.outputs.sha }}',
                    name: '${{ needs.shouldRelease.outputs.name }}',
+                   isLatest: '${{ needs.shouldRelease.outputs.isLatest }}',
                    draft: '${{ steps.check_release.outputs.draft }}',
                    exists: '${{ steps.check_release.outputs.exists }}',
                  }),
@@ -183,7 +198,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                       GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
                     })
                     + step.withRun(|||
-                      gh release edit ${{ needs.createRelease.outputs.name }} --draft=false
+                      gh release edit ${{ needs.createRelease.outputs.name }} --draft=false --latest=${{ needs.createRelease.outputs.isLatest }}
                     |||),
                   ]),
 }

@@ -1,6 +1,7 @@
 local common = import 'common.libsonnet';
 local job = common.job;
 local step = common.step;
+local _validationJob = common.validationJob;
 
 local setupValidationDeps = function(job) job {
   steps: [
@@ -35,15 +36,7 @@ local setupValidationDeps = function(job) job {
   ] + job.steps,
 };
 
-local validationJob = job.new()
-                      + job.withContainer({
-                        image: '${{ inputs.build_image }}',
-                      })
-                      + job.withEnv({
-                        BUILD_IN_CONTAINER: false,
-                        SKIP_VALIDATION: '${{ inputs.skip_validation }}',
-                      });
-
+local validationJob = _validationJob(false);
 
 {
   local validationMakeStep = function(name, target)
@@ -72,12 +65,12 @@ local validationJob = job.new()
         validationMakeStep('lint', 'lint'),
         validationMakeStep('lint jsonnet', 'lint-jsonnet'),
         validationMakeStep('lint scripts', 'lint-scripts'),
-        // step.new('format')
-        // + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-        // + step.withRun(|||
-        //   git fetch origin
-        //   make check-format
-        // |||),
+        step.new('check format')
+        + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+        + step.withRun(|||
+          git fetch origin
+          make check-format
+        |||),
       ] + [
         step.new('golangci-lint', 'golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5')
         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
