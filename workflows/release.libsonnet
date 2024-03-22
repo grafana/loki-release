@@ -46,7 +46,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token "${{ steps.github_app_token.outputs.token }}" \
           --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
-          --dry-run "${{ env.DRY_RUN }}"
+          --dry-run ${{ fromJSON(env.DRY_RUN) }}
 
       ||| % pullRequestFooter),
     ]),

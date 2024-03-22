@@ -83,7 +83,7 @@ jobs:
           --target-branch "${{ steps.extract_branch.outputs.branch }}" \
           --token "${{ steps.github_app_token.outputs.token }}" \
           --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
-          --dry-run "${{ env.DRY_RUN }}"
+          --dry-run ${{ fromJSON(env.DRY_RUN) }}
         
       working-directory: "lib"
   dist:
