@@ -209,7 +209,7 @@ jobs:
       uses: "./lib/actions/should-release"
       with:
         baseBranch: "${{ steps.extract_branch.outputs.branch }}"
-name: "create release"
+name: "Create Release"
 "on":
   pull_request: {}
   push:

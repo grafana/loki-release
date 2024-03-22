@@ -5,7 +5,7 @@ env:
   BUILD_TIMEOUT: 25
   CHANGELOG_PATH: "CHANGELOG.md"
   DOCKER_USERNAME: "grafana"
-  DRY_RUN: false
+  DRY_RUN: true
   IMAGE_PREFIX: "trevorwhitney075"
   RELEASE_LIB_REF: "release-1.12.x"
   RELEASE_REPO: "grafana/loki-release"
@@ -287,8 +287,9 @@ jobs:
           echo "pr_created=true" >> $GITHUB_OUTPUT
         fi
       working-directory: "lib"
-name: "Create Release PR"
+name: "Test Create Release PR Action"
 "on":
+  pull_request: {}
   push:
     branches:
     - "release-[0-9]+.[0-9]+.x"
