@@ -4,7 +4,7 @@ import { isLatestVersion, shouldRelease } from '../src/release'
 
 import * as github from '../src/github'
 
-import { GitHub } from 'release-please/build/src/github'
+import { GitHub, GitHubTag } from 'release-please/build/src/github'
 import { PullRequestBody } from 'release-please/build/src/util/pull-request-body'
 import { PullRequestTitle } from 'release-please/build/src/util/pull-request-title'
 import { Version } from 'release-please/build/src/version'
@@ -15,13 +15,14 @@ import { parseConventionalCommits } from 'release-please/build/src/commit'
 const sandbox = createSandbox()
 
 let findMergedReleasePullRequests: sinon.SinonStub
+let tagIterator: sinon.SinonStub
 let fakeGitHub: GitHub
 let defaultPRNotes: string
 let defaultPRTitle: string
 
 const defaultNextVersion = Version.parse('1.3.2')
 
-const footer =
+const defaultFooter =
   'Merging this PR will release the [artifacts](https://loki-build-artifacts.storage.googleapis.com/def456) of def456'
 
 const prTitlePattern = 'chore${scope}: release${component} ${version}'
@@ -75,6 +76,7 @@ describe('release', () => {
       github,
       'findMergedReleasePullRequests'
     )
+    tagIterator = sandbox.stub(github, 'getAllTags')
     defaultPRNotes = await new DefaultChangelogNotes().buildNotes(commits, {
       owner: 'fake-owner',
       repository: 'fake-repo',
@@ -92,8 +94,16 @@ describe('release', () => {
     sandbox.restore()
   })
 
-  describe('prepareRelease', () => {
-    it('creates a release for each merged release PR', async () => {
+  describe('shouldRelease', () => {
+    const setup = (
+      footer = defaultFooter,
+      tags = {
+        'v1.3.1': {
+          name: 'v1.3.1',
+          sha: 'abs123'
+        } as GitHubTag
+      }
+    ): void => {
       findMergedReleasePullRequests.resolves([
         {
           headBranchName: `release-please--branches--release-1.3.x`,
@@ -116,6 +126,12 @@ describe('release', () => {
           files: []
         }
       ])
+
+      tagIterator.resolves(tags)
+    }
+
+    it('creates a release for each merged release PR', async () => {
+      setup()
 
       const release = await shouldRelease('main', prTitlePattern)
       expect(release).toBeDefined()
@@ -123,28 +139,7 @@ describe('release', () => {
     })
 
     it('parses the sha to release from the pull request footer', async () => {
-      findMergedReleasePullRequests.resolves([
-        {
-          headBranchName: `release-please--branches--release-1.3.x`,
-          baseBranchName: 'release-1.3.x',
-          sha: 'abc123',
-          number: 42,
-          title: defaultPRTitle,
-          body: new PullRequestBody(
-            [
-              {
-                version: defaultNextVersion,
-                notes: defaultPRNotes
-              }
-            ],
-            {
-              footer
-            }
-          ).toString(),
-          labels: [],
-          files: []
-        }
-      ])
+      setup()
 
       const release = await shouldRelease('main', prTitlePattern)
       expect(release).toBeDefined()
@@ -152,31 +147,40 @@ describe('release', () => {
     })
 
     it('returns undefined if it cannot parse a sha from the footer', async () => {
-      findMergedReleasePullRequests.resolves([
-        {
-          headBranchName: `release-please--branches--release-1.3.x`,
-          baseBranchName: 'release-1.3.x',
-          sha: 'abc123',
-          number: 42,
-          title: defaultPRTitle,
-          body: new PullRequestBody(
-            [
-              {
-                version: defaultNextVersion,
-                notes: defaultPRNotes
-              }
-            ],
-            {
-              footer: `not a valid footer`
-            }
-          ).toString(),
-          labels: [],
-          files: []
-        }
-      ])
+      setup('not a valid footer')
 
       const release = await shouldRelease('main', prTitlePattern)
       expect(release).not.toBeDefined()
+    })
+
+    it('determines if the release is the latest version', async () => {
+      const tags = {
+        'v1.3.1': {
+          name: 'v1.3.1',
+          sha: 'abs123'
+        } as GitHubTag
+      }
+      setup(defaultFooter, tags)
+
+      const release = await shouldRelease('main', prTitlePattern)
+      expect(release?.isLatest).toEqual(true)
+    })
+
+    it('determines if the release is not the latest version', async () => {
+      const tags = {
+        'v1.3.1': {
+          name: 'v1.3.1',
+          sha: 'abs123'
+        } as GitHubTag,
+        'v1.4.1': {
+          name: 'v1.4.1',
+          sha: 'def456'
+        } as GitHubTag
+      }
+      setup(defaultFooter, tags)
+
+      const release = await shouldRelease('main', prTitlePattern)
+      expect(release?.isLatest).toEqual(false)
     })
   })
 
