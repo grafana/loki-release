@@ -8,8 +8,11 @@ if (!version) {
 }
 
 const versionParts = [version.major, version.minor, version.patch]
-if (version.preRelease && version.preRelease !== '') {
-  versionParts.push(version.preRelease)
-}
 
-console.log(versionParts.join('.'))
+const baseVersion = versionParts.join('.')
+
+if (version.preRelease && version.preRelease !== '') {
+  console.log(`${baseVersion}-${version.preRelease}`)
+} else {
+  console.log(baseVersion)
+}
