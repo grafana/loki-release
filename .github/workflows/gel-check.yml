@@ -8,7 +8,7 @@
     "container":
       "credentials":
         "password": "${{ inputs.access_token }}"
-        "username": "oauth2accesstoken"
+        "username": "_json_key_base64"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
