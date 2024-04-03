@@ -198,7 +198,6 @@
         "required": false
         "type": "boolean"
       "access_token":
-        "default": false
         "description": "access_token"
         "required": false
         "type": "string"
