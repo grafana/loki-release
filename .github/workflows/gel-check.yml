@@ -7,7 +7,7 @@
   "check":
     "container":
       "credentials":
-        "password": "${{ inputs.access_token }}"
+        "password": ${{ inputs.access_token }}
         "username": "_json_key_base64"
       "image": "${{ inputs.build_image }}"
     "env":
