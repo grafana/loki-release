@@ -75,7 +75,7 @@ jobs:
       - uses: kobtea/setup-jsonnet-action@v1
       - run: npm run workflows
       - run: |
-          git diff --name-only - w -- ".github/workflows/*.yml" | xargs --no-run-if-empty git diff -w --exit-code -- \
+          git diff --name-only -w -- ".github/workflows/*.yml" | xargs --no-run-if-empty git diff -w --exit-code -- \
             || (echo "Change to workflows detected, please run 'npm run workflows' and commit the changes" && false)
   test:
     runs-on: ubuntu-latest
