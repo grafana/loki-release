@@ -7,9 +7,6 @@ test-integration:
 lint:
 	echo "linting"
 
-lint-jsonnet:
-	echo "linting jsonnet"
-
 loki:
 	go build -o cmd/loki/loki cmd/loki/main.go
 

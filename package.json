@@ -69,8 +69,6 @@
     "release-please": "grafana/release-please"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.6.3",
-    "@commitlint/config-conventional": "^17.6.3",
     "@types/jest": "^29.5.10",
     "@types/node": "^20.11.16",
     "@types/sinon": "^10.0.0",
