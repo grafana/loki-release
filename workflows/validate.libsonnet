@@ -35,7 +35,7 @@ local validationJob = _validationJob(false);
     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
     + step.withRun(common.makeTarget(target)),
 
-  collectPackages: job.new('collect packages')
+  collectPackages: job.new()
                    + job.withSteps([
                      common.checkout,
                      common.fixDubiousOwnership,

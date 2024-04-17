@@ -81,7 +81,7 @@
   "collectPackages":
     "outputs":
       "packages": "${{ steps.gather-packages.outputs.packages }}"
-    "runs-on": "collect packages"
+    "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
