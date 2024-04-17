@@ -201,7 +201,7 @@
         gotestsum --package ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4
     "strategy":
       "matrix":
-        "package": "${{fromJson(needs.collect-packages.outputs.packages)}}"
+        "package": "${{fromJson(needs.collectPackages.outputs.packages)}}"
 "name": "check"
 "on":
   "workflow_call":

@@ -53,7 +53,7 @@ local validationJob = _validationJob(false);
         + job.withNeeds(['collectPackages'])
         + job.withStrategy({
           matrix: {
-            package: '${{fromJson(needs.collect-packages.outputs.packages)}}',
+            package: '${{fromJson(needs.collectPackages.outputs.packages)}}',
           },
         })
         + job.withSteps([
