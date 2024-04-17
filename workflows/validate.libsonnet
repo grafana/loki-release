@@ -35,12 +35,34 @@ local validationJob = _validationJob(false);
     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
     + step.withRun(common.makeTarget(target)),
 
-  test: setupValidationDeps(
-    validationJob
-    + job.withSteps([
-      validationMakeStep('test', 'test'),
-    ])
-  ),
+  collectPackages: job.new('collect packages')
+                   + job.withSteps([
+                     step.new('gather packages')
+                     + step.withId('gather-packages')
+                     + step.withRun(|||
+                       echo "packages=$(ls -d pkg/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+                     |||),
+                   ])
+                   + job.withOutputs({
+                     packages: '${{ steps.gather-packages.outputs.packages }}',
+                   }),
+
+  test: validationJob
+        + job.withNeeds(['collectPackages'])
+        + job.withStrategy({
+          matrix: {
+            package: '${{fromJson(needs.collect-packages.outputs.packages)}}',
+          },
+        })
+        + job.withSteps([
+          common.checkout,
+          common.fixDubiousOwnership,
+          step.new('test package')
+          + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+          + step.withRun(|||
+            gotestsum --package ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4 | tee test_results.txt
+          |||),
+        ]),
 
   integration: setupValidationDeps(
     validationJob
