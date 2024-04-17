@@ -83,6 +83,11 @@
       "packages": "${{ steps.gather-packages.outputs.packages }}"
     "runs-on": "collect packages"
     "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "id": "gather-packages"
       "name": "gather packages"
       "run": |
@@ -193,7 +198,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum --package ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4 | tee test_results.txt
+        gotestsum --package ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4
     "strategy":
       "matrix":
         "package": "${{fromJson(needs.collect-packages.outputs.packages)}}"

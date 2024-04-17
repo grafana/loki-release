@@ -37,6 +37,8 @@ local validationJob = _validationJob(false);
 
   collectPackages: job.new('collect packages')
                    + job.withSteps([
+                     common.checkout,
+                     common.fixDubiousOwnership,
                      step.new('gather packages')
                      + step.withId('gather-packages')
                      + step.withRun(|||
@@ -60,7 +62,7 @@ local validationJob = _validationJob(false);
           step.new('test ${{ matrix.package }}')
           + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
           + step.withRun(|||
-            gotestsum --package ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4 | tee test_results.txt
+            gotestsum --package ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4
           |||),
         ]),
 
