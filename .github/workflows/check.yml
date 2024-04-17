@@ -191,7 +191,7 @@
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "test package"
+      "name": "test ${{ matrix.package }}"
       "run": |
         gotestsum --package ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4 | tee test_results.txt
     "strategy":

@@ -57,7 +57,7 @@ local validationJob = _validationJob(false);
         + job.withSteps([
           common.checkout,
           common.fixDubiousOwnership,
-          step.new('test package')
+          step.new('test ${{ matrix.package }}')
           + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
           + step.withRun(|||
             gotestsum --package ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4 | tee test_results.txt
