@@ -62,7 +62,7 @@ local validationJob = _validationJob(false);
           step.new('test ${{ matrix.package }}')
           + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
           + step.withRun(|||
-            gotestsum --package ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4
+            gotestsum --packages ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4
           |||),
         ]),
 

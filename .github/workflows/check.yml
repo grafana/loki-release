@@ -198,7 +198,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum --package ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4
+        gotestsum --packages ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4
     "strategy":
       "matrix":
         "package": "${{fromJson(needs.collectPackages.outputs.packages)}}"
