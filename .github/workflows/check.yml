@@ -191,6 +191,11 @@
     - "testTools"
     - "testOperator"
     "runs-on": "ubuntu-latest"
+    "steps":
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "tesstepst"
+      "run": |
+        echo "All tests passed"
   "testCommands":
     "container":
       "image": "${{ inputs.build_image }}"

@@ -113,7 +113,14 @@ local validationJob = _validationJob(false);
   ),
 
   test: job.new()
-        + job.withNeeds(['testPackages', 'testCommands', 'testTools', 'testOperator']),
+        + job.withNeeds(['testPackages', 'testCommands', 'testTools', 'testOperator'])
+        + job.withSteps([
+          step.new('tesstepst')
+          + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+          + step.withRun(|||
+            echo "All tests passed"
+          |||),
+        ]),
 
   integration: setupValidationDeps(
     validationJob
