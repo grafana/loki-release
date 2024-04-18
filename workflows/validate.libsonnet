@@ -42,7 +42,7 @@ local validationJob = _validationJob(false);
                   step.new('gather packages')
                   + step.withId('gather-tests')
                   + step.withRun(|||
-                    echo "packages=$(ls -d pkg/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+                    echo "packages=$(ls -d pkg/*/ | grep -v "push" | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
                     echo "commands=$(ls -d cmd/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
                     echo "tools=$(ls -d tools/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
                   |||),
