@@ -66,6 +66,12 @@ local validationJob = _validationJob(false);
                   step.new('test ${{ matrix.package }}')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                   + step.withRun(|||
+                    echo "current directory:"
+                    pwd
+                    echo "\ncurrent directory contents:"
+                    ls
+                    echo "\package directory contents:"
+                    ls ./${{ matrix.package }}
                     gotestsum --packages="./${{ matrix.package }}" --rerun-fails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
                   |||),
                 ]),
