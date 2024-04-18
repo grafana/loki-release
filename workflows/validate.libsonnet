@@ -72,7 +72,7 @@ local validationJob = _validationJob(false);
                     ls
                     echo "\npackage directory contents:"
                     ls ./${{ matrix.package }}
-                    gotestsum --rerun-fails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}...
+                    gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}...
                   |||),
                 ]),
 
