@@ -35,36 +35,85 @@ local validationJob = _validationJob(false);
     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
     + step.withRun(common.makeTarget(target)),
 
-  collectPackages: job.new()
-                   + job.withSteps([
-                     common.checkout,
-                     common.fixDubiousOwnership,
-                     step.new('gather packages')
-                     + step.withId('gather-packages')
-                     + step.withRun(|||
-                       echo "packages=$(ls -d pkg/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
-                     |||),
-                   ])
-                   + job.withOutputs({
-                     packages: '${{ steps.gather-packages.outputs.packages }}',
-                   }),
+  collectTests: job.new()
+                + job.withSteps([
+                  common.checkout,
+                  common.fixDubiousOwnership,
+                  step.new('gather packages')
+                  + step.withId('gather-tests')
+                  + step.withRun(|||
+                    echo "packages=$(ls -d pkg/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+                    echo "commands=$(ls -d cmd/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+                    echo "tools=$(ls -d tools/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+                  |||),
+                ])
+                + job.withOutputs({
+                  packages: '${{ steps.gather-tests.outputs.packages }}',
+                  commands: '${{ steps.gather-tests.outputs.commands }}',
+                  tools: '${{ steps.gather-tests.outputs.tools }}',
+                }),
 
-  test: validationJob
-        + job.withNeeds(['collectPackages'])
-        + job.withStrategy({
-          matrix: {
-            package: '${{fromJson(needs.collectPackages.outputs.packages)}}',
-          },
-        })
-        + job.withSteps([
-          common.checkout,
-          common.fixDubiousOwnership,
-          step.new('test ${{ matrix.package }}')
-          + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-          + step.withRun(|||
-            gotestsum --packages ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4
-          |||),
-        ]),
+  testPackages: validationJob
+                + job.withNeeds(['collectTests'])
+                + job.withStrategy({
+                  matrix: {
+                    package: '${{fromJson(needs.collectTests.outputs.packages)}}',
+                  },
+                })
+                + job.withSteps([
+                  common.checkout,
+                  common.fixDubiousOwnership,
+                  step.new('test ${{ matrix.package }}')
+                  + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+                  + step.withRun(|||
+                    gotestsum --packages ./${{ matrix.package }} --rerun-fails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
+                  |||),
+                ]),
+
+  testCommands: validationJob
+                + job.withNeeds(['collectTests'])
+                + job.withStrategy({
+                  matrix: {
+                    command: '${{fromJson(needs.collectPackages.outputs.commands)}}',
+                  },
+                })
+                + job.withSteps([
+                  common.checkout,
+                  common.fixDubiousOwnership,
+                  step.new('test ${{ matrix.package }}')
+                  + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+                  + step.withRun(|||
+                    gotestsum --packages ./${{ matrix.command }} --rerun-rails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.command }}/...
+                  |||),
+                ]),
+
+  testTools: validationJob
+             + job.withNeeds(['collectTests'])
+             + job.withStrategy({
+               matrix: {
+                 tool: '${{fromJson(needs.collectPackages.outputs.tools)}}',
+               },
+             })
+             + job.withSteps([
+               common.checkout,
+               common.fixDubiousOwnership,
+               step.new('test ${{ matrix.package }}')
+               + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+               + step.withRun(|||
+                 gotestsum --packages ./${{ matrix.tool }} --rerun-fails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.tool }}/...
+               |||),
+             ]),
+
+  testOperator: setupValidationDeps(
+    validationJob
+    + job.withSteps([
+      validationMakeStep('operator', 'test')
+      + step.withWorkingDirectory('operator'),
+    ])
+  ),
+
+  test: job.new()
+        + job.withNeeds(['testPackages', 'testCommands', 'testTools', 'testOperator']),
 
   integration: setupValidationDeps(
     validationJob

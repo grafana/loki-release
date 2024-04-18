@@ -78,9 +78,11 @@
           cp -r docs/sources/* /hugo/content/docs/loki/latest/
           cd /hugo && make prod
         EOF
-  "collectPackages":
+  "collectTests":
     "outputs":
-      "packages": "${{ steps.gather-packages.outputs.packages }}"
+      "commands": "${{ steps.gather-tests.outputs.commands }}"
+      "packages": "${{ steps.gather-tests.outputs.packages }}"
+      "tools": "${{ steps.gather-tests.outputs.tools }}"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
@@ -88,10 +90,12 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "id": "gather-packages"
+    - "id": "gather-tests"
       "name": "gather packages"
       "run": |
         echo "packages=$(ls -d pkg/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+        echo "commands=$(ls -d cmd/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+        echo "tools=$(ls -d tools/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
   "integration":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -181,13 +185,20 @@
         "only-new-issues": true
         "version": "${{ inputs.golang_ci_lint_version }}"
   "test":
+    "needs":
+    - "testPackages"
+    - "testCommands"
+    - "testTools"
+    - "testOperator"
+    "runs-on": "ubuntu-latest"
+  "testCommands":
     "container":
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
-    - "collectPackages"
+    - "collectTests"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
@@ -198,10 +209,92 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum --packages ./${{ matrix.package }} -- -covermode=atomic -coverprofile=coverage.txt -p=4
+        gotestsum --packages ./${{ matrix.command }} --rerun-rails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.command }}/...
     "strategy":
       "matrix":
-        "package": "${{fromJson(needs.collectPackages.outputs.packages)}}"
+        "command": "${{fromJson(needs.collectPackages.outputs.commands)}}"
+  "testOperator":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
+        "repository": "grafana/loki-release"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install tar"
+      "run": |
+        apt update
+        apt install -qy tar xz-utils
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install shellcheck"
+      "uses": "./lib/actions/install-binary"
+      "with":
+        "binary": "shellcheck"
+        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
+        "smoke_test": "${binary} --version"
+        "tar_args": "xvf"
+        "tarball_binary_path": "*/${binary}"
+        "version": "0.9.0"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "operator"
+      "run": "make test"
+      "working-directory": "operator"
+  "testPackages":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "needs":
+    - "collectTests"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "test ${{ matrix.package }}"
+      "run": |
+        gotestsum --packages ./${{ matrix.package }} --rerun-fails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
+    "strategy":
+      "matrix":
+        "package": "${{fromJson(needs.collectTests.outputs.packages)}}"
+  "testTools":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "needs":
+    - "collectTests"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "test ${{ matrix.package }}"
+      "run": |
+        gotestsum --packages ./${{ matrix.tool }} --rerun-fails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.tool }}/...
+    "strategy":
+      "matrix":
+        "tool": "${{fromJson(needs.collectPackages.outputs.tools)}}"
 "name": "check"
 "on":
   "workflow_call":
