@@ -66,7 +66,7 @@ local validationJob = _validationJob(false);
                   step.new('test ${{ matrix.package }}')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                   + step.withRun(|||
-                    gotestsum --packages ./${{ matrix.package }} --rerun-fails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
+                    gotestsum --packages="./${{ matrix.package }}" --rerun-fails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
                   |||),
                 ]),
 
@@ -83,7 +83,7 @@ local validationJob = _validationJob(false);
                   step.new('test ${{ matrix.package }}')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                   + step.withRun(|||
-                    gotestsum --packages ./${{ matrix.command }} --rerun-rails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.command }}/...
+                    gotestsum --packages="./${{ matrix.command }}" --rerun-rails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
                   |||),
                 ]),
 
@@ -100,7 +100,7 @@ local validationJob = _validationJob(false);
                step.new('test ${{ matrix.package }}')
                + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                + step.withRun(|||
-                 gotestsum --packages ./${{ matrix.tool }} --rerun-fails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.tool }}/...
+                 gotestsum --packages="./${{ matrix.tool }}" --rerun-fails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
                |||),
              ]),
 

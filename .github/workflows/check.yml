@@ -214,7 +214,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum --packages ./${{ matrix.command }} --rerun-rails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.command }}/...
+        gotestsum --packages="./${{ matrix.command }}" --rerun-rails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
     "strategy":
       "matrix":
         "command": "${{fromJson(needs.collectPackages.outputs.commands)}}"
@@ -274,7 +274,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum --packages ./${{ matrix.package }} --rerun-fails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
+        gotestsum --packages="./${{ matrix.package }}" --rerun-fails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
     "strategy":
       "matrix":
         "package": "${{fromJson(needs.collectTests.outputs.packages)}}"
@@ -296,7 +296,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum --packages ./${{ matrix.tool }} --rerun-fails 2 -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.tool }}/...
+        gotestsum --packages="./${{ matrix.tool }}" --rerun-fails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
     "strategy":
       "matrix":
         "tool": "${{fromJson(needs.collectPackages.outputs.tools)}}"
