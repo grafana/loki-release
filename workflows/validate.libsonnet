@@ -80,7 +80,7 @@ local validationJob = _validationJob(false);
                 + job.withNeeds(['collectTests'])
                 + job.withStrategy({
                   matrix: {
-                    command: '${{fromJson(needs.collectPackages.outputs.commands)}}',
+                    command: '${{fromJson(needs.collectTests.outputs.commands)}}',
                   },
                 })
                 + job.withSteps([
@@ -89,7 +89,7 @@ local validationJob = _validationJob(false);
                   step.new('test ${{ matrix.package }}')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                   + step.withRun(|||
-                    gotestsum --packages="./${{ matrix.command }}" --rerun-rails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
+                    gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.command }}...
                   |||),
                 ]),
 
@@ -97,7 +97,7 @@ local validationJob = _validationJob(false);
              + job.withNeeds(['collectTests'])
              + job.withStrategy({
                matrix: {
-                 tool: '${{fromJson(needs.collectPackages.outputs.tools)}}',
+                 tool: '${{fromJson(needs.collectTests.outputs.tools)}}',
                },
              })
              + job.withSteps([
@@ -106,57 +106,82 @@ local validationJob = _validationJob(false);
                step.new('test ${{ matrix.package }}')
                + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                + step.withRun(|||
-                 gotestsum --packages="./${{ matrix.tool }}" --rerun-fails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
+                 gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.tool }}...
                |||),
              ]),
 
-  testOperator: setupValidationDeps(
-    validationJob
-    + job.withSteps([
-      validationMakeStep('operator', 'test')
-      + step.withWorkingDirectory('operator'),
-    ])
-  ),
+  testPushPackage: validationJob
+                   + job.withSteps([
+                     common.checkout,
+                     common.fixDubiousOwnership,
+                     step.new('test push package')
+                     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+                     + step.withWorkingDirectory('pkg/push')
+                     + step.withRun(|||
+                       gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
+                     |||),
+                   ]),
+
+  integration: validationJob
+               + job.withSteps([
+                 common.checkout,
+                 common.fixDubiousOwnership,
+                 validationMakeStep('integration', 'test-integration'),
+               ]),
 
   test: job.new()
-        + job.withNeeds(['testPackages', 'testCommands', 'testTools', 'testOperator'])
+        + job.withNeeds(['testPackages', 'testCommands', 'testTools', 'testPushPackage', 'integration'])
         + job.withSteps([
-          step.new('tesstepst')
+          step.new('tests passed')
           + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
           + step.withRun(|||
             echo "All tests passed"
           |||),
         ]),
 
-  integration: setupValidationDeps(
-    validationJob
+  golangciLint:
+    job.new()
     + job.withSteps([
-      validationMakeStep('integration', 'test-integration'),
-    ])
-  ),
+      common.checkout,
+      step.new('golangci-lint', 'golangci/golangci-lint-action@v4')
+      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+      + step.with({
+        version: '${{ inputs.golang_ci_lint_version }}',
+        'only-new-issues': true,
+      }),
+    ]),
 
-  lint: setupValidationDeps(
+
+  lintFiles: setupValidationDeps(
     validationJob
     + job.withSteps(
       [
-        validationMakeStep('lint', 'lint'),
         validationMakeStep('lint scripts', 'lint-scripts'),
+        step.new('faillint')
+        + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+        + step.withRun(|||
+          faillint -paths "sync/atomic=go.uber.org/atomic" ./...
+
+        |||),
         step.new('check format')
         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
         + step.withRun(|||
           git fetch origin
           make check-format
         |||),
-      ] + [
-        step.new('golangci-lint', 'golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5')
-        + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-        + step.with({
-          version: '${{ inputs.golang_ci_lint_version }}',
-          'only-new-issues': true,
-        }),
-      ],
+      ]
     )
   ),
+
+  lint: job.new()
+        + job.withNeeds(['golangciLint', 'lintFiles'])
+        + job.withSteps([
+          step.new('linting passed')
+          + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+          + step.withRun(|||
+            echo "All linting checks passed"
+          |||),
+        ]),
 
   check: setupValidationDeps(
     validationJob

@@ -96,6 +96,17 @@
         echo "packages=$(ls -d pkg/*/ | grep -v "push" | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
         echo "commands=$(ls -d cmd/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
         echo "tools=$(ls -d tools/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+  "golangciLint":
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "golangci-lint"
+      "uses": "golangci/golangci-lint-action@v4"
+      "with":
+        "only-new-issues": true
+        "version": "${{ inputs.golang_ci_lint_version }}"
   "integration":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -106,34 +117,23 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
-    - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
-      "with":
-        "path": "lib"
-        "ref": "${{ env.RELEASE_LIB_REF }}"
-        "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install tar"
-      "run": |
-        apt update
-        apt install -qy tar xz-utils
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install shellcheck"
-      "uses": "./lib/actions/install-binary"
-      "with":
-        "binary": "shellcheck"
-        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
-        "smoke_test": "${binary} --version"
-        "tar_args": "xvf"
-        "tarball_binary_path": "*/${binary}"
-        "version": "0.9.0"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "integration"
       "run": "make test-integration"
   "lint":
+    "needs":
+    - "golangciLint"
+    - "lintFiles"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "linting passed"
+      "run": |
+        echo "All linting checks passed"
+  "lintFiles":
     "container":
       "image": "${{ inputs.build_image }}"
     "env":
@@ -168,32 +168,29 @@
         "tarball_binary_path": "*/${binary}"
         "version": "0.9.0"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "lint"
-      "run": "make lint"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "lint scripts"
       "run": "make lint-scripts"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "faillint"
+      "run": |
+        faillint -paths "sync/atomic=go.uber.org/atomic" ./...
+        
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check format"
       "run": |
         git fetch origin
         make check-format
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "golangci-lint"
-      "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
-      "with":
-        "only-new-issues": true
-        "version": "${{ inputs.golang_ci_lint_version }}"
   "test":
     "needs":
     - "testPackages"
     - "testCommands"
     - "testTools"
-    - "testOperator"
+    - "testPushPackage"
+    - "integration"
     "runs-on": "ubuntu-latest"
     "steps":
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "tesstepst"
+      "name": "tests passed"
       "run": |
         echo "All tests passed"
   "testCommands":
@@ -214,48 +211,10 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum --packages="./${{ matrix.command }}" --rerun-rails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.command }}...
     "strategy":
       "matrix":
-        "command": "${{fromJson(needs.collectPackages.outputs.commands)}}"
-  "testOperator":
-    "container":
-      "image": "${{ inputs.build_image }}"
-    "env":
-      "BUILD_IN_CONTAINER": false
-      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
-    "steps":
-    - "name": "checkout"
-      "uses": "actions/checkout@v4"
-    - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
-      "with":
-        "path": "lib"
-        "ref": "${{ env.RELEASE_LIB_REF }}"
-        "repository": "grafana/loki-release"
-    - "name": "fix git dubious ownership"
-      "run": |
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install tar"
-      "run": |
-        apt update
-        apt install -qy tar xz-utils
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install shellcheck"
-      "uses": "./lib/actions/install-binary"
-      "with":
-        "binary": "shellcheck"
-        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
-        "smoke_test": "${binary} --version"
-        "tar_args": "xvf"
-        "tarball_binary_path": "*/${binary}"
-        "version": "0.9.0"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "operator"
-      "run": "make test"
-      "working-directory": "operator"
+        "command": "${{fromJson(needs.collectTests.outputs.commands)}}"
   "testPackages":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -284,6 +243,24 @@
     "strategy":
       "matrix":
         "package": "${{fromJson(needs.collectTests.outputs.packages)}}"
+  "testPushPackage":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "test push package"
+      "run": |
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
+      "working-directory": "pkg/push"
   "testTools":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -302,10 +279,10 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum --packages="./${{ matrix.tool }}" --rerun-fails=2 -- -covermode=atomic -coverprofile=coverage.txt -p=4
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.tool }}...
     "strategy":
       "matrix":
-        "tool": "${{fromJson(needs.collectPackages.outputs.tools)}}"
+        "tool": "${{fromJson(needs.collectTests.outputs.tools)}}"
 "name": "check"
 "on":
   "workflow_call":
