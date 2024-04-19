@@ -43,7 +43,7 @@ local validationJob = _validationJob(false);
                      + step.withId('gather-tests')
                      + step.withRun(|||
                        echo "packages=$(find . -path '*_test.go' -printf '%h\n' \
-                         | grep -e "pkg/push" -e "integration" -v \
+                         | grep -e "pkg/push" -e "integration" -e "operator" -v \
                          | cut  -d / -f 2,3 \
                          | uniq \
                          | sort \
