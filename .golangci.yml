@@ -53,6 +53,7 @@ linters-settings:
         allow:
           - fmt
           - github.com/hashicorp/go-uuid
+          - github.com/stretchr/testify
 
   misspell:
     ignore-words:
