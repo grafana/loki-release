@@ -134,18 +134,19 @@ local validationJob = _validationJob(false);
           |||),
         ]),
 
-  golangciLint:
+  golangciLint: setupValidationDeps(
     validationJob
-    + job.withSteps([
-      common.checkout,
-      common.fixDubiousOwnership,
-      step.new('golangci-lint', 'golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5')
-      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-      + step.with({
-        version: '${{ inputs.golang_ci_lint_version }}',
-        'only-new-issues': true,
-      }),
-    ]),
+    + job.withSteps(
+      [
+        step.new('golangci-lint', 'golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5')
+        + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+        + step.with({
+          version: '${{ inputs.golang_ci_lint_version }}',
+          'only-new-issues': true,
+        }),
+      ],
+    )
+  ),
 
 
   lintFiles: setupValidationDeps(
