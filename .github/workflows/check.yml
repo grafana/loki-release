@@ -10,6 +10,23 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "needs":
+    - "checkFiles"
+    - "faillint"
+    - "golangciLint"
+    - "lintFiles"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "checks passed"
+      "run": |
+        echo "All linting and checks passed"
+  "checkFiles":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
@@ -171,22 +188,6 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "integration"
       "run": "make test-integration"
-  "lint":
-    "container":
-      "image": "${{ inputs.build_image }}"
-    "env":
-      "BUILD_IN_CONTAINER": false
-      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "needs":
-    - "golangciLint"
-    - "lintFiles"
-    - "faillint"
-    "runs-on": "ubuntu-latest"
-    "steps":
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "linting passed"
-      "run": |
-        echo "All linting checks passed"
   "lintFiles":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -236,10 +237,10 @@
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
+    - "integration"
+    - "testLambdaPromtail"
     - "testPackages"
     - "testPushPackage"
-    - "testLambdaPromtail"
-    - "integration"
     "runs-on": "ubuntu-latest"
     "steps":
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
@@ -282,12 +283,6 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        echo "current directory:"
-        pwd
-        echo "\ncurrent directory contents:"
-        ls
-        echo "\npackage directory contents:"
-        ls ./${{ matrix.package }}
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
     "strategy":
       "matrix":
