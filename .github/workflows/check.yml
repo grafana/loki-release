@@ -15,12 +15,16 @@
     - "faillint"
     - "golangciLint"
     - "lintFiles"
+    - "integration"
+    - "testLambdaPromtail"
+    - "testPackages"
+    - "testPushPackage"
     "runs-on": "ubuntu-latest"
     "steps":
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "checks passed"
       "run": |
-        echo "All linting and checks passed"
+        echo "All checks passed"
   "checkFiles":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -230,23 +234,6 @@
       "run": |
         git fetch origin
         make check-format
-  "test":
-    "container":
-      "image": "${{ inputs.build_image }}"
-    "env":
-      "BUILD_IN_CONTAINER": false
-      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "needs":
-    - "integration"
-    - "testLambdaPromtail"
-    - "testPackages"
-    - "testPushPackage"
-    "runs-on": "ubuntu-latest"
-    "steps":
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "tests passed"
-      "run": |
-        echo "All tests passed"
   "testLambdaPromtail":
     "container":
       "image": "${{ inputs.build_image }}"

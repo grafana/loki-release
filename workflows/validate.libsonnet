@@ -35,6 +35,7 @@ local validationJob = _validationJob(false);
     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
     + step.withRun(common.makeTarget(target)),
 
+  // Test jobs
   collectPackages: job.new()
                    + job.withSteps([
                      common.checkout,
@@ -103,21 +104,7 @@ local validationJob = _validationJob(false);
                      |||),
                    ]),
 
-  test: validationJob
-        + job.withNeeds([
-          'integration',
-          'testLambdaPromtail',
-          'testPackages',
-          'testPushPackage',
-        ])
-        + job.withSteps([
-          step.new('tests passed')
-          + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-          + step.withRun(|||
-            echo "All tests passed"
-          |||),
-        ]),
-
+  // Check / lint jobs
   checkFiles: setupValidationDeps(
     validationJob
     + job.withSteps([
@@ -200,12 +187,16 @@ local validationJob = _validationJob(false);
            'faillint',
            'golangciLint',
            'lintFiles',
+           'integration',
+           'testLambdaPromtail',
+           'testPackages',
+           'testPushPackage',
          ])
          + job.withSteps([
            step.new('checks passed')
            + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
            + step.withRun(|||
-             echo "All linting and checks passed"
+             echo "All checks passed"
            |||),
          ]),
 
