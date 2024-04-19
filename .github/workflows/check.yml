@@ -92,6 +92,24 @@
       "name": "gather packages"
       "run": |
         echo "packages=$(ls -d pkg/*/ | grep -v "push" | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+  "faillint":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "faillint"
+      "run": |
+        faillint -paths "sync/atomic=go.uber.org/atomic" ./...
+        
   "golangciLint":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -157,6 +175,7 @@
     "needs":
     - "golangciLint"
     - "lintFiles"
+    - "faillint"
     "runs-on": "ubuntu-latest"
     "steps":
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
@@ -200,11 +219,6 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "lint scripts"
       "run": "make lint-scripts"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "faillint"
-      "run": |
-        faillint -paths "sync/atomic=go.uber.org/atomic" ./...
-        
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check format"
       "run": |

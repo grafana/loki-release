@@ -148,18 +148,25 @@ local validationJob = _validationJob(false);
     )
   ),
 
+  faillint:
+    validationJob
+    + job.withSteps([
+      common.checkout,
+      common.fixDubiousOwnership,
+      step.new('faillint')
+      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+      + step.withRun(|||
+        faillint -paths "sync/atomic=go.uber.org/atomic" ./...
+
+      |||),
+    ]),
+
 
   lintFiles: setupValidationDeps(
     validationJob
     + job.withSteps(
       [
         validationMakeStep('lint scripts', 'lint-scripts'),
-        step.new('faillint')
-        + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-        + step.withRun(|||
-          faillint -paths "sync/atomic=go.uber.org/atomic" ./...
-
-        |||),
         step.new('check format')
         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
         + step.withRun(|||
@@ -172,7 +179,7 @@ local validationJob = _validationJob(false);
 
 
   lint: validationJob
-        + job.withNeeds(['golangciLint', 'lintFiles'])
+        + job.withNeeds(['golangciLint', 'lintFiles', 'faillint'])
         + job.withSteps([
           step.new('linting passed')
           + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
