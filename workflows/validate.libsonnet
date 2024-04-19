@@ -181,7 +181,7 @@ local validationJob = _validationJob(false);
     )
   ),
 
-  check: validationJob
+  check: job.new()
          + job.withNeeds([
            'checkFiles',
            'faillint',

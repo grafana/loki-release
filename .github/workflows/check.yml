@@ -5,11 +5,6 @@
   "USE_GITHUB_APP_TOKEN": "${{ inputs.use_github_app_token }}"
 "jobs":
   "check":
-    "container":
-      "image": "${{ inputs.build_image }}"
-    "env":
-      "BUILD_IN_CONTAINER": false
-      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
     - "checkFiles"
     - "faillint"
