@@ -149,6 +149,11 @@
       "name": "integration"
       "run": "make test-integration"
   "lint":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
     - "golangciLint"
     - "lintFiles"
@@ -206,6 +211,11 @@
         git fetch origin
         make check-format
   "test":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
     - "testPackages"
     - "testCommands"

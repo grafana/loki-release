@@ -124,7 +124,7 @@ local validationJob = _validationJob(false);
                  validationMakeStep('integration', 'test-integration'),
                ]),
 
-  test: job.new()
+  test: validationJob
         + job.withNeeds(['testPackages', 'testCommands', 'testTools', 'testPushPackage', 'integration'])
         + job.withSteps([
           step.new('tests passed')
@@ -170,7 +170,8 @@ local validationJob = _validationJob(false);
     )
   ),
 
-  lint: job.new()
+
+  lint: validationJob
         + job.withNeeds(['golangciLint', 'lintFiles'])
         + job.withSteps([
           step.new('linting passed')
