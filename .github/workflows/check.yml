@@ -93,10 +93,18 @@
       "run": |
         echo "packages=$(ls -d pkg/*/ | grep -v "push" | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
   "golangciLint":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
