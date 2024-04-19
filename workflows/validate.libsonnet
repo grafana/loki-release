@@ -192,7 +192,11 @@ local validationJob = _validationJob(false);
            'testPackages',
            'testPushPackage',
          ])
+         + job.withEnv({
+           SKIP_VALIDATION: '${{ inputs.skip_validation }}',
+         })
          + job.withSteps([
+           common.checkout,
            step.new('checks passed')
            + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
            + step.withRun(|||

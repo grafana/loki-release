@@ -5,6 +5,8 @@
   "USE_GITHUB_APP_TOKEN": "${{ inputs.use_github_app_token }}"
 "jobs":
   "check":
+    "env":
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
     - "checkFiles"
     - "faillint"
@@ -16,6 +18,8 @@
     - "testPushPackage"
     "runs-on": "ubuntu-latest"
     "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "checks passed"
       "run": |
