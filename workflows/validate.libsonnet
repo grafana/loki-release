@@ -35,25 +35,30 @@ local validationJob = _validationJob(false);
     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
     + step.withRun(common.makeTarget(target)),
 
-  collectTests: job.new()
-                + job.withSteps([
-                  common.checkout,
-                  common.fixDubiousOwnership,
-                  step.new('gather packages')
-                  + step.withId('gather-tests')
-                  + step.withRun(|||
-                    echo "packages=$(ls -d pkg/*/ | grep -v "push" | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
-                  |||),
-                ])
-                + job.withOutputs({
-                  packages: '${{ steps.gather-tests.outputs.packages }}',
-                }),
+  collectPackages: job.new()
+                   + job.withSteps([
+                     common.checkout,
+                     common.fixDubiousOwnership,
+                     step.new('gather packages')
+                     + step.withId('gather-tests')
+                     + step.withRun(|||
+                       echo "packages=$(find . -path '*_test.go' -printf '%h\n' \
+                         | grep -e "pkg/push" -e "integration" -v \
+                         | cut  -d / -f 2,3 \
+                         | uniq \
+                         | sort \
+                         | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+                     |||),
+                   ])
+                   + job.withOutputs({
+                     packages: '${{ steps.gather-tests.outputs.packages }}',
+                   }),
 
   testPackages: validationJob
-                + job.withNeeds(['collectTests'])
+                + job.withNeeds(['collectPackages'])
                 + job.withStrategy({
                   matrix: {
-                    package: '${{fromJson(needs.collectTests.outputs.packages)}}',
+                    package: '${{fromJson(needs.collectPackages.outputs.packages)}}',
                   },
                 })
                 + job.withSteps([
@@ -68,42 +73,9 @@ local validationJob = _validationJob(false);
                     ls
                     echo "\npackage directory contents:"
                     ls ./${{ matrix.package }}
-                    gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}...
+                    gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
                   |||),
                 ]),
-
-  testCommands: validationJob
-                + job.withStrategy({
-                  matrix: {
-                    command: ['cmd/migrate/'],
-                  },
-                })
-                + job.withSteps([
-                  common.checkout,
-                  common.fixDubiousOwnership,
-                  step.new('test ${{ matrix.package }}')
-                  + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-                  + step.withRun(|||
-                    gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.command }}...
-                  |||),
-                ]),
-
-  testTools: validationJob
-             + job.withStrategy({
-               matrix: {
-                 tool: ['tools/deprecated-config-checker/', 'tools/doc-generator/', 'tools/lambda-promtail/', 'tools/querytee/', 'tools/tsdb/'],
-               },
-             })
-             + job.withSteps([
-               common.checkout,
-               common.fixDubiousOwnership,
-               step.new('test ${{ matrix.package }}')
-               + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-               + step.withWorkingDirectory('${{ matrix.tool }}')
-               + step.withRun(|||
-                 gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-               |||),
-             ]),
 
   testPushPackage: validationJob
                    + job.withSteps([
@@ -125,7 +97,7 @@ local validationJob = _validationJob(false);
                ]),
 
   test: validationJob
-        + job.withNeeds(['testPackages', 'testCommands', 'testTools', 'testPushPackage', 'integration'])
+        + job.withNeeds(['testPackages', 'testPushPackage', 'integration'])
         + job.withSteps([
           step.new('tests passed')
           + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')

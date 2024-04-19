@@ -78,7 +78,7 @@
           cp -r docs/sources/* /hugo/content/docs/loki/latest/
           cd /hugo && make prod
         EOF
-  "collectTests":
+  "collectPackages":
     "outputs":
       "packages": "${{ steps.gather-tests.outputs.packages }}"
     "runs-on": "ubuntu-latest"
@@ -91,7 +91,12 @@
     - "id": "gather-tests"
       "name": "gather packages"
       "run": |
-        echo "packages=$(ls -d pkg/*/ | grep -v "push" | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+        echo "packages=$(find . -path '*_test.go' -printf '%h\n' \
+          | grep -e "pkg/push" -e "integration" -v \
+          | cut  -d / -f 2,3 \
+          | uniq \
+          | sort \
+          | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
   "faillint":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -232,8 +237,6 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
     - "testPackages"
-    - "testCommands"
-    - "testTools"
     - "testPushPackage"
     - "integration"
     "runs-on": "ubuntu-latest"
@@ -242,27 +245,6 @@
       "name": "tests passed"
       "run": |
         echo "All tests passed"
-  "testCommands":
-    "container":
-      "image": "${{ inputs.build_image }}"
-    "env":
-      "BUILD_IN_CONTAINER": false
-      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
-    "steps":
-    - "name": "checkout"
-      "uses": "actions/checkout@v4"
-    - "name": "fix git dubious ownership"
-      "run": |
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "test ${{ matrix.package }}"
-      "run": |
-        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.command }}...
-    "strategy":
-      "matrix":
-        "command":
-        - "cmd/migrate/"
   "testPackages":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -270,7 +252,7 @@
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
-    - "collectTests"
+    - "collectPackages"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
@@ -287,10 +269,10 @@
         ls
         echo "\npackage directory contents:"
         ls ./${{ matrix.package }}
-        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}...
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
     "strategy":
       "matrix":
-        "package": "${{fromJson(needs.collectTests.outputs.packages)}}"
+        "package": "${{fromJson(needs.collectPackages.outputs.packages)}}"
   "testPushPackage":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -309,32 +291,6 @@
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
       "working-directory": "pkg/push"
-  "testTools":
-    "container":
-      "image": "${{ inputs.build_image }}"
-    "env":
-      "BUILD_IN_CONTAINER": false
-      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
-    "steps":
-    - "name": "checkout"
-      "uses": "actions/checkout@v4"
-    - "name": "fix git dubious ownership"
-      "run": |
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "test ${{ matrix.package }}"
-      "run": |
-        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-      "working-directory": "${{ matrix.tool }}"
-    "strategy":
-      "matrix":
-        "tool":
-        - "tools/deprecated-config-checker/"
-        - "tools/doc-generator/"
-        - "tools/lambda-promtail/"
-        - "tools/querytee/"
-        - "tools/tsdb/"
 "name": "check"
 "on":
   "workflow_call":
