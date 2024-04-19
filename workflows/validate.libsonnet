@@ -43,14 +43,10 @@ local validationJob = _validationJob(false);
                   + step.withId('gather-tests')
                   + step.withRun(|||
                     echo "packages=$(ls -d pkg/*/ | grep -v "push" | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
-                    echo "commands=$(ls -d cmd/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
-                    echo "tools=$(ls -d tools/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
                   |||),
                 ])
                 + job.withOutputs({
                   packages: '${{ steps.gather-tests.outputs.packages }}',
-                  commands: '${{ steps.gather-tests.outputs.commands }}',
-                  tools: '${{ steps.gather-tests.outputs.tools }}',
                 }),
 
   testPackages: validationJob
@@ -77,10 +73,9 @@ local validationJob = _validationJob(false);
                 ]),
 
   testCommands: validationJob
-                + job.withNeeds(['collectTests'])
                 + job.withStrategy({
                   matrix: {
-                    command: '${{fromJson(needs.collectTests.outputs.commands)}}',
+                    command: ['cmd/migrate/'],
                   },
                 })
                 + job.withSteps([
@@ -94,10 +89,9 @@ local validationJob = _validationJob(false);
                 ]),
 
   testTools: validationJob
-             + job.withNeeds(['collectTests'])
              + job.withStrategy({
                matrix: {
-                 tool: '${{fromJson(needs.collectTests.outputs.tools)}}',
+                 tool: ['tools/deprecated-config-checker/', 'tools/doc-generator/', 'tools/lambda-promtail/', 'tools/querytee/', 'tools/tsdb/'],
                },
              })
              + job.withSteps([

@@ -80,9 +80,7 @@
         EOF
   "collectTests":
     "outputs":
-      "commands": "${{ steps.gather-tests.outputs.commands }}"
       "packages": "${{ steps.gather-tests.outputs.packages }}"
-      "tools": "${{ steps.gather-tests.outputs.tools }}"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
@@ -94,8 +92,6 @@
       "name": "gather packages"
       "run": |
         echo "packages=$(ls -d pkg/*/ | grep -v "push" | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
-        echo "commands=$(ls -d cmd/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
-        echo "tools=$(ls -d tools/*/ | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
   "golangciLint":
     "runs-on": "ubuntu-latest"
     "steps":
@@ -199,8 +195,6 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "needs":
-    - "collectTests"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
@@ -214,7 +208,8 @@
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.command }}...
     "strategy":
       "matrix":
-        "command": "${{fromJson(needs.collectTests.outputs.commands)}}"
+        "command":
+        - "cmd/migrate/"
   "testPackages":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -267,8 +262,6 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "needs":
-    - "collectTests"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
@@ -282,7 +275,12 @@
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.tool }}...
     "strategy":
       "matrix":
-        "tool": "${{fromJson(needs.collectTests.outputs.tools)}}"
+        "tool":
+        - "tools/deprecated-config-checker/"
+        - "tools/doc-generator/"
+        - "tools/lambda-promtail/"
+        - "tools/querytee/"
+        - "tools/tsdb/"
 "name": "check"
 "on":
   "workflow_call":
