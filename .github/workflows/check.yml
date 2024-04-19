@@ -92,7 +92,7 @@
       "name": "gather packages"
       "run": |
         echo "packages=$(find . -path '*_test.go' -printf '%h\n' \
-          | grep -e "pkg/push" -e "integration" -e "operator" -v \
+          | grep -e "pkg/push" -e "integration" -e "operator" -e "lambda-promtail" -v \
           | cut  -d / -f 2,3 \
           | uniq \
           | sort \
@@ -238,6 +238,7 @@
     "needs":
     - "testPackages"
     - "testPushPackage"
+    - "testLambdaPromtail"
     - "integration"
     "runs-on": "ubuntu-latest"
     "steps":
@@ -245,6 +246,24 @@
       "name": "tests passed"
       "run": |
         echo "All tests passed"
+  "testLambdaPromtail":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "test push package"
+      "run": |
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
+      "working-directory": "tools/lambda-promtail"
   "testPackages":
     "container":
       "image": "${{ inputs.build_image }}"

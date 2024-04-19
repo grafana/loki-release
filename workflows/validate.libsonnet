@@ -43,7 +43,7 @@ local validationJob = _validationJob(false);
                      + step.withId('gather-tests')
                      + step.withRun(|||
                        echo "packages=$(find . -path '*_test.go' -printf '%h\n' \
-                         | grep -e "pkg/push" -e "integration" -e "operator" -v \
+                         | grep -e "pkg/push" -e "integration" -e "operator" -e "lambda-promtail" -v \
                          | cut  -d / -f 2,3 \
                          | uniq \
                          | sort \
@@ -89,6 +89,18 @@ local validationJob = _validationJob(false);
                      |||),
                    ]),
 
+  testLambdaPromtail: validationJob
+                      + job.withSteps([
+                        common.checkout,
+                        common.fixDubiousOwnership,
+                        step.new('test push package')
+                        + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+                        + step.withWorkingDirectory('tools/lambda-promtail')
+                        + step.withRun(|||
+                          gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
+                        |||),
+                      ]),
+
   integration: validationJob
                + job.withSteps([
                  common.checkout,
@@ -97,7 +109,7 @@ local validationJob = _validationJob(false);
                ]),
 
   test: validationJob
-        + job.withNeeds(['testPackages', 'testPushPackage', 'integration'])
+        + job.withNeeds(['testPackages', 'testPushPackage', 'testLambdaPromtail', 'integration'])
         + job.withSteps([
           step.new('tests passed')
           + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
