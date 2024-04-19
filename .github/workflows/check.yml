@@ -280,7 +280,8 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.tool }}...
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
+      "working-directory": "${{ matrix.tool }}"
     "strategy":
       "matrix":
         "tool":

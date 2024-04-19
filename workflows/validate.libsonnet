@@ -99,8 +99,9 @@ local validationJob = _validationJob(false);
                common.fixDubiousOwnership,
                step.new('test ${{ matrix.package }}')
                + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+               + step.withWorkingDirectory('${{ matrix.tool }}')
                + step.withRun(|||
-                 gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.tool }}...
+                 gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
                |||),
              ]),
 
