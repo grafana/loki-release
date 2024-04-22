@@ -5,6 +5,26 @@
   "USE_GITHUB_APP_TOKEN": "${{ inputs.use_github_app_token }}"
 "jobs":
   "check":
+    "env":
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "needs":
+    - "checkFiles"
+    - "faillint"
+    - "golangciLint"
+    - "lintFiles"
+    - "integration"
+    - "testLambdaPromtail"
+    - "testPackages"
+    - "testPushPackage"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "checks passed"
+      "run": |
+        echo "All checks passed"
+  "checkFiles":
     "container":
       "image": "${{ inputs.build_image }}"
     "env":
@@ -78,6 +98,83 @@
           cp -r docs/sources/* /hugo/content/docs/loki/latest/
           cd /hugo && make prod
         EOF
+  "collectPackages":
+    "outputs":
+      "packages": "${{ steps.gather-tests.outputs.packages }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "id": "gather-tests"
+      "name": "gather packages"
+      "run": |
+        echo "packages=$(find . -path '*_test.go' -printf '%h\n' \
+          | grep -e "pkg/push" -e "integration" -e "operator" -e "lambda-promtail" -v \
+          | cut  -d / -f 2,3 \
+          | uniq \
+          | sort \
+          | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+  "faillint":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "faillint"
+      "run": |
+        faillint -paths "sync/atomic=go.uber.org/atomic" ./...
+        
+  "golangciLint":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
+        "repository": "grafana/loki-release"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install tar"
+      "run": |
+        apt update
+        apt install -qy tar xz-utils
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install shellcheck"
+      "uses": "./lib/actions/install-binary"
+      "with":
+        "binary": "shellcheck"
+        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
+        "smoke_test": "${binary} --version"
+        "tar_args": "xvf"
+        "tarball_binary_path": "*/${binary}"
+        "version": "0.9.0"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "golangci-lint"
+      "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
+      "with":
+        "only-new-issues": true
+        "version": "${{ inputs.golang_ci_lint_version }}"
   "integration":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -88,34 +185,13 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
-    - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
-      "with":
-        "path": "lib"
-        "ref": "${{ env.RELEASE_LIB_REF }}"
-        "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install tar"
-      "run": |
-        apt update
-        apt install -qy tar xz-utils
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install shellcheck"
-      "uses": "./lib/actions/install-binary"
-      "with":
-        "binary": "shellcheck"
-        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
-        "smoke_test": "${binary} --version"
-        "tar_args": "xvf"
-        "tarball_binary_path": "*/${binary}"
-        "version": "0.9.0"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "integration"
       "run": "make test-integration"
-  "lint":
+  "lintFiles":
     "container":
       "image": "${{ inputs.build_image }}"
     "env":
@@ -149,9 +225,6 @@
         "tar_args": "xvf"
         "tarball_binary_path": "*/${binary}"
         "version": "0.9.0"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "lint"
-      "run": "make lint"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "lint scripts"
       "run": "make lint-scripts"
@@ -160,13 +233,7 @@
       "run": |
         git fetch origin
         make check-format
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "golangci-lint"
-      "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
-      "with":
-        "only-new-issues": true
-        "version": "${{ inputs.golang_ci_lint_version }}"
-  "test":
+  "testLambdaPromtail":
     "container":
       "image": "${{ inputs.build_image }}"
     "env":
@@ -176,33 +243,54 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
-    - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
-      "with":
-        "path": "lib"
-        "ref": "${{ env.RELEASE_LIB_REF }}"
-        "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install tar"
+      "name": "test push package"
       "run": |
-        apt update
-        apt install -qy tar xz-utils
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
+      "working-directory": "tools/lambda-promtail"
+  "testPackages":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "needs":
+    - "collectPackages"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "install shellcheck"
-      "uses": "./lib/actions/install-binary"
-      "with":
-        "binary": "shellcheck"
-        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
-        "smoke_test": "${binary} --version"
-        "tar_args": "xvf"
-        "tarball_binary_path": "*/${binary}"
-        "version": "0.9.0"
+      "name": "test ${{ matrix.package }}"
+      "run": |
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
+    "strategy":
+      "matrix":
+        "package": "${{fromJson(needs.collectPackages.outputs.packages)}}"
+  "testPushPackage":
+    "container":
+      "image": "${{ inputs.build_image }}"
+    "env":
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "test"
-      "run": "make test"
+      "name": "test push package"
+      "run": |
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
+      "working-directory": "pkg/push"
 "name": "check"
 "on":
   "workflow_call":
