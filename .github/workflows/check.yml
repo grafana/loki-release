@@ -120,7 +120,7 @@
   "failCheck":
     "env":
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "if": "${{ !fromJSON(inputs.skip_validation) && (cancelled() || contains(needs.*.result, \"cancelled\") || contains(needs.*.result, \"failure\")) }}"
+    "if": "${{ !fromJSON(inputs.skip_validation) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}"
     "needs":
     - "checkFiles"
     - "faillint"
