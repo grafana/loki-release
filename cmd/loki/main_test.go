@@ -15,7 +15,4 @@ func Test_Main(t *testing.T) {
 		require.NoError(t, err)
 		require.NotEmpty(t, uid)
 	})
-	t.Run("Test failure", func(t *testing.T) {
-		require.True(t, false)
-	})
 }
