@@ -197,6 +197,14 @@ local validationJob = _validationJob(false);
          })
          + job.withSteps([
            common.checkout,
+           step.new('verify checks passed')
+           + step.withIf(|||
+             ${{ !fromJSON(env.SKIP_VALIDATION) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}
+           |||)
+           + step.withRun(|||
+             echo "Some checks have failed!"
+             exit 1,
+           |||),
            step.new('checks passed')
            + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
            + step.withRun(|||
