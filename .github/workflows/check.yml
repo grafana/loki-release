@@ -20,12 +20,6 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
-    - "if": |
-        ${{ !fromJSON(env.SKIP_VALIDATION) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}
-      "name": "verify checks passed"
-      "run": |
-        echo "Some checks have failed!"
-        exit 1,
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "checks passed"
       "run": |
@@ -123,6 +117,26 @@
           | uniq \
           | sort \
           | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
+  "failCheck":
+    "env":
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+    "needs":
+    - "checkFiles"
+    - "faillint"
+    - "golangciLint"
+    - "lintFiles"
+    - "integration"
+    - "testLambdaPromtail"
+    - "testPackages"
+    - "testPushPackage"
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
+    - "name": "verify checks passed"
+      "run": |
+        echo "Some checks have failed!"
+        exit 1,
   "faillint":
     "container":
       "image": "${{ inputs.build_image }}"
