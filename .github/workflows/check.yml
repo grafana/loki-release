@@ -92,14 +92,8 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "if": "${{ !fromJSON(inputs.skip_validation) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}"
     "needs":
-    - "checkFiles"
-    - "faillint"
-    - "golangciLint"
-    - "lintFiles"
+    - "check"
     - "integration"
-    - "testLambdaPromtail"
-    - "testPackages"
-    - "testPushPackage"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"

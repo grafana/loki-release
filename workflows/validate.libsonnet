@@ -117,14 +117,8 @@ local validationJob = _validationJob(false);
   ),
   failCheck: job.new()
              + job.withNeeds([
-               'checkFiles',
-               'faillint',
-               'golangciLint',
-               'lintFiles',
+               'check',
                'integration',
-               'testLambdaPromtail',
-               'testPackages',
-               'testPushPackage',
              ])
              + job.withEnv({
                SKIP_VALIDATION: '${{ inputs.skip_validation }}',
