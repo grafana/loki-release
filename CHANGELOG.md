@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.6](https://github.com/grafana/loki-release/compare/v1.12.5...v1.12.6) (2024-07-01)
+
+
+### Features
+
+* backport failcheck from [#152](https://github.com/grafana/loki-release/issues/152) ([#153](https://github.com/grafana/loki-release/issues/153)) ([c9fe68c](https://github.com/grafana/loki-release/commit/c9fe68cb5acc76f07b7b394f81a9f5bc63123378))
+
 ## [1.12.5](https://github.com/grafana/loki-release/compare/v1.12.4...v1.12.5) (2024-03-18)
 
 
