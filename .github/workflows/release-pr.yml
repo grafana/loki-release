@@ -190,7 +190,7 @@ jobs:
       if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "Build and export"
       timeout-minutes: "${{ fromJSON(env.BUILD_TIMEOUT) }}"
-      uses: "docker/build-push-action@v5"
+      uses: "docker/build-push-action@v6"
       with:
         build-args: "IMAGE_TAG=${{ needs.version.outputs.version }}"
         context: "release"
