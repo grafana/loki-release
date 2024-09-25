@@ -80,9 +80,6 @@
       "name": "check helm reference doc"
       "run": "make documentation-helm-reference-check"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "check drone drift"
-      "run": "make check-drone-drift"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "build docs website"
       "run": |
         cat <<EOF | docker run \
