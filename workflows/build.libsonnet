@@ -115,7 +115,7 @@ local releaseLibStep = common.releaseLibStep;
       'linux/arm64',
       'linux/arm',
     ]
-        )
+               )
     job.new()
     + job.withStrategy({
       'fail-fast': true,
@@ -195,7 +195,7 @@ local releaseLibStep = common.releaseLibStep;
       'linux/arm64',
       'linux/arm',
     ]
-              )
+                     )
     job.new()
     + job.withStrategy({
       matrix: {
@@ -211,11 +211,9 @@ local releaseLibStep = common.releaseLibStep;
       step.new('set up docker buildx', 'docker/setup-buildx-action@v3'),
       step.new('Login to DockerHub (from vault)', 'grafana/shared-workflows/actions/dockerhub-login@main'),
 
-      releaseStep('Get weekly version')
-      + step.withId('weekly-version')
+      releaseStep('parse image platform')
+      + step.withId('platform')
       + step.withRun(|||
-        echo "version=$(./tools/image-tag)" >> $GITHUB_OUTPUT
-
         platform="$(echo "${{ matrix.platform}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
         echo "platform_short=$(echo ${{ matrix.platform }} | cut -d / -f 2)" >> $GITHUB_OUTPUT
@@ -224,6 +222,12 @@ local releaseLibStep = common.releaseLibStep;
         else
           echo "plugin_arch=" >> $GITHUB_OUTPUT
         fi
+      |||),
+
+      releaseStep('Get weekly version')
+      + step.withId('weekly-version')
+      + step.withRun(|||
+        echo "version=$(./tools/image-tag)" >> $GITHUB_OUTPUT
       |||),
 
       step.new('Build and export', 'docker/build-push-action@v6')
@@ -235,7 +239,7 @@ local releaseLibStep = common.releaseLibStep;
         push: false,
         tags: '${{ env.IMAGE_PREFIX }}/%s:${{ steps.weekly-version.outputs.version }}' % [name],
         outputs: 'type=docker,dest=release/images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
-        'build-args': 'IMAGE_TAG=${{ steps.weekly-version.outputs.version }},GOARCH=${{ steps.weekly-version.outputs.platform_short }}',
+        'build-args': 'IMAGE_TAG=${{ steps.weekly-version.outputs.version }},GOARCH=${{ steps.platform.outputs.platform_short }}',
       }),
 
       releaseStep('Package and push as Docker plugin')
