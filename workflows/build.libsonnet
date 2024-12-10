@@ -161,9 +161,9 @@ local releaseLibStep = common.releaseLibStep;
         push: false,
         tags: '${{ env.IMAGE_PREFIX }}/%s:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
         outputs: 'type=docker,dest=release/images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
-        'build-args': std.rstripChars(|||
+        'build-args': |||
           %s
-        ||| % std.lines([
+        ||| % std.rstripChars(std.lines([
           'IMAGE_TAG=${{ needs.version.outputs.version }}',
           'GOARCH=${{ steps.platform.outputs.platform_short }}',
           ('BUILD_IMAGE=%s' % buildImage),
