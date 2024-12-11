@@ -18,6 +18,7 @@ require (
 	github.com/prometheus/common v0.61.0
 	github.com/prometheus/prometheus v0.53.2-0.20240726125539-d4f098ae80fb
 	github.com/stretchr/testify v1.10.0
+	go.opentelemetry.io/collector/pdata v1.21.0 // indirect
 )
 
 require (
@@ -188,7 +189,6 @@ require (
 	go.etcd.io/etcd/client/v3 v3.5.4 // indirect
 	go.mongodb.org/mongo-driver v1.14.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	go.opentelemetry.io/collector/pdata v1.12.0 // indirect
 	go.opentelemetry.io/collector/semconv v0.105.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.54.0 // indirect
 	go.opentelemetry.io/otel v1.29.0 // indirect
