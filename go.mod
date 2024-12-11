@@ -9,7 +9,7 @@ require (
 	github.com/docker/docker v27.3.1+incompatible
 	github.com/docker/go-plugins-helpers v0.0.0-20240701071450-45e2431495c8
 	github.com/go-kit/log v0.2.1
-	github.com/gogo/protobuf v1.3.2 // remember to update loki-build-image/Dockerfile too
+	github.com/gogo/protobuf v1.3.2
 	github.com/grafana/dskit v0.0.0-20241007172036-53283a0f6b41
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/pkg/errors v0.9.1
