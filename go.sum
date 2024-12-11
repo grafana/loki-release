@@ -370,8 +370,8 @@ github.com/grafana/jsonparser v0.0.0-20241004153430-023329977675 h1:U94jQ2TQr1m3
 github.com/grafana/jsonparser v0.0.0-20241004153430-023329977675/go.mod h1:796sq+UcONnSlzA3RtlBZ+b/hrerkZXiEmO8oMjyRwY=
 github.com/grafana/loki/pkg/push v0.0.0-20240924133635-758364c7775f h1:NcS5dQXH/BtoMpQtA1d0+ftwyzdwQk5/8SCj9eHl8w8=
 github.com/grafana/loki/pkg/push v0.0.0-20240924133635-758364c7775f/go.mod h1:lJEF/Wh5MYlmBem6tOYAFObkLsuikfrEf8Iy9AdMPiQ=
-github.com/grafana/loki/v3 v3.3.1 h1:oZPDZuvU29+t7QRfHs6pWeSzgcihIhr9azsb22e/fwg=
-github.com/grafana/loki/v3 v3.3.1/go.mod h1:qcN+D5LIp1I1fU2VwAy9LQEzz/E5zfEVDCVYEJoFyW8=
+github.com/grafana/loki/v3 v3.3.0 h1:W4U0F6kSz3EcitI0BWByK/kYSNEKHAp6IdlKW2BZOPM=
+github.com/grafana/loki/v3 v3.3.0/go.mod h1:qcN+D5LIp1I1fU2VwAy9LQEzz/E5zfEVDCVYEJoFyW8=
 github.com/grafana/pyroscope-go/godeltaprof v0.1.8 h1:iwOtYXeeVSAeYefJNaxDytgjKtUuKQbJqgAIjlnicKg=
 github.com/grafana/pyroscope-go/godeltaprof v0.1.8/go.mod h1:2+l7K7twW49Ct4wFluZD3tZ6e0SjanjcUUBPVD/UuGU=
 github.com/grafana/regexp v0.0.0-20240518133315-a468a5bfb3bc h1:GN2Lv3MGO7AS6PrRoT6yV5+wkrOpcszoIsO4+4ds248=

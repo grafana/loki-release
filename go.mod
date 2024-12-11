@@ -20,7 +20,7 @@ require (
 )
 
 require (
-	github.com/grafana/loki/v3 v3.3.1
+	github.com/grafana/loki/v3 v3.3.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
