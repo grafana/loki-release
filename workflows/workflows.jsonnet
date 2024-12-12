@@ -9,6 +9,7 @@ local buildImage = 'grafana/loki-build-image:0.34.3';
     lokiRelease.releasePRWorkflow(
       imageJobs={
         loki: build.image('fake-loki', 'cmd/loki'),
+        'loki-docker-driver': build.dockerPlugin('loki-docker-driver', 'clients/cmd/docker-driver', buildImage=buildImage, platform=['linux/amd64', 'linux/arm64']),
       },
       buildImage=buildImage,
       buildArtifactsBucket='loki-build-artifacts',
@@ -26,6 +27,7 @@ local buildImage = 'grafana/loki-build-image:0.34.3';
     lokiRelease.releasePRWorkflow(
       imageJobs={
         loki: build.image('fake-loki', 'cmd/loki'),
+        'loki-docker-driver': build.dockerPlugin('loki-docker-driver', 'clients/cmd/docker-driver', buildImage=buildImage, platform=['linux/amd64', 'linux/arm64']),
       },
       buildImage=buildImage,
       buildArtifactsBucket='loki-build-artifacts',
