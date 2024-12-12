@@ -1,13 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ],
+  "extends": ["config:recommended"],
   "ignorePaths": [],
   "labels": ["Skip Changelog", "dependencies"],
-  "postUpdateOptions" : [
-    "gomodTidy"
-  ],
+  "postUpdateOptions": ["gomodTidy"],
   "packageRules": [
     {
       "matchManagers": ["gomod"],
@@ -19,14 +15,6 @@
       "matchManagers": ["gomod"],
       "matchDepTypes": ["indirect"],
       "enabled": false
-    },
-    {
-      "matchPackageNames": ["google.golang.org/genproto/googleapis/**"],
-      "groupName": "googleapis"
-    },
-    {
-      "matchPackageNames": ["golang.org/x/**"],
-      "groupName": "golang.org/x"
     }
   ]
 }
