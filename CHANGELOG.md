@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.14.0](https://github.com/grafana/loki-release/compare/v1.13.1...v1.14.0) (2024-12-12)
+
+
+### Features
+
+* add Docker Plugin releasing ([#163](https://github.com/grafana/loki-release/issues/163)) ([21f1189](https://github.com/grafana/loki-release/commit/21f1189544e3976070cbdb6463f64c7a32dcc176))
+* bring back check format task ([#128](https://github.com/grafana/loki-release/issues/128)) ([d9bfe17](https://github.com/grafana/loki-release/commit/d9bfe17ed706fdfbd02445a576eb820dea4811a3))
+* dockerfile and weekly images ([#127](https://github.com/grafana/loki-release/issues/127)) ([6c326b8](https://github.com/grafana/loki-release/commit/6c326b84f35d69f9d01732b2805eb645a52b69cc))
+* expose custom release as ([#145](https://github.com/grafana/loki-release/issues/145)) ([c621c69](https://github.com/grafana/loki-release/commit/c621c69d3b797329ced80672c834784d9a465864))
+* force fail meta-check when deps fail ([#152](https://github.com/grafana/loki-release/issues/152)) ([adca1c0](https://github.com/grafana/loki-release/commit/adca1c07a2199374e1646e62331926509699368b))
+* make build artifacts bucket configurable ([#129](https://github.com/grafana/loki-release/issues/129)) ([d3fa90c](https://github.com/grafana/loki-release/commit/d3fa90c124d13a4e0359a46c8708704e92ee8a50))
+* pass calculated version to subsequent steps ([#146](https://github.com/grafana/loki-release/issues/146)) ([634945b](https://github.com/grafana/loki-release/commit/634945b73e8eed4f5161ec08810178ddeca7505b))
+* release 1.14 ([2dc31e1](https://github.com/grafana/loki-release/commit/2dc31e12fe76a231441bd94a1ceaf7fe737a613b))
+* remove drone! ([#159](https://github.com/grafana/loki-release/issues/159)) ([98ce96e](https://github.com/grafana/loki-release/commit/98ce96e408db867d64fb95b59a99c24440ddf441))
+* specify golangci-lint build tags at runtime ([#161](https://github.com/grafana/loki-release/issues/161)) ([20aac53](https://github.com/grafana/loki-release/commit/20aac53fcb06d378b1c1101c7e4dc989466eb4ff))
+* test packages separately ([#150](https://github.com/grafana/loki-release/issues/150)) ([aaf0010](https://github.com/grafana/loki-release/commit/aaf0010536989de035ef1f20deb22a43046747e8))
+
+
+### Bug Fixes
+
+* added cleanup step before running `dist` stage. ([#156](https://github.com/grafana/loki-release/issues/156)) ([87cb509](https://github.com/grafana/loki-release/commit/87cb5090c36b5332e7f21b5c59e136962d5f4f56))
+* app token action name ([#147](https://github.com/grafana/loki-release/issues/147)) ([124c4d9](https://github.com/grafana/loki-release/commit/124c4d996f9625478a79f1884465e29ea082d224))
+* get version release candidate ([#144](https://github.com/grafana/loki-release/issues/144)) ([f1f89ce](https://github.com/grafana/loki-release/commit/f1f89ced80154ade3b28f9ad9bd4541cdc79aae1))
+* skip helm package in test ([#151](https://github.com/grafana/loki-release/issues/151)) ([9ea5e37](https://github.com/grafana/loki-release/commit/9ea5e3788bf027a35b7976ee3770510f6b536296))
+* use correct bucket when downloading images ([#148](https://github.com/grafana/loki-release/issues/148)) ([0a4642c](https://github.com/grafana/loki-release/commit/0a4642c1059e195d69b6e3fcc426d5455d4a414a))
+* vendor again ([af06541](https://github.com/grafana/loki-release/commit/af065415a4b08c1de379e2bd352f0db6cbc97933))
+
+
+### Miscellaneous Chores
+
+* release 1.14.0 ([42b8e44](https://github.com/grafana/loki-release/commit/42b8e44deb777e93691c06ff03b16d063390d7e9))
+
 ## [1.13.1](https://github.com/grafana/loki-release/compare/v1.13.0...v1.13.1) (2024-03-18)
 
 ### Features
