@@ -135,14 +135,15 @@ jobs:
       uses: "docker/setup-buildx-action@v3"
     - name: "Login to DockerHub (from vault)"
       uses: "grafana/shared-workflows/actions/dockerhub-login@main"
-    - name: "download plugins"
+    - name: "download and prepare plugins"
       run: |
         echo "downloading images to $(pwd)/plugins"
         gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/${{ needs.createRelease.outputs.sha }}/plugins .
+        mkidr -p "release/plugin-tmp-dir"
     - name: "publish docker driver"
       uses: "./lib/actions/push-images"
       with:
-        buildDir: "${{ env.BUILD_DIR }}"
+        buildDir: "release/plugin-tmp-dir"
         imageDir: "plugins"
         imagePrefix: "${{ env.IMAGE_PREFIX }}"
         isPlugin: true

@@ -186,7 +186,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       ]
     ),
 
-  publishDockerPlugins: function(getDockerCredsFromVault=false, dockerUsername='grafanabot')
+  publishDockerPlugins: function(path, getDockerCredsFromVault=false, dockerUsername='grafanabot')
     job.new()
     + job.withNeeds(['createRelease'])
     + job.withSteps(
@@ -206,17 +206,18 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
              }),
            ]) +
       [
-        step.new('download plugins')
+        step.new('download and prepare plugins')
         + step.withRun(|||
           echo "downloading images to $(pwd)/plugins"
           gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/${{ needs.createRelease.outputs.sha }}/plugins .
-        |||),
+          mkidr -p "%s"
+        ||| % path),
         step.new('publish docker driver', './lib/actions/push-images')
         + step.with({
           imageDir: 'plugins',
           imagePrefix: '${{ env.IMAGE_PREFIX }}',
           isPlugin: true,
-          buildDir: '${{ env.BUILD_DIR }}',
+          buildDir: path,
         }),
       ]
     ),

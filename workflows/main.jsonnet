@@ -120,7 +120,7 @@
       shouldRelease: $.release.shouldRelease,
       createRelease: $.release.createRelease,
       publishImages: $.release.publishImages(getDockerCredsFromVault, dockerUsername),
-      publishDockerPlugins: $.release.publishDockerPlugins(getDockerCredsFromVault, dockerUsername),
+      publishDockerPlugins: $.release.publishDockerPlugins('release/plugin-tmp-dir', getDockerCredsFromVault, dockerUsername),
       publishRelease: $.release.publishRelease(['createRelease', 'publishImages', 'publishDockerPlugins']),
     },
   },
