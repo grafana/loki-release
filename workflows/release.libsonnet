@@ -186,7 +186,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       ]
     ),
 
-  publishDockerPlugin: function(name, path, getDockerCredsFromVault=false, dockerUsername='grafanabot')
+  publishDockerPlugins: function(getDockerCredsFromVault=false, dockerUsername='grafanabot')
     job.new()
     + job.withNeeds(['createRelease'])
     + job.withSteps(
@@ -221,19 +221,20 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       ]
     ),
 
-  publishRelease: job.new()
-                  + job.withNeeds(['createRelease', 'publishImages', 'publishDockerPlugin'])
-                  + job.withSteps([
-                    common.fetchReleaseRepo,
-                    common.githubAppToken,
-                    common.setToken,
-                    releaseStep('publish release')
-                    + step.withIf('${{ !fromJSON(needs.createRelease.outputs.exists) || (needs.createRelease.outputs.draft && fromJSON(needs.createRelease.outputs.draft)) }}')
-                    + step.withEnv({
-                      GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
-                    })
-                    + step.withRun(|||
-                      gh release edit ${{ needs.createRelease.outputs.name }} --draft=false --latest=${{ needs.createRelease.outputs.isLatest }}
-                    |||),
-                  ]),
+  publishRelease: function(dependencies=['createRelease'])
+    job.new()
+    + job.withNeeds(dependencies)
+    + job.withSteps([
+      common.fetchReleaseRepo,
+      common.githubAppToken,
+      common.setToken,
+      releaseStep('publish release')
+      + step.withIf('${{ !fromJSON(needs.createRelease.outputs.exists) || (needs.createRelease.outputs.draft && fromJSON(needs.createRelease.outputs.draft)) }}')
+      + step.withEnv({
+        GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
+      })
+      + step.withRun(|||
+        gh release edit ${{ needs.createRelease.outputs.name }} --draft=false --latest=${{ needs.createRelease.outputs.isLatest }}
+      |||),
+    ]),
 }
