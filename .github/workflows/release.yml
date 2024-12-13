@@ -139,17 +139,13 @@ jobs:
       run: |
         echo "downloading images to $(pwd)/plugins"
         gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/${{ needs.createRelease.outputs.sha }}/plugins .
-    - env:
-        BUILD_DIR: "clients/cmd/docker-driver"
-        IMAGE_TAG: "${{ needs.version.outputs.version }}"
-      if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
-      name: "Package as Docker plugin"
-      run: |
-        rm -rf "${{ env.BUILD_DIR }}/rootfs" || true
-        mkdir "${{ env.BUILD_DIR }}/rootfs"
-        tar -x -C "${{ env.BUILD_DIR }}/rootfs" -f "plugins/loki-docker-driver-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
-        docker plugin create "${{ env.IMAGE_PREFIX }}/loki-docker-driver:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}" "${{ env.BUILD_DIR }}"
-        docker plugin push "${{ env.IMAGE_PREFIX }}/loki-docker-driver:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
+    - name: "publish docker driver"
+      uses: "./lib/actions/push-images"
+      with:
+        buildDir: "${{ env.BUILD_DIR }}"
+        imageDir: "plugins"
+        imagePrefix: "${{ env.IMAGE_PREFIX }}"
+        isPlugin: true
   publishImages:
     needs:
     - "createRelease"
@@ -188,6 +184,7 @@ jobs:
     needs:
     - "createRelease"
     - "publishImages"
+    - "publishDockerPlugin"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"

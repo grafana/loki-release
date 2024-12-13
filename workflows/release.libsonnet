@@ -211,24 +211,18 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           echo "downloading images to $(pwd)/plugins"
           gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/${{ needs.createRelease.outputs.sha }}/plugins .
         |||),
-        step.new('Package as Docker plugin')
-        + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
-        + step.withEnv({
-          IMAGE_TAG: '${{ needs.version.outputs.version }}',
-          BUILD_DIR: path,
-        })
-        + step.withRun(|||
-          rm -rf "${{ env.BUILD_DIR }}/rootfs" || true
-          mkdir "${{ env.BUILD_DIR }}/rootfs"
-          tar -x -C "${{ env.BUILD_DIR }}/rootfs" -f "plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
-          docker plugin create "${{ env.IMAGE_PREFIX }}/%s:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}" "${{ env.BUILD_DIR }}"
-          docker plugin push "${{ env.IMAGE_PREFIX }}/%s:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
-        ||| % [name, name, name]),
+        step.new('publish docker driver', './lib/actions/push-images')
+        + step.with({
+          imageDir: 'plugins',
+          imagePrefix: '${{ env.IMAGE_PREFIX }}',
+          isPlugin: true,
+          buildDir: '${{ env.BUILD_DIR }}',
+        }),
       ]
     ),
 
   publishRelease: job.new()
-                  + job.withNeeds(['createRelease', 'publishImages'])
+                  + job.withNeeds(['createRelease', 'publishImages', 'publishDockerPlugin'])
                   + job.withSteps([
                     common.fetchReleaseRepo,
                     common.githubAppToken,

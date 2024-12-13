@@ -1,6 +1,10 @@
-import { buildCommands, parseImageMeta } from '../src/docker'
+import {
+  buildCommands,
+  parseImageMeta,
+  buildDockerPluginCommands
+} from '../src/docker'
 
-describe('push', () => {
+describe('buildCommands', () => {
   it('tags and pushes each architecture for each image', () => {
     const commands = buildCommands('grafana', [
       'fluent-bit-2.9.4-linux-amd64.tar',
@@ -86,6 +90,30 @@ describe('push', () => {
       `docker manifest create grafana/querytee:2.9.4 grafana/querytee:2.9.4-amd64`,
       `docker manifest push grafana/querytee:2.9.4`
     ])
+  })
+
+  it('tags and pushes each architecture for each docker plugin', () => {
+    const commands = buildDockerPluginCommands('grafana', '/build/dir', [
+      'loki-docker-driver-2.9.4-linux-amd64.tar',
+      'loki-docker-driver-2.9.4-linux-arm64.tar'
+    ])
+
+    const expected = [
+      `rm -rf "/build/dir/rootfs" || true`,
+      `mkdir "/build/dir/rootfs"`,
+      `tar -x -C "/build/dir/rootfs" -f "loki-docker-driver-2.9.4-linux-amd64.tar"`,
+      `docker plugin create grafana/loki-docker-driver:2.9.4-amd64 "/build/dir"`,
+      `docker plugin push "grafana/loki-docker-driver:2.9.4-amd64"`,
+      `rm -rf "/build/dir/rootfs" || true`,
+      `mkdir "/build/dir/rootfs"`,
+      `tar -x -C "/build/dir/rootfs" -f "loki-docker-driver-2.9.4-linux-arm64.tar"`,
+      `docker plugin create grafana/loki-docker-driver:2.9.4-arm64 "/build/dir"`,
+      `docker plugin push "grafana/loki-docker-driver:2.9.4-arm64"`
+    ]
+
+    for (const command of expected) {
+      expect(commands).toContain(command)
+    }
   })
 })
 
@@ -258,6 +286,22 @@ describe('parseImage', () => {
         expected: {
           image: 'loki',
           version: '2.9.4.alpha.1',
+          platform: 'linux/amd64'
+        }
+      },
+      {
+        file: 'loki-docker-driver-1.14.0-linux-amd64.tar',
+        expected: {
+          image: 'loki-docker-driver',
+          version: '1.14.0',
+          platform: 'linux/amd64'
+        }
+      },
+      {
+        file: 'loki-docker-driver-1.14.0.alpha.1-linux-amd64.tar',
+        expected: {
+          image: 'loki-docker-driver',
+          version: '1.14.0.alpha.1',
           platform: 'linux/amd64'
         }
       }
