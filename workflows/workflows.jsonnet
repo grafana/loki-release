@@ -53,7 +53,7 @@ local buildImage = 'grafana/loki-build-image:0.34.3';
       imagePrefix='trevorwhitney075',
       releaseLibRef='release-1.12.x',
       releaseRepo='grafana/loki-release',
-      useGitHubAppToken=false,
+      useGitHubAppToken=true,
     ) + {
       name: 'Create Release',
       on+: {
