@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.14.1](https://github.com/grafana/loki-release/compare/v1.14.0...v1.14.1) (2024-12-13)
+
+
+### Features
+
+* add docker plugin support to push-images action ([87a2e0c](https://github.com/grafana/loki-release/commit/87a2e0cb7cf56495c92d94ce53b4c882b14ca0c2))
+* pass path for building plugins in ([2b2e43d](https://github.com/grafana/loki-release/commit/2b2e43d3e9b2e11c4f69b48c77718c221442eaad))
+
+
+### Bug Fixes
+
+* workflow syntax ([6cd9cd0](https://github.com/grafana/loki-release/commit/6cd9cd0114c63c3d84992dda43d9a544c16ec023))
+
 ## [1.14.0](https://github.com/grafana/loki-release/compare/v1.13.1...v1.14.0) (2024-12-12)
 
 
