@@ -100,12 +100,12 @@ describe('buildCommands', () => {
 
     const expected = [
       `rm -rf "/build/dir/rootfs" || true`,
-      `mkdir "/build/dir/rootfs"`,
+      `mkdir -p "/build/dir/rootfs"`,
       `tar -x -C "/build/dir/rootfs" -f "loki-docker-driver-2.9.4-linux-amd64.tar"`,
       `docker plugin create grafana/loki-docker-driver:2.9.4-amd64 "/build/dir"`,
       `docker plugin push "grafana/loki-docker-driver:2.9.4-amd64"`,
       `rm -rf "/build/dir/rootfs" || true`,
-      `mkdir "/build/dir/rootfs"`,
+      `mkdir -p "/build/dir/rootfs"`,
       `tar -x -C "/build/dir/rootfs" -f "loki-docker-driver-2.9.4-linux-arm64.tar"`,
       `docker plugin create grafana/loki-docker-driver:2.9.4-arm64 "/build/dir"`,
       `docker plugin push "grafana/loki-docker-driver:2.9.4-arm64"`

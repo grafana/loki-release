@@ -24741,7 +24741,7 @@ function buildDockerPluginCommands(repo, buildDir, files) {
             }
             const shortPlatform = platform.split('/')[1];
             commands.push(`rm -rf "${buildDir}/rootfs" || true`);
-            commands.push(`mkdir "${buildDir}/rootfs"`);
+            commands.push(`mkdir -p "${buildDir}/rootfs"`);
             commands.push(`tar -x -C "${buildDir}/rootfs" -f "${file}"`);
             commands.push(`docker plugin create ${repo}/${image}:${version.toString()}-${shortPlatform} "${buildDir}"`);
             commands.push(`docker plugin push "${repo}/${image}:${version.toString()}-${shortPlatform}"`);
