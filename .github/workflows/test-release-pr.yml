@@ -7,7 +7,7 @@ env:
   DOCKER_USERNAME: "grafana"
   DRY_RUN: true
   IMAGE_PREFIX: "trevorwhitney075"
-  RELEASE_LIB_REF: "release-1.12.x"
+  RELEASE_LIB_REF: "release-1.14.x"
   RELEASE_REPO: "grafana/loki-release"
   SKIP_VALIDATION: false
   USE_GITHUB_APP_TOKEN: true
@@ -18,7 +18,7 @@ jobs:
     with:
       build_image: "grafana/loki-build-image:0.34.3"
       golang_ci_lint_version: "v1.60.3"
-      release_lib_ref: "release-1.12.x"
+      release_lib_ref: "release-1.14.x"
       skip_validation: false
       use_github_app_token: true
   create-release-pr:
