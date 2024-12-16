@@ -24751,7 +24751,7 @@ function buildDockerPluginCommands(repo, buildDir, imageDir, files) {
 }
 exports.buildDockerPluginCommands = buildDockerPluginCommands;
 function buildCommands(repo, imageDir, files) {
-    const commands = [`pushd ${imageDir}`];
+    const commands = [`cd ${imageDir}`];
     const images = new Map();
     for (const file of files) {
         const imageMeta = parseImageMeta(file);
@@ -24787,7 +24787,6 @@ function buildCommands(repo, imageDir, files) {
         }
         commands.push(`docker push -a ${repo}/${image}`, `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`, `docker manifest push ${repo}/${image}:${version.toString()}`);
     }
-    commands.push(`popd`);
     return commands;
 }
 exports.buildCommands = buildCommands;

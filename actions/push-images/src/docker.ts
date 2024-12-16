@@ -64,7 +64,7 @@ export function buildCommands(
   imageDir: string,
   files: string[]
 ): string[] {
-  const commands: string[] = [`pushd ${imageDir}`]
+  const commands: string[] = [`cd ${imageDir}`]
   const images = new Map<string, Image[]>()
 
   for (const file of files) {
@@ -110,7 +110,6 @@ export function buildCommands(
     )
   }
 
-  commands.push(`popd`)
   return commands
 }
 

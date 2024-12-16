@@ -50,7 +50,8 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
     lokiRelease.releaseWorkflow(
       branches=['release-[0-9]+.[0-9]+.x'],
       buildArtifactsBucket='loki-build-artifacts',
-      getDockerCredsFromVault=true,
+      dockerUsername='trevorwhitney075',
+      getDockerCredsFromVault=false,
       imagePrefix='trevorwhitney075',
       pluginBuildDir=dockerPluginDir,
       releaseLibRef='release-1.14.x',

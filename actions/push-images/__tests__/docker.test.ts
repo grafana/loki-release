@@ -30,7 +30,8 @@ describe('buildCommands', () => {
     ])
 
     expect(commands).toEqual([
-      `pushd /images`,
+      `cd /images`,
+
       `docker load -i fluent-bit-2.9.4-linux-amd64.tar`,
       `docker push -a grafana/fluent-bit`,
       `docker manifest create grafana/fluent-bit:2.9.4 grafana/fluent-bit:2.9.4-amd64`,
@@ -89,9 +90,7 @@ describe('buildCommands', () => {
       `docker load -i querytee-2.9.4-linux-amd64.tar`,
       `docker push -a grafana/querytee`,
       `docker manifest create grafana/querytee:2.9.4 grafana/querytee:2.9.4-amd64`,
-      `docker manifest push grafana/querytee:2.9.4`,
-
-      `popd`
+      `docker manifest push grafana/querytee:2.9.4`
     ])
   })
 
