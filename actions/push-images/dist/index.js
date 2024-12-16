@@ -24782,7 +24782,7 @@ function buildCommands(repo, imageDir, files) {
                 version = v;
             }
             const shortPlatform = platform.split('/')[1];
-            commands.push(`docker load -i ${file}`);
+            commands.push(`docker load -i ${imageDir}/${file}`);
             manifests.push(`${repo}/${image}:${version.toString()}-${shortPlatform}`);
         }
         commands.push(`docker push -a ${repo}/${image}`, `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`, `docker manifest push ${repo}/${image}:${version.toString()}`);

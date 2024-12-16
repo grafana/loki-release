@@ -99,7 +99,7 @@ export function buildCommands(
         version = v
       }
       const shortPlatform = platform.split('/')[1]
-      commands.push(`docker load -i ${file}`)
+      commands.push(`docker load -i ${imageDir}/${file}`)
       manifests.push(`${repo}/${image}:${version.toString()}-${shortPlatform}`)
     }
 
