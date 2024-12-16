@@ -28,8 +28,8 @@ export async function run(): Promise<void> {
 
     const tarFiles = (await readdir(imageDir)).filter(f => f.endsWith('.tar'))
     const commands = isPlugin
-      ? buildDockerPluginCommands(imagePrefix, buildDir, tarFiles)
-      : buildCommands(imagePrefix, tarFiles)
+      ? buildDockerPluginCommands(imagePrefix, buildDir, imageDir, tarFiles)
+      : buildCommands(imagePrefix, imageDir, tarFiles)
 
     if (commands.length === 0) {
       throw new Error('failed to push any images')
@@ -37,7 +37,7 @@ export async function run(): Promise<void> {
 
     for (const command of commands) {
       info(command)
-      const stdout = execSync(command, { cwd: imageDir })
+      const stdout = execSync(command)
       info(stdout.toString())
     }
 

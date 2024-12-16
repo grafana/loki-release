@@ -7,6 +7,7 @@ type Image = {
 export function buildDockerPluginCommands(
   repo: string,
   buildDir: string,
+  imageDir: string,
   files: string[]
 ): string[] {
   const commands: string[] = []
@@ -45,7 +46,7 @@ export function buildDockerPluginCommands(
       const shortPlatform = platform.split('/')[1]
       commands.push(`rm -rf "${buildDir}/rootfs" || true`)
       commands.push(`mkdir -p "${buildDir}/rootfs"`)
-      commands.push(`tar -x -C "${buildDir}/rootfs" -f "${file}"`)
+      commands.push(`tar -x -C "${buildDir}/rootfs" -f "${imageDir}/${file}"`)
       commands.push(
         `docker plugin create ${repo}/${image}:${version.toString()}-${shortPlatform} "${buildDir}"`
       )
@@ -58,8 +59,12 @@ export function buildDockerPluginCommands(
   return commands
 }
 
-export function buildCommands(repo: string, files: string[]): string[] {
-  const commands: string[] = []
+export function buildCommands(
+  repo: string,
+  imageDir: string,
+  files: string[]
+): string[] {
+  const commands: string[] = [`pushd ${imageDir}`]
   const images = new Map<string, Image[]>()
 
   for (const file of files) {
@@ -105,6 +110,7 @@ export function buildCommands(repo: string, files: string[]): string[] {
     )
   }
 
+  commands.push(`popd`)
   return commands
 }
 

@@ -24709,7 +24709,7 @@ exports["default"] = _default;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseImageMeta = exports.buildCommands = exports.buildDockerPluginCommands = void 0;
-function buildDockerPluginCommands(repo, buildDir, files) {
+function buildDockerPluginCommands(repo, buildDir, imageDir, files) {
     const commands = [];
     const images = new Map();
     for (const file of files) {
@@ -24742,7 +24742,7 @@ function buildDockerPluginCommands(repo, buildDir, files) {
             const shortPlatform = platform.split('/')[1];
             commands.push(`rm -rf "${buildDir}/rootfs" || true`);
             commands.push(`mkdir -p "${buildDir}/rootfs"`);
-            commands.push(`tar -x -C "${buildDir}/rootfs" -f "${file}"`);
+            commands.push(`tar -x -C "${buildDir}/rootfs" -f "${imageDir}/${file}"`);
             commands.push(`docker plugin create ${repo}/${image}:${version.toString()}-${shortPlatform} "${buildDir}"`);
             commands.push(`docker plugin push "${repo}/${image}:${version.toString()}-${shortPlatform}"`);
         }
@@ -24750,8 +24750,8 @@ function buildDockerPluginCommands(repo, buildDir, files) {
     return commands;
 }
 exports.buildDockerPluginCommands = buildDockerPluginCommands;
-function buildCommands(repo, files) {
-    const commands = [];
+function buildCommands(repo, imageDir, files) {
+    const commands = [`pushd ${imageDir}`];
     const images = new Map();
     for (const file of files) {
         const imageMeta = parseImageMeta(file);
@@ -24787,6 +24787,7 @@ function buildCommands(repo, files) {
         }
         commands.push(`docker push -a ${repo}/${image}`, `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`, `docker manifest push ${repo}/${image}:${version.toString()}`);
     }
+    commands.push(`popd`);
     return commands;
 }
 exports.buildCommands = buildCommands;
@@ -24856,14 +24857,14 @@ async function run() {
         }
         const tarFiles = (await (0, promises_1.readdir)(imageDir)).filter(f => f.endsWith('.tar'));
         const commands = isPlugin
-            ? (0, docker_1.buildDockerPluginCommands)(imagePrefix, buildDir, tarFiles)
-            : (0, docker_1.buildCommands)(imagePrefix, tarFiles);
+            ? (0, docker_1.buildDockerPluginCommands)(imagePrefix, buildDir, imageDir, tarFiles)
+            : (0, docker_1.buildCommands)(imagePrefix, imageDir, tarFiles);
         if (commands.length === 0) {
             throw new Error('failed to push any images');
         }
         for (const command of commands) {
             (0, core_1.info)(command);
-            const stdout = (0, child_process_1.execSync)(command, { cwd: imageDir });
+            const stdout = (0, child_process_1.execSync)(command);
             (0, core_1.info)(stdout.toString());
         }
         if ((0, core_1.isDebug)()) {

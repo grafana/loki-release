@@ -6,7 +6,7 @@ import {
 
 describe('buildCommands', () => {
   it('tags and pushes each architecture for each image', () => {
-    const commands = buildCommands('grafana', [
+    const commands = buildCommands('grafana', '/images', [
       'fluent-bit-2.9.4-linux-amd64.tar',
       'fluentd-2.9.4-linux-amd64.tar',
       'logcli-2.9.4-linux-amd64.tar',
@@ -30,6 +30,7 @@ describe('buildCommands', () => {
     ])
 
     expect(commands).toEqual([
+      `pushd /images`,
       `docker load -i fluent-bit-2.9.4-linux-amd64.tar`,
       `docker push -a grafana/fluent-bit`,
       `docker manifest create grafana/fluent-bit:2.9.4 grafana/fluent-bit:2.9.4-amd64`,
@@ -88,25 +89,32 @@ describe('buildCommands', () => {
       `docker load -i querytee-2.9.4-linux-amd64.tar`,
       `docker push -a grafana/querytee`,
       `docker manifest create grafana/querytee:2.9.4 grafana/querytee:2.9.4-amd64`,
-      `docker manifest push grafana/querytee:2.9.4`
+      `docker manifest push grafana/querytee:2.9.4`,
+
+      `popd`
     ])
   })
 
   it('tags and pushes each architecture for each docker plugin', () => {
-    const commands = buildDockerPluginCommands('grafana', '/build/dir', [
-      'loki-docker-driver-2.9.4-linux-amd64.tar',
-      'loki-docker-driver-2.9.4-linux-arm64.tar'
-    ])
+    const commands = buildDockerPluginCommands(
+      'grafana',
+      '/build/dir',
+      '/plugins',
+      [
+        'loki-docker-driver-2.9.4-linux-amd64.tar',
+        'loki-docker-driver-2.9.4-linux-arm64.tar'
+      ]
+    )
 
     const expected = [
       `rm -rf "/build/dir/rootfs" || true`,
       `mkdir -p "/build/dir/rootfs"`,
-      `tar -x -C "/build/dir/rootfs" -f "loki-docker-driver-2.9.4-linux-amd64.tar"`,
+      `tar -x -C "/build/dir/rootfs" -f "/plugins/loki-docker-driver-2.9.4-linux-amd64.tar"`,
       `docker plugin create grafana/loki-docker-driver:2.9.4-amd64 "/build/dir"`,
       `docker plugin push "grafana/loki-docker-driver:2.9.4-amd64"`,
       `rm -rf "/build/dir/rootfs" || true`,
       `mkdir -p "/build/dir/rootfs"`,
-      `tar -x -C "/build/dir/rootfs" -f "loki-docker-driver-2.9.4-linux-arm64.tar"`,
+      `tar -x -C "/build/dir/rootfs" -f "/plugins/loki-docker-driver-2.9.4-linux-arm64.tar"`,
       `docker plugin create grafana/loki-docker-driver:2.9.4-arm64 "/build/dir"`,
       `docker plugin push "grafana/loki-docker-driver:2.9.4-arm64"`
     ]
