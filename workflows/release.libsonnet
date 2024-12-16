@@ -210,7 +210,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         + step.withRun(|||
           echo "downloading images to $(pwd)/plugins"
           gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/${{ needs.createRelease.outputs.sha }}/plugins .
-          mkidr -p "%s"
+          mkdir -p "%s"
         ||| % path),
         step.new('publish docker driver', './lib/actions/push-images')
         + step.with({

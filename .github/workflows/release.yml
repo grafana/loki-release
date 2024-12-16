@@ -139,7 +139,7 @@ jobs:
       run: |
         echo "downloading images to $(pwd)/plugins"
         gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/${{ needs.createRelease.outputs.sha }}/plugins .
-        mkidr -p "release/plugin-tmp-dir"
+        mkdir -p "release/plugin-tmp-dir"
     - name: "publish docker driver"
       uses: "./lib/actions/push-images"
       with:
