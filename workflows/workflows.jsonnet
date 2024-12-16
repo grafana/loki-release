@@ -3,13 +3,14 @@ local build = lokiRelease.build;
 
 
 local buildImage = 'grafana/loki-build-image:0.34.3';
+local dockerPluginDir = 'clients/cmd/docker-driver';
 
 {
   '.github/workflows/release-pr.yml': std.manifestYamlDoc(
     lokiRelease.releasePRWorkflow(
       imageJobs={
         loki: build.image('fake-loki', 'cmd/loki'),
-        'loki-docker-driver': build.dockerPlugin('loki-docker-driver', 'clients/cmd/docker-driver', buildImage=buildImage, platform=['linux/amd64', 'linux/arm64']),
+        'loki-docker-driver': build.dockerPlugin('loki-docker-driver', dockerPluginDir, buildImage=buildImage, platform=['linux/amd64', 'linux/arm64']),
       },
       buildImage=buildImage,
       buildArtifactsBucket='loki-build-artifacts',
@@ -27,7 +28,7 @@ local buildImage = 'grafana/loki-build-image:0.34.3';
     lokiRelease.releasePRWorkflow(
       imageJobs={
         loki: build.image('fake-loki', 'cmd/loki'),
-        'loki-docker-driver': build.dockerPlugin('loki-docker-driver', 'clients/cmd/docker-driver', buildImage=buildImage, platform=['linux/amd64', 'linux/arm64']),
+        'loki-docker-driver': build.dockerPlugin('loki-docker-driver', dockerPluginDir, buildImage=buildImage, platform=['linux/amd64', 'linux/arm64']),
       },
       buildImage=buildImage,
       buildArtifactsBucket='loki-build-artifacts',
@@ -51,6 +52,7 @@ local buildImage = 'grafana/loki-build-image:0.34.3';
       buildArtifactsBucket='loki-build-artifacts',
       getDockerCredsFromVault=true,
       imagePrefix='trevorwhitney075',
+      pluginBuildDir=dockerPluginDir,
       releaseLibRef='release-1.14.x',
       releaseRepo='grafana/loki-release',
       useGitHubAppToken=true,

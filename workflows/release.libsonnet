@@ -192,6 +192,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
     + job.withSteps(
       [
         common.fetchReleaseLib,
+        common.fetchReleaseRepo,
         common.googleAuth,
         common.setupGoogleCloudSdk,
         step.new('Set up QEMU', 'docker/setup-qemu-action@v3'),
@@ -210,14 +211,14 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         + step.withRun(|||
           echo "downloading images to $(pwd)/plugins"
           gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/${{ needs.createRelease.outputs.sha }}/plugins .
-          mkdir -p "%s"
+          mkdir -p "release/%s"
         ||| % path),
         step.new('publish docker driver', './lib/actions/push-images')
         + step.with({
           imageDir: 'plugins',
           imagePrefix: '${{ env.IMAGE_PREFIX }}',
           isPlugin: true,
-          buildDir: path,
+          buildDir: 'release/%s' % path,
         }),
       ]
     ),
