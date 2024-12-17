@@ -157,7 +157,7 @@ local releaseLibStep = common.releaseLibStep;
         platforms: '${{ matrix.platform }}',
         push: false,
         tags: '${{ env.IMAGE_PREFIX }}/%s:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
-        outputs: 'type=local,dest=release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}/rootfs' % name,
+        outputs: 'type=local,dest=release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}' % name,
         'build-args': |||
           %s
         ||| % std.rstripChars(std.lines([
@@ -171,8 +171,8 @@ local releaseLibStep = common.releaseLibStep;
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.withRun(|||
         tar -cf release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar \
-        -C rootfs \
-        release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}
+        -C release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }} \
+        .
       ||| % [name, name]),
 
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
