@@ -267,10 +267,11 @@ jobs:
           BUILD_IMAGE=grafana/loki-build-image:0.34.3
         context: "release"
         file: "release/clients/cmd/docker-driver/Dockerfile"
-        outputs: "type=local,dest=release/plugins/loki-docker-driver-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}"
+        outputs: "release/plugins/loki-docker-driver-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}"
         platforms: "${{ matrix.platform }}"
         push: false
         tags: "${{ env.IMAGE_PREFIX }}/loki-docker-driver:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}"
+        target: "rootfsimage"
     - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "compress rootfs"
       run: |

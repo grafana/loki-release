@@ -157,7 +157,8 @@ local releaseLibStep = common.releaseLibStep;
         platforms: '${{ matrix.platform }}',
         push: false,
         tags: '${{ env.IMAGE_PREFIX }}/%s:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
-        outputs: 'type=local,dest=release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}' % name,
+        target: 'rootfsimage',
+        outputs: 'release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}' % name,
         'build-args': |||
           %s
         ||| % std.rstripChars(std.lines([
