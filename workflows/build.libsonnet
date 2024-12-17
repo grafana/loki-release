@@ -173,7 +173,7 @@ local releaseLibStep = common.releaseLibStep;
         tar -cf release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar \
         -C rootfs \
         release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}
-      |||),
+      ||| % [name, name]),
 
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')

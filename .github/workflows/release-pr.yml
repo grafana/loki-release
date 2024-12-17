@@ -274,9 +274,9 @@ jobs:
     - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "compress rootfs"
       run: |
-        tar -cf release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar \
+        tar -cf release/plugins/loki-docker-driver-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar \
         -C rootfs \
-        release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}
+        release/plugins/loki-docker-driver-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}
     - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@v2"
