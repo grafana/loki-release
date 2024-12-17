@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.14.2](https://github.com/grafana/loki-release/compare/v1.14.1...v1.14.2) (2024-12-17)
+
+
+### Features
+
+* build plugin correctly as rootfs filesystem ([7c94768](https://github.com/grafana/loki-release/commit/7c94768f88e6ea6fd2ed0235e26145e9b3f20f13))
+* pull release repo go get docker driver config ([8d76c7b](https://github.com/grafana/loki-release/commit/8d76c7b407920d9a31957912d5417438a5a72af1))
+* run push-immages from root dir ([58a36ea](https://github.com/grafana/loki-release/commit/58a36ea99ab1ef608ec1586564c2713f1e935aee))
+* speak the magic tar incantation ([da42566](https://github.com/grafana/loki-release/commit/da425664829505c4c12150f8b83059c29b63b9ad))
+
+
+### Bug Fixes
+
+* append imageDir to docker load commands ([a089566](https://github.com/grafana/loki-release/commit/a08956658480cc32ad3b02440cdd0abfd4a97beb))
+* build path ([c3e6dfa](https://github.com/grafana/loki-release/commit/c3e6dfa5ba272fbe4206b2e1a00de2dba21e9ffd))
+* mkdir -p build dir ([f0307c0](https://github.com/grafana/loki-release/commit/f0307c0be45779d5dfc6c9753ee69ce7b6d3fb6d))
+* typo in mkdir ([8a0615a](https://github.com/grafana/loki-release/commit/8a0615aee6c23756afddadf10a1f01226a6864b7))
+
 ## [1.14.1](https://github.com/grafana/loki-release/compare/v1.14.0...v1.14.1) (2024-12-13)
 
 
