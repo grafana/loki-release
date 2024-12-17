@@ -3,8 +3,68 @@ type Image = {
   platform: string
   version: Version
 }
-export function buildCommands(repo: string, files: string[]): string[] {
+
+export function buildDockerPluginCommands(
+  repo: string,
+  buildDir: string,
+  imageDir: string,
+  files: string[]
+): string[] {
   const commands: string[] = []
+  const images = new Map<string, Image[]>()
+
+  for (const file of files) {
+    const imageMeta = parseImageMeta(file)
+    if (!imageMeta) {
+      continue
+    }
+    const { image, version, platform } = imageMeta
+
+    const platforms = images.get(image) || []
+    platforms.push({
+      file,
+      platform,
+      version
+    })
+
+    images.set(`${image}`, platforms)
+  }
+
+  for (const image of images.keys()) {
+    const platforms = images.get(image) || []
+    let version: Version = {
+      major: 0,
+      minor: 0,
+      patch: 0,
+      toString: () => '0.0.0'
+    }
+    for (const p of platforms) {
+      const { file, platform, version: v } = p
+      if (version.toString() === '0.0.0') {
+        version = v
+      }
+      const shortPlatform = platform.split('/')[1]
+      commands.push(`rm -rf "${buildDir}/rootfs" || true`)
+      commands.push(`mkdir -p "${buildDir}/rootfs"`)
+      commands.push(`tar -x -C "${buildDir}/rootfs" -f "${imageDir}/${file}"`)
+      commands.push(
+        `docker plugin create ${repo}/${image}:${version.toString()}-${shortPlatform} "${buildDir}"`
+      )
+      commands.push(
+        `docker plugin push "${repo}/${image}:${version.toString()}-${shortPlatform}"`
+      )
+    }
+  }
+
+  return commands
+}
+
+export function buildCommands(
+  repo: string,
+  imageDir: string,
+  files: string[]
+): string[] {
+  const commands: string[] = [`cd ${imageDir}`]
   const images = new Map<string, Image[]>()
 
   for (const file of files) {
@@ -39,7 +99,7 @@ export function buildCommands(repo: string, files: string[]): string[] {
         version = v
       }
       const shortPlatform = platform.split('/')[1]
-      commands.push(`docker load -i ${file}`)
+      commands.push(`docker load -i ${imageDir}/${file}`)
       manifests.push(`${repo}/${image}:${version.toString()}-${shortPlatform}`)
     }
 

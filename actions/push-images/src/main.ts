@@ -1,5 +1,5 @@
 import { getInput, info, setFailed, isDebug, debug } from '@actions/core'
-import { buildCommands } from './docker'
+import { buildCommands, buildDockerPluginCommands } from './docker'
 import { readdir } from 'fs/promises'
 import { execSync } from 'child_process'
 
@@ -11,9 +11,14 @@ export async function run(): Promise<void> {
   try {
     const imageDir = getInput('imageDir')
     const imagePrefix = getInput('imagePrefix')
+    const buildDir = getInput('buildDir')
+
+    const isPlugin = getInput('isPlugin').toLowerCase() === 'true'
 
     info(`imageDir:            ${imageDir}`)
     info(`imagePrefix:         ${imagePrefix}`)
+    info(`isPlugin:           ${isPlugin}`)
+    info(`buildDir:           ${buildDir}`)
 
     if (isDebug()) {
       debug('listing files in image directory')
@@ -21,11 +26,10 @@ export async function run(): Promise<void> {
       debug(lsCommand.toString())
     }
 
-    const files = await readdir(imageDir)
-    const commands = buildCommands(
-      imagePrefix,
-      files.filter(f => f.endsWith('.tar'))
-    )
+    const tarFiles = (await readdir(imageDir)).filter(f => f.endsWith('.tar'))
+    const commands = isPlugin
+      ? buildDockerPluginCommands(imagePrefix, buildDir, imageDir, tarFiles)
+      : buildCommands(imagePrefix, imageDir, tarFiles)
 
     if (commands.length === 0) {
       throw new Error('failed to push any images')
@@ -33,7 +37,7 @@ export async function run(): Promise<void> {
 
     for (const command of commands) {
       info(command)
-      const stdout = execSync(command, { cwd: imageDir })
+      const stdout = execSync(command)
       info(stdout.toString())
     }
 

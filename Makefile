@@ -1,3 +1,5 @@
+GO_FLAGS           := -ldflags "-extldflags \"-static\" -s -w $(GO_LDFLAGS)" -tags netgo
+
 test:
 	echo "testing"
 
@@ -51,3 +53,6 @@ packages:
 	./tools/nfpm-env-var-test.sh
 	mkdir -p dist
 	cp CHANGELOG.md dist/PACKAGING.MD
+
+clients/cmd/docker-driver/docker-driver:
+	CGO_ENABLED=0 go build $(GO_FLAGS) -o $@ ./$(@D)

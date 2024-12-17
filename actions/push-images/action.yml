@@ -11,6 +11,13 @@ inputs:
     description: 'repository prefix to push images to'
     required: false
     default: 'grafana'
+  isPlugin:
+    description: 'should the images be pushed as docer plugins'
+    required: false
+    default: 'false'
+  buildDir:
+    description: 'directory to build rootfs for docker plugin'
+    required: false
 
 # Define your outputs here.
 outputs: {}

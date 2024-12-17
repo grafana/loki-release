@@ -24708,9 +24708,50 @@ exports["default"] = _default;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.parseImageMeta = exports.buildCommands = void 0;
-function buildCommands(repo, files) {
+exports.parseImageMeta = exports.buildCommands = exports.buildDockerPluginCommands = void 0;
+function buildDockerPluginCommands(repo, buildDir, imageDir, files) {
     const commands = [];
+    const images = new Map();
+    for (const file of files) {
+        const imageMeta = parseImageMeta(file);
+        if (!imageMeta) {
+            continue;
+        }
+        const { image, version, platform } = imageMeta;
+        const platforms = images.get(image) || [];
+        platforms.push({
+            file,
+            platform,
+            version
+        });
+        images.set(`${image}`, platforms);
+    }
+    for (const image of images.keys()) {
+        const platforms = images.get(image) || [];
+        let version = {
+            major: 0,
+            minor: 0,
+            patch: 0,
+            toString: () => '0.0.0'
+        };
+        for (const p of platforms) {
+            const { file, platform, version: v } = p;
+            if (version.toString() === '0.0.0') {
+                version = v;
+            }
+            const shortPlatform = platform.split('/')[1];
+            commands.push(`rm -rf "${buildDir}/rootfs" || true`);
+            commands.push(`mkdir -p "${buildDir}/rootfs"`);
+            commands.push(`tar -x -C "${buildDir}/rootfs" -f "${imageDir}/${file}"`);
+            commands.push(`docker plugin create ${repo}/${image}:${version.toString()}-${shortPlatform} "${buildDir}"`);
+            commands.push(`docker plugin push "${repo}/${image}:${version.toString()}-${shortPlatform}"`);
+        }
+    }
+    return commands;
+}
+exports.buildDockerPluginCommands = buildDockerPluginCommands;
+function buildCommands(repo, imageDir, files) {
+    const commands = [`cd ${imageDir}`];
     const images = new Map();
     for (const file of files) {
         const imageMeta = parseImageMeta(file);
@@ -24741,7 +24782,7 @@ function buildCommands(repo, files) {
                 version = v;
             }
             const shortPlatform = platform.split('/')[1];
-            commands.push(`docker load -i ${file}`);
+            commands.push(`docker load -i ${imageDir}/${file}`);
             manifests.push(`${repo}/${image}:${version.toString()}-${shortPlatform}`);
         }
         commands.push(`docker push -a ${repo}/${image}`, `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`, `docker manifest push ${repo}/${image}:${version.toString()}`);
@@ -24802,21 +24843,27 @@ async function run() {
     try {
         const imageDir = (0, core_1.getInput)('imageDir');
         const imagePrefix = (0, core_1.getInput)('imagePrefix');
+        const buildDir = (0, core_1.getInput)('buildDir');
+        const isPlugin = (0, core_1.getInput)('isPlugin').toLowerCase() === 'true';
         (0, core_1.info)(`imageDir:            ${imageDir}`);
         (0, core_1.info)(`imagePrefix:         ${imagePrefix}`);
+        (0, core_1.info)(`isPlugin:           ${isPlugin}`);
+        (0, core_1.info)(`buildDir:           ${buildDir}`);
         if ((0, core_1.isDebug)()) {
             (0, core_1.debug)('listing files in image directory');
             const lsCommand = (0, child_process_1.execSync)('ls', { cwd: imageDir });
             (0, core_1.debug)(lsCommand.toString());
         }
-        const files = await (0, promises_1.readdir)(imageDir);
-        const commands = (0, docker_1.buildCommands)(imagePrefix, files.filter(f => f.endsWith('.tar')));
+        const tarFiles = (await (0, promises_1.readdir)(imageDir)).filter(f => f.endsWith('.tar'));
+        const commands = isPlugin
+            ? (0, docker_1.buildDockerPluginCommands)(imagePrefix, buildDir, imageDir, tarFiles)
+            : (0, docker_1.buildCommands)(imagePrefix, imageDir, tarFiles);
         if (commands.length === 0) {
             throw new Error('failed to push any images');
         }
         for (const command of commands) {
             (0, core_1.info)(command);
-            const stdout = (0, child_process_1.execSync)(command, { cwd: imageDir });
+            const stdout = (0, child_process_1.execSync)(command);
             (0, core_1.info)(stdout.toString());
         }
         if ((0, core_1.isDebug)()) {
