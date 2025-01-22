@@ -36,7 +36,7 @@ local runner = import 'runner.libsonnet',
       releaseStep('Parse image platform')
       + step.withId('platform')
       + step.withRun(|||
-        mkdir -p release/images
+        mkdir -p images
 
         platform="$(echo "${{ matrix.arch }}" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT

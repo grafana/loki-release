@@ -178,7 +178,7 @@ jobs:
     - id: "platform"
       name: "Parse image platform"
       run: |
-        mkdir -p release/images
+        mkdir -p images
         
         platform="$(echo "${{ matrix.arch }}" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT
