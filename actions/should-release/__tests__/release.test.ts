@@ -184,7 +184,7 @@ describe('release', () => {
     })
   })
 
-  describe('isLastestVersion', () => {
+  describe('isLatestVersion', () => {
     const tags = {
       'v1.3.1': {
         name: 'v1.3.1',
@@ -206,18 +206,43 @@ describe('release', () => {
       ver = Version.parse('2.0.0')
       expect(isLatestVersion(ver, tags)).toBe(true)
     })
-    it('returns flase if the version is not the latest', () => {
+    it('returns false if the version is not the latest', () => {
       let ver = Version.parse('1.2.9')
       expect(isLatestVersion(ver, tags)).toBe(false)
 
       ver = Version.parse('1.3.2')
-      expect(isLatestVersion(ver, tags)).toBe(false)
+      expect(isLatestVersion(ver, tags)).toBe(true)
 
       ver = Version.parse('1.2.0')
       expect(isLatestVersion(ver, tags)).toBe(false)
 
       ver = Version.parse('0.2.0')
       expect(isLatestVersion(ver, tags)).toBe(false)
+    })
+
+    it('handles equal versions correctly', () => {
+      const tagsWithEqual = {
+        'v3.3.3': {
+          name: 'v3.3.3',
+          sha: 'abc123'
+        },
+        'v1.3.2': {
+          name: 'v1.3.2',
+          sha: 'def456'
+        }
+      }
+
+      // This should be false because 3.3.3 exists
+      let ver = Version.parse('3.3.2')
+      expect(isLatestVersion(ver, tagsWithEqual)).toBe(false)
+
+      // This should be true because it's equal to the highest version
+      ver = Version.parse('3.3.3')
+      expect(isLatestVersion(ver, tagsWithEqual)).toBe(true)
+
+      // This should be true because it's higher than any existing version
+      ver = Version.parse('3.3.4')
+      expect(isLatestVersion(ver, tagsWithEqual)).toBe(true)
     })
   })
 })
