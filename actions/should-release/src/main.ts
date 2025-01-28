@@ -22,6 +22,7 @@ export async function run(): Promise<void> {
     }
 
     info(`releasing ${release.sha} as ${release.name}`)
+    info(`isLatest: ${release.isLatest}`)
     setOutput('shouldRelease', true)
     setOutput('sha', JSON.stringify(release.sha))
     setOutput('name', JSON.stringify(release.name))

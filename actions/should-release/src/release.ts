@@ -120,7 +120,7 @@ export function isLatestVersion(
   tags: Record<string, GitHubTag>
 ): boolean {
   for (const tag in tags) {
-    if (compareVersions(Version.parse(tags[tag].name), version) >= 0) {
+    if (compareVersions(Version.parse(tags[tag].name), version) > 0) {
       return false
     }
   }
