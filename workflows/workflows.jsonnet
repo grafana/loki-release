@@ -10,7 +10,7 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
     lokiRelease.releasePRWorkflow(
       imageJobs={
         loki: build.image('fake-loki', 'cmd/loki'),
-        'loki-docker-driver': build.dockerPlugin('loki-docker-driver', dockerPluginDir, buildImage=buildImage, platform=['linux/amd64', 'linux/arm64']),
+        'loki-docker-driver': build.dockerPlugin('loki-docker-driver', dockerPluginDir, buildImage=buildImage),
       },
       buildImage=buildImage,
       buildArtifactsBucket='loki-build-artifacts',
@@ -28,7 +28,7 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
     lokiRelease.releasePRWorkflow(
       imageJobs={
         loki: build.image('fake-loki', 'cmd/loki'),
-        'loki-docker-driver': build.dockerPlugin('loki-docker-driver', dockerPluginDir, buildImage=buildImage, platform=['linux/amd64', 'linux/arm64']),
+        'loki-docker-driver': build.dockerPlugin('loki-docker-driver', dockerPluginDir, buildImage=buildImage),
       },
       buildImage=buildImage,
       buildArtifactsBucket='loki-build-artifacts',
