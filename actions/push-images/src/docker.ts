@@ -111,7 +111,6 @@ export function buildCommands(
       const shortPlatform = platform.split('/')[1]
       commands.push(`docker load -i ${imageDir}/${file}`)
       manifests.push(`${repo}/${image}:${version.toString()}-${shortPlatform}`)
-      
       // Add latest tag for each platform if this is the latest version
       if (isLatest) {
         commands.push(
@@ -129,7 +128,9 @@ export function buildCommands(
 
     // Create and push latest manifest if this is the latest version
     if (isLatest) {
-      const latestManifests = manifests.map(m => m.replace(`:${version.toString()}-`, ':latest-'))
+      const latestManifests = manifests.map(m =>
+        m.replace(`:${version.toString()}-`, ':latest-')
+      )
       commands.push(
         `docker manifest create ${repo}/${image}:latest ${latestManifests.join(' ')}`,
         `docker manifest push ${repo}/${image}:latest`

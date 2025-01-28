@@ -29,7 +29,13 @@ export async function run(): Promise<void> {
 
     const tarFiles = (await readdir(imageDir)).filter(f => f.endsWith('.tar'))
     const commands = isPlugin
-      ? buildDockerPluginCommands(imagePrefix, buildDir, imageDir, tarFiles, isLatest)
+      ? buildDockerPluginCommands(
+          imagePrefix,
+          buildDir,
+          imageDir,
+          tarFiles,
+          isLatest
+        )
       : buildCommands(imagePrefix, imageDir, tarFiles, isLatest)
 
     if (commands.length === 0) {

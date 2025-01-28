@@ -6,28 +6,33 @@ import {
 
 describe('buildCommands', () => {
   it('tags and pushes each architecture for each image', () => {
-    const commands = buildCommands('grafana', '/images', [
-      'fluent-bit-2.9.4-linux-amd64.tar',
-      'fluentd-2.9.4-linux-amd64.tar',
-      'logcli-2.9.4-linux-amd64.tar',
-      'logcli-2.9.4-linux-arm.tar',
-      'logcli-2.9.4-linux-arm64.tar',
-      'logstash-2.9.4-linux-amd64.tar',
-      'loki-2.9.4-linux-amd64.tar',
-      'loki-2.9.4-linux-arm.tar',
-      'loki-2.9.4-linux-arm64.tar',
-      'loki-canary-2.9.4-linux-amd64.tar',
-      'loki-canary-2.9.4-linux-arm.tar',
-      'loki-canary-2.9.4-linux-arm64.tar',
-      'loki-canary-boringcrypto-2.9.4-linux-amd64.tar',
-      'loki-canary-boringcrypto-2.9.4-linux-arm.tar',
-      'loki-canary-boringcrypto-2.9.4-linux-arm64.tar',
-      'loki-operator-2.9.4-linux-amd64.tar',
-      'promtail-2.9.4-linux-amd64.tar',
-      'promtail-2.9.4-linux-arm.tar',
-      'promtail-2.9.4-linux-arm64.tar',
-      'querytee-2.9.4-linux-amd64.tar'
-    ], false)
+    const commands = buildCommands(
+      'grafana',
+      '/images',
+      [
+        'fluent-bit-2.9.4-linux-amd64.tar',
+        'fluentd-2.9.4-linux-amd64.tar',
+        'logcli-2.9.4-linux-amd64.tar',
+        'logcli-2.9.4-linux-arm.tar',
+        'logcli-2.9.4-linux-arm64.tar',
+        'logstash-2.9.4-linux-amd64.tar',
+        'loki-2.9.4-linux-amd64.tar',
+        'loki-2.9.4-linux-arm.tar',
+        'loki-2.9.4-linux-arm64.tar',
+        'loki-canary-2.9.4-linux-amd64.tar',
+        'loki-canary-2.9.4-linux-arm.tar',
+        'loki-canary-2.9.4-linux-arm64.tar',
+        'loki-canary-boringcrypto-2.9.4-linux-amd64.tar',
+        'loki-canary-boringcrypto-2.9.4-linux-arm.tar',
+        'loki-canary-boringcrypto-2.9.4-linux-arm64.tar',
+        'loki-operator-2.9.4-linux-amd64.tar',
+        'promtail-2.9.4-linux-amd64.tar',
+        'promtail-2.9.4-linux-arm.tar',
+        'promtail-2.9.4-linux-arm64.tar',
+        'querytee-2.9.4-linux-amd64.tar'
+      ],
+      false
+    )
 
     const expected = [
       `cd /images`,
@@ -234,7 +239,6 @@ describe('buildCommands', () => {
       `docker plugin push "grafana/loki-docker-driver:2.9.4-amd64"`,
       `docker plugin create grafana/loki-docker-driver:latest-amd64 "/build/dir"`,
       `docker plugin push "grafana/loki-docker-driver:latest-amd64"`,
-      
       `rm -rf "/build/dir/rootfs" || true`,
       `mkdir -p "/build/dir/rootfs"`,
       `tar -x -C "/build/dir/rootfs" -f "/plugins/loki-docker-driver-2.9.4-linux-arm64.tar"`,
