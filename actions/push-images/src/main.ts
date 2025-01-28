@@ -14,12 +14,13 @@ export async function run(): Promise<void> {
     const buildDir = getInput('buildDir')
 
     const isPlugin = getInput('isPlugin').toLowerCase() === 'true'
+    const isLatest = getInput('isLatest').toLowerCase() === 'true'
 
     info(`imageDir:            ${imageDir}`)
     info(`imagePrefix:         ${imagePrefix}`)
     info(`isPlugin:           ${isPlugin}`)
     info(`buildDir:           ${buildDir}`)
-
+    info(`isLatest:           ${isLatest}`)
     if (isDebug()) {
       debug('listing files in image directory')
       const lsCommand = execSync('ls', { cwd: imageDir })
@@ -28,8 +29,14 @@ export async function run(): Promise<void> {
 
     const tarFiles = (await readdir(imageDir)).filter(f => f.endsWith('.tar'))
     const commands = isPlugin
-      ? buildDockerPluginCommands(imagePrefix, buildDir, imageDir, tarFiles)
-      : buildCommands(imagePrefix, imageDir, tarFiles)
+      ? buildDockerPluginCommands(
+          imagePrefix,
+          buildDir,
+          imageDir,
+          tarFiles,
+          isLatest
+        )
+      : buildCommands(imagePrefix, imageDir, tarFiles, isLatest)
 
     if (commands.length === 0) {
       throw new Error('failed to push any images')

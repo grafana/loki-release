@@ -24935,7 +24935,7 @@ exports["default"] = _default;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseImageMeta = exports.buildCommands = exports.buildDockerPluginCommands = void 0;
-function buildDockerPluginCommands(repo, buildDir, imageDir, files) {
+function buildDockerPluginCommands(repo, buildDir, imageDir, files, isLatest) {
     const commands = [];
     const images = new Map();
     for (const file of files) {
@@ -24971,12 +24971,16 @@ function buildDockerPluginCommands(repo, buildDir, imageDir, files) {
             commands.push(`tar -x -C "${buildDir}/rootfs" -f "${imageDir}/${file}"`);
             commands.push(`docker plugin create ${repo}/${image}:${version.toString()}-${shortPlatform} "${buildDir}"`);
             commands.push(`docker plugin push "${repo}/${image}:${version.toString()}-${shortPlatform}"`);
+            // Add latest tag for each platform if this is the latest version
+            if (isLatest) {
+                commands.push(`docker plugin create ${repo}/${image}:latest-${shortPlatform} "${buildDir}"`, `docker plugin push "${repo}/${image}:latest-${shortPlatform}"`);
+            }
         }
     }
     return commands;
 }
 exports.buildDockerPluginCommands = buildDockerPluginCommands;
-function buildCommands(repo, imageDir, files) {
+function buildCommands(repo, imageDir, files, isLatest) {
     const commands = [`cd ${imageDir}`];
     const images = new Map();
     for (const file of files) {
@@ -25010,8 +25014,17 @@ function buildCommands(repo, imageDir, files) {
             const shortPlatform = platform.split('/')[1];
             commands.push(`docker load -i ${imageDir}/${file}`);
             manifests.push(`${repo}/${image}:${version.toString()}-${shortPlatform}`);
+            // Add latest tag for each platform if this is the latest version
+            if (isLatest) {
+                commands.push(`docker tag ${repo}/${image}:${version.toString()}-${shortPlatform} ${repo}/${image}:latest-${shortPlatform}`, `docker push ${repo}/${image}:latest-${shortPlatform}`);
+            }
         }
         commands.push(`docker push -a ${repo}/${image}`, `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`, `docker manifest push ${repo}/${image}:${version.toString()}`);
+        // Create and push latest manifest if this is the latest version
+        if (isLatest) {
+            const latestManifests = manifests.map(m => m.replace(`:${version.toString()}-`, ':latest-'));
+            commands.push(`docker manifest create ${repo}/${image}:latest ${latestManifests.join(' ')}`, `docker manifest push ${repo}/${image}:latest`);
+        }
     }
     return commands;
 }
@@ -25071,10 +25084,12 @@ async function run() {
         const imagePrefix = (0, core_1.getInput)('imagePrefix');
         const buildDir = (0, core_1.getInput)('buildDir');
         const isPlugin = (0, core_1.getInput)('isPlugin').toLowerCase() === 'true';
+        const isLatest = (0, core_1.getInput)('isLatest').toLowerCase() === 'true';
         (0, core_1.info)(`imageDir:            ${imageDir}`);
         (0, core_1.info)(`imagePrefix:         ${imagePrefix}`);
         (0, core_1.info)(`isPlugin:           ${isPlugin}`);
         (0, core_1.info)(`buildDir:           ${buildDir}`);
+        (0, core_1.info)(`isLatest:           ${isLatest}`);
         if ((0, core_1.isDebug)()) {
             (0, core_1.debug)('listing files in image directory');
             const lsCommand = (0, child_process_1.execSync)('ls', { cwd: imageDir });
@@ -25082,8 +25097,8 @@ async function run() {
         }
         const tarFiles = (await (0, promises_1.readdir)(imageDir)).filter(f => f.endsWith('.tar'));
         const commands = isPlugin
-            ? (0, docker_1.buildDockerPluginCommands)(imagePrefix, buildDir, imageDir, tarFiles)
-            : (0, docker_1.buildCommands)(imagePrefix, imageDir, tarFiles);
+            ? (0, docker_1.buildDockerPluginCommands)(imagePrefix, buildDir, imageDir, tarFiles, isLatest)
+            : (0, docker_1.buildCommands)(imagePrefix, imageDir, tarFiles, isLatest);
         if (commands.length === 0) {
             throw new Error('failed to push any images');
         }

@@ -8,7 +8,8 @@ export function buildDockerPluginCommands(
   repo: string,
   buildDir: string,
   imageDir: string,
-  files: string[]
+  files: string[],
+  isLatest: boolean
 ): string[] {
   const commands: string[] = []
   const images = new Map<string, Image[]>()
@@ -38,6 +39,7 @@ export function buildDockerPluginCommands(
       patch: 0,
       toString: () => '0.0.0'
     }
+
     for (const p of platforms) {
       const { file, platform, version: v } = p
       if (version.toString() === '0.0.0') {
@@ -53,6 +55,13 @@ export function buildDockerPluginCommands(
       commands.push(
         `docker plugin push "${repo}/${image}:${version.toString()}-${shortPlatform}"`
       )
+      // Add latest tag for each platform if this is the latest version
+      if (isLatest) {
+        commands.push(
+          `docker plugin create ${repo}/${image}:latest-${shortPlatform} "${buildDir}"`,
+          `docker plugin push "${repo}/${image}:latest-${shortPlatform}"`
+        )
+      }
     }
   }
 
@@ -62,7 +71,8 @@ export function buildDockerPluginCommands(
 export function buildCommands(
   repo: string,
   imageDir: string,
-  files: string[]
+  files: string[],
+  isLatest: boolean
 ): string[] {
   const commands: string[] = [`cd ${imageDir}`]
   const images = new Map<string, Image[]>()
@@ -101,6 +111,13 @@ export function buildCommands(
       const shortPlatform = platform.split('/')[1]
       commands.push(`docker load -i ${imageDir}/${file}`)
       manifests.push(`${repo}/${image}:${version.toString()}-${shortPlatform}`)
+      // Add latest tag for each platform if this is the latest version
+      if (isLatest) {
+        commands.push(
+          `docker tag ${repo}/${image}:${version.toString()}-${shortPlatform} ${repo}/${image}:latest-${shortPlatform}`,
+          `docker push ${repo}/${image}:latest-${shortPlatform}`
+        )
+      }
     }
 
     commands.push(
@@ -108,6 +125,17 @@ export function buildCommands(
       `docker manifest create ${repo}/${image}:${version.toString()} ${manifests.join(' ')}`,
       `docker manifest push ${repo}/${image}:${version.toString()}`
     )
+
+    // Create and push latest manifest if this is the latest version
+    if (isLatest) {
+      const latestManifests = manifests.map(m =>
+        m.replace(`:${version.toString()}-`, ':latest-')
+      )
+      commands.push(
+        `docker manifest create ${repo}/${image}:latest ${latestManifests.join(' ')}`,
+        `docker manifest push ${repo}/${image}:latest`
+      )
+    }
   }
 
   return commands
