@@ -18,6 +18,10 @@ inputs:
   buildDir:
     description: 'directory to build rootfs for docker plugin'
     required: false
+  isLatest:
+    description: 'should we tag the image as latest'
+    default: 'false'
+    required: false
 
 # Define your outputs here.
 outputs: {}
