@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.15.0](https://github.com/grafana/loki-release/compare/v1.14.2...v1.15.0) (2025-01-28)
+
+
+### Features
+
+* fix the docker driver release ([#169](https://github.com/grafana/loki-release/issues/169)) ([cfa2425](https://github.com/grafana/loki-release/commit/cfa24256090828f566f1ba59292ce65d8db4a4ae))
+* release 1.15.0 ([c050dae](https://github.com/grafana/loki-release/commit/c050dae4c8f44e30b169be33c07dfaca15bb790a))
+
 ## [1.14.2](https://github.com/grafana/loki-release/compare/v1.14.1...v1.14.2) (2024-12-17)
 
 
