@@ -12,5 +12,5 @@ func main() {
 	if err != nil {
 		fmt.Println("Error generating UUID")
 	}
-	fmt.Println("This is not really Loki, just meant to look like it.  Here's a UUID: ", uid)
+	fmt.Println("This is not really Loki, just meant to look like it.   Here's a UUID: ", uid)
 }
