@@ -4,7 +4,7 @@ env:
   BUILD_ARTIFACTS_BUCKET: "loki-build-artifacts"
   IMAGE_PREFIX: "trevorwhitney075"
   PUBLISH_TO_GCS: false
-  RELEASE_LIB_REF: "release-1.14.x"
+  RELEASE_LIB_REF: "release-1.17.x"
   RELEASE_REPO: "grafana/loki-release"
   USE_GITHUB_APP_TOKEN: true
 jobs:
@@ -154,6 +154,7 @@ jobs:
         buildDir: "release/clients/cmd/docker-driver"
         imageDir: "plugins"
         imagePrefix: "${{ env.IMAGE_PREFIX }}"
+        isLatest: "${{ needs.createRelease.outputs.isLatest }}"
         isPlugin: true
   publishImages:
     needs:
@@ -192,6 +193,7 @@ jobs:
       with:
         imageDir: "images"
         imagePrefix: "${{ env.IMAGE_PREFIX }}"
+        isLatest: "${{ needs.createRelease.outputs.isLatest }}"
   publishRelease:
     needs:
     - "createRelease"
