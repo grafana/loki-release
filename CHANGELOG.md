@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.2](https://github.com/grafana/loki-release/compare/v1.16.1...v1.16.2) (2025-01-29)
+
+
+### Features
+
+* Force a binary change ([#197](https://github.com/grafana/loki-release/issues/197)) ([e72de34](https://github.com/grafana/loki-release/commit/e72de34d2877769ef77100244f4df38d860605ac))
+
 ## [1.16.1](https://github.com/grafana/loki-release/compare/v1.16.0...v1.16.1) (2025-01-29)
 
 
