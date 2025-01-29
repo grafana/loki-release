@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.16.3](https://github.com/grafana/loki-release/compare/v1.16.2...v1.16.3) (2025-01-29)
+
+
+### Features
+
+* Force an update ([#202](https://github.com/grafana/loki-release/issues/202)) ([83d4edd](https://github.com/grafana/loki-release/commit/83d4eddc6bcd53e7831538cd94d8ad550b0dc9eb))
+* more tag tweaks ([#200](https://github.com/grafana/loki-release/issues/200)) ([89a23b3](https://github.com/grafana/loki-release/commit/89a23b36492f0350f11652962d59e0866e94ff11))
+* Try once again to force a patch release ([#201](https://github.com/grafana/loki-release/issues/201)) ([28f18b4](https://github.com/grafana/loki-release/commit/28f18b46f17bc1e022e0bdb1a3c29a018753252b))
+
 ## [1.16.2](https://github.com/grafana/loki-release/compare/v1.16.1...v1.16.2) (2025-01-29)
 
 
