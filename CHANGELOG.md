@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.14.3](https://github.com/grafana/loki-release/compare/v1.14.2...v1.14.3) (2025-01-29)
+
+
+### Features
+
+* build docker plugin on native runners ([#185](https://github.com/grafana/loki-release/issues/185)) ([77c60db](https://github.com/grafana/loki-release/commit/77c60db20156d69c1ab872c66ccef4f66b3abb67))
+* fix the docker driver release ([#169](https://github.com/grafana/loki-release/issues/169)) ([cfa2425](https://github.com/grafana/loki-release/commit/cfa24256090828f566f1ba59292ce65d8db4a4ae))
+
 ## [1.14.2](https://github.com/grafana/loki-release/compare/v1.14.1...v1.14.2) (2024-12-17)
 
 
