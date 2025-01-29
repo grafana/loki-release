@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1](https://github.com/grafana/loki-release/compare/v1.16.0...v1.16.1) (2025-01-29)
+
+
+### Features
+
+* pass isLatest to in workflow ([#190](https://github.com/grafana/loki-release/issues/190)) ([198dbf1](https://github.com/grafana/loki-release/commit/198dbf103159f0c7cc795ae4f13cfea08dcd9afa))
+
 ## [1.16.0](https://github.com/grafana/loki-release/compare/v1.14.2...v1.16.0) (2025-01-28)
 
 
