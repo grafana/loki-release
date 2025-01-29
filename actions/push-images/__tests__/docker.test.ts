@@ -283,41 +283,6 @@ describe('buildCommands', () => {
     ])
   })
 
-  it('tags and pushes each architecture for each docker plugin with latest tags', () => {
-    const commands = buildDockerPluginCommands(
-      'grafana',
-      '/build/dir',
-      '/plugins',
-      [
-        'loki-docker-driver-2.9.4-linux-amd64.tar',
-        'loki-docker-driver-2.9.4-linux-arm64.tar'
-      ],
-      true
-    )
-
-    const expected = [
-      `rm -rf "/build/dir/rootfs" || true`,
-      `mkdir -p "/build/dir/rootfs"`,
-      `tar -x -C "/build/dir/rootfs" -f "/plugins/loki-docker-driver-2.9.4-linux-amd64.tar"`,
-      `docker plugin create grafana/loki-docker-driver:2.9.4-amd64 "/build/dir"`,
-      `docker plugin push "grafana/loki-docker-driver:2.9.4-amd64"`,
-      `docker plugin push "grafana/loki-docker-driver:latest-amd64"`,
-      `docker plugin push "grafana/loki-docker-driver:2.9-amd64"`,
-      `docker plugin push "grafana/loki-docker-driver:2-amd64"`,
-      `rm -rf "/build/dir/rootfs" || true`,
-      `mkdir -p "/build/dir/rootfs"`,
-      `tar -x -C "/build/dir/rootfs" -f "/plugins/loki-docker-driver-2.9.4-linux-arm64.tar"`,
-      `docker plugin create grafana/loki-docker-driver:2.9.4-arm64 "/build/dir"`,
-      `docker plugin push "grafana/loki-docker-driver:2.9.4-arm64"`,
-      `docker plugin push "grafana/loki-docker-driver:latest-arm64"`,
-      `docker plugin push "grafana/loki-docker-driver:2.9-arm64"`,
-      `docker plugin push "grafana/loki-docker-driver:2-arm64"`
-    ]
-
-    for (const command of expected) {
-      expect(commands).toContain(command)
-    }
-  })
 })
 
 describe('parseImage', () => {

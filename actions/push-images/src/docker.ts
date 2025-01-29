@@ -55,19 +55,6 @@ export function buildDockerPluginCommands(
       commands.push(
         `docker plugin push "${repo}/${image}:${version.toString()}-${shortPlatform}"`
       )
-      // Add latest tag for each platform if this is the latest version
-      if (isLatest) {
-        commands.push(
-          //`docker plugin create ${repo}/${image}:latest-${shortPlatform} "${buildDir}"`,
-          `docker plugin push "${repo}/${image}:latest-${shortPlatform}"`,
-          // Add major version tag (e.g., 2-amd64)
-          //`docker plugin create ${repo}/${image}:${version.major}-${shortPlatform} "${buildDir}"`,
-          `docker plugin push "${repo}/${image}:${version.major}-${shortPlatform}"`,
-          // Add major.minor version tag (e.g., 2.9-amd64)
-          //`docker plugin create ${repo}/${image}:${version.major}.${version.minor}-${shortPlatform} "${buildDir}"`,
-          `docker plugin push "${repo}/${image}:${version.major}.${version.minor}-${shortPlatform}"`
-        )
-      }
     }
   }
 
