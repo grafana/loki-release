@@ -282,7 +282,6 @@ describe('buildCommands', () => {
       'docker manifest push grafana/loki-canary:2.9'
     ])
   })
-
 })
 
 describe('parseImage', () => {

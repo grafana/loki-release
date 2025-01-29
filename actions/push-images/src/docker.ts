@@ -9,7 +9,7 @@ export function buildDockerPluginCommands(
   buildDir: string,
   imageDir: string,
   files: string[],
-  isLatest: boolean
+  _isLatest: boolean
 ): string[] {
   const commands: string[] = []
   const images = new Map<string, Image[]>()
