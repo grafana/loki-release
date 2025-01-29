@@ -256,7 +256,7 @@ jobs:
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       working-directory: "release"
     - id: "should_release"
-      name: "should a release be created?"
+      name: "Should a release be created?"
       uses: "./lib/actions/should-release"
       with:
         baseBranch: "${{ steps.extract_branch.outputs.branch }}"

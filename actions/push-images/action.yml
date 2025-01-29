@@ -12,7 +12,7 @@ inputs:
     required: false
     default: 'grafana'
   isPlugin:
-    description: 'should the images be pushed as docer plugins'
+    description: 'should the images be pushed as docker plugins'
     required: false
     default: 'false'
   buildDir:
