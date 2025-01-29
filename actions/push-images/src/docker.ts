@@ -147,7 +147,10 @@ export function buildCommands(
         m.replace(`:${version.toString()}-`, `:v${version.major}-`)
       )
       const majorMinorManifests = manifests.map(m =>
-        m.replace(`:${version.toString()}-`, `:v${version.major}.${version.minor}-`)
+        m.replace(
+          `:${version.toString()}-`,
+          `:v${version.major}.${version.minor}-`
+        )
       )
       
       commands.push(
