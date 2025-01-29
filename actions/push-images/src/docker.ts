@@ -9,7 +9,7 @@ export function buildDockerPluginCommands(
   buildDir: string,
   imageDir: string,
   files: string[],
-  isLatest: boolean
+  _isLatest: boolean
 ): string[] {
   const commands: string[] = []
   const images = new Map<string, Image[]>()
@@ -55,13 +55,6 @@ export function buildDockerPluginCommands(
       commands.push(
         `docker plugin push "${repo}/${image}:${version.toString()}-${shortPlatform}"`
       )
-      // Add latest tag for each platform if this is the latest version
-      if (isLatest) {
-        commands.push(
-          `docker plugin create ${repo}/${image}:latest-${shortPlatform} "${buildDir}"`,
-          `docker plugin push "${repo}/${image}:latest-${shortPlatform}"`
-        )
-      }
     }
   }
 
@@ -115,7 +108,13 @@ export function buildCommands(
       if (isLatest) {
         commands.push(
           `docker tag ${repo}/${image}:${version.toString()}-${shortPlatform} ${repo}/${image}:latest-${shortPlatform}`,
-          `docker push ${repo}/${image}:latest-${shortPlatform}`
+          `docker push ${repo}/${image}:latest-${shortPlatform}`,
+          // Add major version tag (e.g., 2-amd64)
+          `docker tag ${repo}/${image}:${version.toString()}-${shortPlatform} ${repo}/${image}:${version.major}-${shortPlatform}`,
+          `docker push ${repo}/${image}:${version.major}-${shortPlatform}`,
+          // Add major.minor version tag (e.g., 2.9-amd64)
+          `docker tag ${repo}/${image}:${version.toString()}-${shortPlatform} ${repo}/${image}:${version.major}.${version.minor}-${shortPlatform}`,
+          `docker push ${repo}/${image}:${version.major}.${version.minor}-${shortPlatform}`
         )
       }
     }
@@ -131,9 +130,22 @@ export function buildCommands(
       const latestManifests = manifests.map(m =>
         m.replace(`:${version.toString()}-`, ':latest-')
       )
+      const majorManifests = manifests.map(m =>
+        m.replace(`:${version.toString()}-`, `:${version.major}-`)
+      )
+      const majorMinorManifests = manifests.map(m =>
+        m.replace(
+          `:${version.toString()}-`,
+          `:${version.major}.${version.minor}-`
+        )
+      )
       commands.push(
         `docker manifest create ${repo}/${image}:latest ${latestManifests.join(' ')}`,
-        `docker manifest push ${repo}/${image}:latest`
+        `docker manifest push ${repo}/${image}:latest`,
+        `docker manifest create ${repo}/${image}:${version.major} ${majorManifests.join(' ')}`,
+        `docker manifest push ${repo}/${image}:${version.major}`,
+        `docker manifest create ${repo}/${image}:${version.major}.${version.minor} ${majorMinorManifests.join(' ')}`,
+        `docker manifest push ${repo}/${image}:${version.major}.${version.minor}`
       )
     }
   }
