@@ -24935,7 +24935,7 @@ exports["default"] = _default;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseImageMeta = exports.buildCommands = exports.buildDockerPluginCommands = void 0;
-function buildDockerPluginCommands(repo, buildDir, imageDir, files, isLatest) {
+function buildDockerPluginCommands(repo, buildDir, imageDir, files, _isLatest) {
     const commands = [];
     const images = new Map();
     for (const file of files) {
