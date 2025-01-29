@@ -152,7 +152,6 @@ export function buildCommands(
           `:v${version.major}.${version.minor}-`
         )
       )
-      
       commands.push(
         `docker manifest create ${repo}/${image}:latest ${latestManifests.join(' ')}`,
         `docker manifest push ${repo}/${image}:latest`,
