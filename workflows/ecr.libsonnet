@@ -1,6 +1,8 @@
 local common = import 'common.libsonnet';
 local job = common.job;
 local step = common.step;
+local runner = import 'runner.libsonnet',
+      r = runner.withDefaultMapping();
 
 {
   ecrImage: function(
