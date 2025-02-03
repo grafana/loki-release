@@ -76,7 +76,7 @@ local runner = import 'runner.libsonnet',
 
       step.new('Upload artifacts')
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
-      + step.uses('google-github-actions/upload-cloud-storage@v2')
+      + step.new('google-github-actions/upload-cloud-storage@v2')
       + step.with({
         destination: '${{ env.BUILD_ARTIFACTS_BUCKET }}/${{ github.sha }}/images',
         path: 'release/images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
