@@ -238,7 +238,11 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
       })
       + step.withRun(|||
-        gh release edit ${{ needs.createRelease.outputs.name }} --draft=false --latest=${{ needs.createRelease.outputs.isLatest }}
+        if [[ "${{ needs.createRelease.outputs.isLatest }}" == "true" ]]; then
+          gh release edit ${{ needs.createRelease.outputs.name }} --draft=false --latest
+        else
+          gh release edit ${{ needs.createRelease.outputs.name }} --draft=false
+        fi
       |||),
     ]),
 }
