@@ -118,24 +118,34 @@ async function prepareSingleRelease(
 export function isLatestVersion(
   version: Version,
   tags: Record<string, GitHubTag>,
-  versionPattern: RegExp = /^v\d+\.\d+\.\d+$/
+  versionPattern = /^v\d+\.\d+\.\d+$/
 ): boolean {
-  info(`Checking if version ${version.toString()} is latest against ${Object.keys(tags).length} tags`)
-  
-  // Filter tags to only include those matching our version pattern
+  info(
+    `Checking if version ${version.toString()} is latest against ${
+      Object.keys(tags).length
+    } tags`
+  )
+
   const filteredTags = Object.entries(tags)
     .filter(([tagName]) => versionPattern.test(tagName))
-    .reduce((acc, [tagName, tag]) => {
-      acc[tagName] = tag
-      return acc
-    }, {} as Record<string, GitHubTag>)
-  
+    .reduce(
+      (acc, [tagName, tag]) => {
+        acc[tagName] = tag
+        return acc
+      },
+      {} as Record<string, GitHubTag>
+    )
+
   info(`Found ${Object.keys(filteredTags).length} matching version tags`)
-  
+
   for (const tag in filteredTags) {
     const tagVersion = Version.parse(tags[tag].name)
     const comparison = compareVersions(tagVersion, version)
-    info(`Comparing against tag ${tags[tag].name}: ${comparison > 0 ? 'newer' : 'older or equal'}`)
+    info(
+      `Comparing against tag ${tags[tag].name}: ${
+        comparison > 0 ? 'newer' : 'older or equal'
+      }`
+    )
     if (comparison > 0) {
       info(`Found newer version ${tags[tag].name}, marking as not latest`)
       return false

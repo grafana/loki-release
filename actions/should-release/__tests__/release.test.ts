@@ -187,16 +187,16 @@ describe('release', () => {
   describe('isLatestVersion', () => {
     const createTags = (versions: string[]): Record<string, GitHubTag> => {
       const tags: Record<string, GitHubTag> = {}
-      versions.forEach(v => {
+      for (const v of versions) {
         tags[v] = {
           name: v,
           sha: `sha-${v}`
         }
-      })
+      }
       return tags
     }
 
-    const tags = {
+    const defaultTags = {
       'v1.3.1': {
         name: 'v1.3.1',
         sha: 'abc123'
@@ -209,27 +209,27 @@ describe('release', () => {
 
     it('returns true if the version is the latest', () => {
       let ver = Version.parse('1.3.3')
-      expect(isLatestVersion(ver, tags)).toBe(true)
+      expect(isLatestVersion(ver, defaultTags)).toBe(true)
 
       ver = Version.parse('1.4.0')
-      expect(isLatestVersion(ver, tags)).toBe(true)
+      expect(isLatestVersion(ver, defaultTags)).toBe(true)
 
       ver = Version.parse('2.0.0')
-      expect(isLatestVersion(ver, tags)).toBe(true)
+      expect(isLatestVersion(ver, defaultTags)).toBe(true)
     })
 
     it('returns false if the version is not the latest', () => {
       let ver = Version.parse('1.2.9')
-      expect(isLatestVersion(ver, tags)).toBe(false)
+      expect(isLatestVersion(ver, defaultTags)).toBe(false)
 
       ver = Version.parse('1.3.2')
-      expect(isLatestVersion(ver, tags)).toBe(true)
+      expect(isLatestVersion(ver, defaultTags)).toBe(true)
 
       ver = Version.parse('1.2.0')
-      expect(isLatestVersion(ver, tags)).toBe(false)
+      expect(isLatestVersion(ver, defaultTags)).toBe(false)
 
       ver = Version.parse('0.2.0')
-      expect(isLatestVersion(ver, tags)).toBe(false)
+      expect(isLatestVersion(ver, defaultTags)).toBe(false)
     })
 
     it('handles equal versions correctly', () => {
@@ -258,7 +258,7 @@ describe('release', () => {
     })
 
     it('handles mixed version formats', () => {
-      const tags = createTags([
+      const mixedTags = createTags([
         'v3.4.0',
         'helm-loki-6.26.0',
         'v3.3.0',
@@ -268,13 +268,13 @@ describe('release', () => {
       ])
 
       // Test semantic versions
-      expect(isLatestVersion(Version.parse('3.4.0'), tags)).toBeFalsy()
-      expect(isLatestVersion(Version.parse('3.5.0'), tags)).toBeTruthy()
-      expect(isLatestVersion(Version.parse('3.3.0'), tags)).toBeFalsy()
+      expect(isLatestVersion(Version.parse('3.4.0'), mixedTags)).toBeFalsy()
+      expect(isLatestVersion(Version.parse('3.5.0'), mixedTags)).toBeTruthy()
+      expect(isLatestVersion(Version.parse('3.3.0'), mixedTags)).toBeFalsy()
 
       // Version that doesn't match pattern should be ignored
-      expect(isLatestVersion(Version.parse('6.25.0'), tags)).toBeTruthy()
-      expect(isLatestVersion(Version.parse('6.27.0'), tags)).toBeTruthy()
+      expect(isLatestVersion(Version.parse('6.25.0'), mixedTags)).toBeTruthy()
+      expect(isLatestVersion(Version.parse('6.27.0'), mixedTags)).toBeTruthy()
     })
   })
 })
