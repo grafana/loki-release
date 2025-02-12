@@ -185,6 +185,17 @@ describe('release', () => {
   })
 
   describe('isLatestVersion', () => {
+    const createTags = (versions: string[]): Record<string, GitHubTag> => {
+      const tags: Record<string, GitHubTag> = {}
+      versions.forEach(v => {
+        tags[v] = {
+          name: v,
+          sha: `sha-${v}`
+        }
+      })
+      return tags
+    }
+
     const tags = {
       'v1.3.1': {
         name: 'v1.3.1',
@@ -206,6 +217,7 @@ describe('release', () => {
       ver = Version.parse('2.0.0')
       expect(isLatestVersion(ver, tags)).toBe(true)
     })
+
     it('returns false if the version is not the latest', () => {
       let ver = Version.parse('1.2.9')
       expect(isLatestVersion(ver, tags)).toBe(false)
@@ -243,6 +255,26 @@ describe('release', () => {
       // This should be true because it's higher than any existing version
       ver = Version.parse('3.3.4')
       expect(isLatestVersion(ver, tagsWithEqual)).toBe(true)
+    })
+
+    it('handles mixed version formats', () => {
+      const tags = createTags([
+        'v3.4.0',
+        'helm-loki-6.26.0',
+        'v3.3.0',
+        'helm-loki-6.25.0',
+        'v3.5.0',
+        'helm-loki-6.27.0'
+      ])
+
+      // Test semantic versions
+      expect(isLatestVersion(Version.parse('3.4.0'), tags)).toBeFalsy()
+      expect(isLatestVersion(Version.parse('3.5.0'), tags)).toBeTruthy()
+      expect(isLatestVersion(Version.parse('3.3.0'), tags)).toBeFalsy()
+
+      // Version that doesn't match pattern should be ignored
+      expect(isLatestVersion(Version.parse('6.25.0'), tags)).toBeTruthy()
+      expect(isLatestVersion(Version.parse('6.27.0'), tags)).toBeTruthy()
     })
   })
 })

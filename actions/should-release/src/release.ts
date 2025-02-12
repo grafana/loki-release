@@ -117,29 +117,52 @@ async function prepareSingleRelease(
 
 export function isLatestVersion(
   version: Version,
-  tags: Record<string, GitHubTag>
+  tags: Record<string, GitHubTag>,
+  versionPattern: RegExp = /^v\d+\.\d+\.\d+$/
 ): boolean {
-  for (const tag in tags) {
-    if (compareVersions(Version.parse(tags[tag].name), version) > 0) {
+  info(`Checking if version ${version.toString()} is latest against ${Object.keys(tags).length} tags`)
+  
+  // Filter tags to only include those matching our version pattern
+  const filteredTags = Object.entries(tags)
+    .filter(([tagName]) => versionPattern.test(tagName))
+    .reduce((acc, [tagName, tag]) => {
+      acc[tagName] = tag
+      return acc
+    }, {} as Record<string, GitHubTag>)
+  
+  info(`Found ${Object.keys(filteredTags).length} matching version tags`)
+  
+  for (const tag in filteredTags) {
+    const tagVersion = Version.parse(tags[tag].name)
+    const comparison = compareVersions(tagVersion, version)
+    info(`Comparing against tag ${tags[tag].name}: ${comparison > 0 ? 'newer' : 'older or equal'}`)
+    if (comparison > 0) {
+      info(`Found newer version ${tags[tag].name}, marking as not latest`)
       return false
     }
   }
+  info(`No newer versions found, marking ${version.toString()} as latest`)
   return true
 }
 
 function compareVersions(v1: Version, v2: Version): number {
+  info(`Comparing versions ${v1.toString()} and ${v2.toString()}:`)
   if (v1.major !== v2.major) {
+    info(` - Different major: ${v1.major} vs ${v2.major}`)
     return compareParts(v1.major, v2.major)
   }
 
   if (v1.minor !== v2.minor) {
+    info(` - Different minor: ${v1.minor} vs ${v2.minor}`)
     return compareParts(v1.minor, v2.minor)
   }
 
   if (v1.patch !== v2.patch) {
+    info(` - Different patch: ${v1.patch} vs ${v2.patch}`)
     return compareParts(v1.patch, v2.patch)
   }
 
+  info(` - Versions are equal`)
   return 0
 }
 

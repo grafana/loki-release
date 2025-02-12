@@ -62,13 +62,16 @@ export async function findMergedReleasePullRequests(
 }
 
 export async function getAllTags(
-  github: GitHub
+  github: GitHub,
+  versionPattern: RegExp = /^v\d+\.\d+\.\d+$/
 ): Promise<Record<string, GitHubTag>> {
-  const allTags: Record<string, GitHubTag> = {}
+  const tags: Record<string, GitHubTag> = {}
   for await (const tag of github.tagIterator()) {
-    allTags[tag.name] = tag
+    if (versionPattern.test(tag.name)) {
+      tags[tag.name] = tag
+    }
   }
-  return allTags
+  return tags
 }
 
 /**
