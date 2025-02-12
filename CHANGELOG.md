@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.19.0](https://github.com/grafana/loki-release/compare/v1.14.2...v1.19.0) (2025-02-04)
+
+
+### Features
+
+* allow GEL to skip docker pluging publishing ([#209](https://github.com/grafana/loki-release/issues/209)) ([d029380](https://github.com/grafana/loki-release/commit/d0293807d6ca4d7651a0e80e2cec11398af7d478))
+* build docker plugin on native runners ([#185](https://github.com/grafana/loki-release/issues/185)) ([77c60db](https://github.com/grafana/loki-release/commit/77c60db20156d69c1ab872c66ccef4f66b3abb67))
+* fix latest release tagging ([95b1f63](https://github.com/grafana/loki-release/commit/95b1f63c5877b83d8ec4ffae3d5dd051c2ee2733))
+* fix the docker driver release ([#169](https://github.com/grafana/loki-release/issues/169)) ([cfa2425](https://github.com/grafana/loki-release/commit/cfa24256090828f566f1ba59292ce65d8db4a4ae))
+* release 1.19.0 ([a57dbaa](https://github.com/grafana/loki-release/commit/a57dbaa05d9bd0434eb5d02117aeccd0974fda17))
+
 ## [1.14.2](https://github.com/grafana/loki-release/compare/v1.14.1...v1.14.2) (2024-12-17)
 
 
