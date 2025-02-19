@@ -146,14 +146,14 @@ local validationJob = _validationJob(false);
   faillint:
     validationJob
     + job.withSteps([
-      common.checkout,
+      common.fetchReleaseRepo,
       common.fixDubiousOwnership,
       step.new('faillint')
       + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
       + step.withRun(|||
         faillint -paths "sync/atomic=go.uber.org/atomic" ./...
-
-      |||),
+      |||)
+      + step.withWorkingDirectory('release'),
     ]),
 
   golangciLint: setupValidationDeps(
@@ -203,7 +203,6 @@ local validationJob = _validationJob(false);
              })
              + job.withIf("${{ !fromJSON(inputs.skip_validation) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}")
              + job.withSteps([
-               common.checkout,
                step.new('verify checks passed')
                + step.withRun(|||
                  echo "Some checks have failed!"
@@ -226,7 +225,6 @@ local validationJob = _validationJob(false);
            SKIP_VALIDATION: '${{ inputs.skip_validation }}',
          })
          + job.withSteps([
-           common.checkout,
            step.new('checks passed')
            + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
            + step.withRun(|||
