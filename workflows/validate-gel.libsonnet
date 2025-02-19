@@ -8,11 +8,6 @@ local setupValidationDeps = function(job) job {
     common.checkout,
     common.fetchReleaseLib,
     common.fixDubiousOwnership,
-    step.new('debug paths')
-    + step.withRun('pwd && ls -la && ls -la lib/'),
-    step.new('make script executable')
-    + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-    + step.withRun('chmod +x lib/workflows/install_workflow_dependencies.sh'),
     step.new('install dependencies')
     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
     + step.withRun('lib/workflows/install_workflow_dependencies.sh'),
