@@ -171,6 +171,35 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
+    - "name": "pull code to release"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
+        "repository": "grafana/loki-release"
+    - "name": "fix git dubious ownership"
+      "run": |
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install tar"
+      "run": |
+        apt update
+        apt install -qy tar xz-utils
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "install shellcheck"
+      "uses": "./lib/actions/install-binary"
+      "with":
+        "binary": "shellcheck"
+        "download_url": "https://github.com/koalaman/shellcheck/releases/download/v${version}/shellcheck-v${version}.linux.x86_64.tar.xz"
+        "smoke_test": "${binary} --version"
+        "tar_args": "xvf"
+        "tarball_binary_path": "*/${binary}"
+        "version": "0.9.0"
     - "name": "checkout"
       "uses": "actions/checkout@v4"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"

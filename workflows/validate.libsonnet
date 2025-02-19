@@ -156,7 +156,7 @@ local validationJob = _validationJob(false);
       + step.withWorkingDirectory('release'),
     ]),
 
-  golangciLint:
+  golangciLint: setupValidationDeps(
     validationJob
     + job.withSteps(
       [
@@ -169,7 +169,8 @@ local validationJob = _validationJob(false);
           args: '-v --timeout 15m --build-tags linux,promtail_journal_enabled',
         }),
       ],
-    ),
+    )
+  ),
 
   lintFiles: setupValidationDeps(
     validationJob
