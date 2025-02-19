@@ -243,7 +243,9 @@
       "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check format"
-      "run": "make check-format"
+      "run": |
+        git fetch origin
+        make check-format
       "working-directory": "release"
   "testLambdaPromtail":
     "container":
