@@ -208,6 +208,7 @@
         "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled"
         "only-new-issues": true
         "version": "${{ inputs.golang_ci_lint_version }}"
+        "working-directory": "release"
       "working-directory": "release"
   "integration":
     "container":

@@ -164,6 +164,7 @@ local validationJob = _validationJob(false);
           version: '${{ inputs.golang_ci_lint_version }}',
           'only-new-issues': true,
           args: '-v --timeout 15m --build-tags linux,promtail_journal_enabled',
+          'working-directory': 'release',
         }),
       ],
     )
