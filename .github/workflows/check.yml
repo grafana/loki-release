@@ -32,8 +32,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
@@ -61,24 +64,31 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check generated files"
       "run": "make check-generated-files"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check mod"
       "run": "make check-mod"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check docs"
       "run": "make check-doc"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "validate example configs"
       "run": "make validate-example-configs"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "validate dev cluster config"
       "run": "make validate-dev-cluster-config"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check example config docs"
       "run": "make check-example-config-doc"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check helm reference doc"
       "run": "make documentation-helm-reference-check"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "build docs website"
       "run": |
@@ -95,6 +105,7 @@
           cp -r docs/sources/* /hugo/content/docs/loki/latest/
           cd /hugo && make prod
         EOF
+      "working-directory": "release"
   "collectPackages":
     "outputs":
       "packages": "${{ steps.gather-tests.outputs.packages }}"
@@ -161,8 +172,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
@@ -194,6 +208,7 @@
         "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled"
         "only-new-issues": true
         "version": "${{ inputs.golang_ci_lint_version }}"
+      "working-directory": "release"
   "integration":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -210,6 +225,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "integration"
       "run": "make test-integration"
+      "working-directory": "release"
   "lintFiles":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -218,8 +234,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
@@ -247,6 +266,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "lint scripts"
       "run": "make lint-scripts"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check format"
       "run": |
