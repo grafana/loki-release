@@ -6,9 +6,6 @@
 "jobs":
   "check":
     "container":
-      "credentials":
-        "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-        "username": "_json_key"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
@@ -28,9 +25,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install dependencies"
-      "run": |
-        apt update
-        apt install -qy tar xz-utils
+      "run": "lib/workflows/install_workflow_dependencies.sh"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
@@ -74,9 +69,6 @@
         EOF
   "lint":
     "container":
-      "credentials":
-        "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-        "username": "_json_key"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
@@ -96,9 +88,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install dependencies"
-      "run": |
-        apt update
-        apt install -qy tar xz-utils
+      "run": "lib/workflows/install_workflow_dependencies.sh"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
@@ -127,9 +117,6 @@
         "version": "${{ inputs.golang_ci_lint_version }}"
   "test":
     "container":
-      "credentials":
-        "password": "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
-        "username": "_json_key"
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
@@ -149,9 +136,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install dependencies"
-      "run": |
-        apt update
-        apt install -qy tar xz-utils
+      "run": "lib/workflows/install_workflow_dependencies.sh"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install shellcheck"
       "uses": "./lib/actions/install-binary"
