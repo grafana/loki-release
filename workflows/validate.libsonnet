@@ -176,12 +176,7 @@ local validationJob = _validationJob(false);
     + job.withSteps(
       [
         validationMakeStep('lint scripts', 'lint-scripts'),
-        step.new('check format')
-        + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-        + step.withRun(|||
-          git fetch origin
-          make check-format
-        |||),
+        validationMakeStep('check format', 'check-format'),
       ]
     )
   ),
