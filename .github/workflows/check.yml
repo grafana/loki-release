@@ -217,8 +217,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -280,8 +283,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -289,7 +295,7 @@
       "name": "test push package"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-      "working-directory": "tools/lambda-promtail"
+      "working-directory": "release"
   "testPackages":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -300,8 +306,11 @@
     - "collectPackages"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -309,6 +318,7 @@
       "name": "test ${{ matrix.package }}"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
+      "working-directory": "release"
     "strategy":
       "matrix":
         "package": "${{fromJson(needs.collectPackages.outputs.packages)}}"
@@ -320,8 +330,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -329,7 +342,7 @@
       "name": "test push package"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-      "working-directory": "pkg/push"
+      "working-directory": "release"
 "name": "check"
 "on":
   "workflow_call":

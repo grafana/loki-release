@@ -58,7 +58,7 @@ local validationJob = _validationJob(false);
 
   integration: validationJob
                + job.withSteps([
-                 common.checkout,
+                 common.fetchReleaseRepo,
                  common.fixDubiousOwnership,
                  validationMakeStep('integration', 'test-integration'),
                ]),
@@ -71,38 +71,41 @@ local validationJob = _validationJob(false);
                   },
                 })
                 + job.withSteps([
-                  common.checkout,
+                  common.fetchReleaseRepo,
                   common.fixDubiousOwnership,
                   step.new('test ${{ matrix.package }}')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                   + step.withRun(|||
                     gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
-                  |||),
+                  |||)
+                  + step.withWorkingDirectory('release'),
                 ]),
 
 
   testLambdaPromtail: validationJob
                       + job.withSteps([
-                        common.checkout,
+                        common.fetchReleaseRepo,
                         common.fixDubiousOwnership,
                         step.new('test push package')
                         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                         + step.withWorkingDirectory('tools/lambda-promtail')
                         + step.withRun(|||
                           gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-                        |||),
+                        |||)
+                        + step.withWorkingDirectory('release'),
                       ]),
 
   testPushPackage: validationJob
                    + job.withSteps([
-                     common.checkout,
+                     common.fetchReleaseRepo,
                      common.fixDubiousOwnership,
                      step.new('test push package')
                      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                      + step.withWorkingDirectory('pkg/push')
                      + step.withRun(|||
                        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-                     |||),
+                     |||)
+                     + step.withWorkingDirectory('release'),
                    ]),
 
   // Check / lint jobs
