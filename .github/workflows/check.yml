@@ -18,8 +18,6 @@
     - "testPushPackage"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
-      "uses": "actions/checkout@v4"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "checks passed"
       "run": |
@@ -32,8 +30,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
@@ -61,24 +62,31 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check generated files"
       "run": "make check-generated-files"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check mod"
       "run": "make check-mod"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check docs"
       "run": "make check-doc"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "validate example configs"
       "run": "make validate-example-configs"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "validate dev cluster config"
       "run": "make validate-dev-cluster-config"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check example config docs"
       "run": "make check-example-config-doc"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check helm reference doc"
       "run": "make documentation-helm-reference-check"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "build docs website"
       "run": |
@@ -95,6 +103,7 @@
           cp -r docs/sources/* /hugo/content/docs/loki/latest/
           cd /hugo && make prod
         EOF
+      "working-directory": "release"
   "collectPackages":
     "outputs":
       "packages": "${{ steps.gather-tests.outputs.packages }}"
@@ -129,8 +138,6 @@
     - "testPushPackage"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
-      "uses": "actions/checkout@v4"
     - "name": "verify checks passed"
       "run": |
         echo "Some checks have failed!"
@@ -143,8 +150,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -152,7 +162,7 @@
       "name": "faillint"
       "run": |
         faillint -paths "sync/atomic=go.uber.org/atomic" ./...
-        
+      "working-directory": "release"
   "golangciLint":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -161,8 +171,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
@@ -187,6 +200,8 @@
         "tar_args": "xvf"
         "tarball_binary_path": "*/${binary}"
         "version": "0.9.0"
+    - "name": "checkout"
+      "uses": "actions/checkout@v4"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
@@ -202,14 +217,18 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "integration"
       "run": "make test-integration"
+      "working-directory": "release"
   "lintFiles":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -218,8 +237,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
@@ -247,11 +269,13 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "lint scripts"
       "run": "make lint-scripts"
+      "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check format"
       "run": |
         git fetch origin
         make check-format
+      "working-directory": "release"
   "testLambdaPromtail":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -260,8 +284,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -269,7 +296,7 @@
       "name": "test push package"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-      "working-directory": "tools/lambda-promtail"
+      "working-directory": "release"
   "testPackages":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -280,8 +307,11 @@
     - "collectPackages"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -289,6 +319,7 @@
       "name": "test ${{ matrix.package }}"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
+      "working-directory": "release"
     "strategy":
       "matrix":
         "package": "${{fromJson(needs.collectPackages.outputs.packages)}}"
@@ -300,8 +331,11 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "name": "checkout"
+    - "name": "pull code to release"
       "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -309,7 +343,7 @@
       "name": "test push package"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-      "working-directory": "pkg/push"
+      "working-directory": "release"
 "name": "check"
 "on":
   "workflow_call":
