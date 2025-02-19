@@ -7,8 +7,8 @@ set -e
 # It houses all of the dependencies for the workflows, as well as the dependencies
 # needed for the make release-workflows target.
 
-# Set default source directory if not provided
-SRC_DIR=${SRC_DIR:-/src/enterprise-logs}
+# Set default source directory to GitHub workspace if not provided
+SRC_DIR=${SRC_DIR:-$GITHUB_WORKSPACE}
 
 # Update package lists
 apt-get update -qq
@@ -31,4 +31,4 @@ apt-get install -qq -y jsonnet
 go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
 
 # Update jsonnet bundles
-cd ${SRC_DIR}/.github && jb update -q
+cd "${SRC_DIR}/.github" && jb update -q
