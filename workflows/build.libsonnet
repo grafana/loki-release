@@ -301,9 +301,12 @@ local runner = import 'runner.libsonnet',
       releaseStep('debug: list directory contents')
       + step.withRun('ls -la'),
 
+      releaseStep('debug: list .github directory contents')
+      + step.withRun('find .github -type f'),
+
       releaseStep('install dependencies')
       + step.withIf('${{ contains(\'%s\', \'golang\') }}' % buildImage)
-      + step.withRun('./workflows/install_workflow_dependencies.sh dist'),
+      + step.withRun('./.github/vendor/github.com/grafana/loki-release/workflows/install_workflow_dependencies.sh dist'),
 
       step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
       + step.withId('get-secrets')
