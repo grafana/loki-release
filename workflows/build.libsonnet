@@ -335,7 +335,7 @@ local runner = import 'runner.libsonnet',
             --entrypoint /bin/sh "%s"
             git config --global --add safe.directory /src/loki
             echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
-            if [[ "%s" == *"golang"* ]]; then
+            if echo "%s" | grep -q "golang"; then
               /src/loki/.github/vendor/github.com/grafana/loki-release/workflows/install_workflow_dependencies.sh dist
             fi
             make %s
