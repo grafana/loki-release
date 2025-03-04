@@ -295,19 +295,6 @@ local runner = import 'runner.libsonnet',
       common.googleAuth,
       common.setupGoogleCloudSdk,
 
-      releaseStep('debug: print working directory')
-      + step.withRun('pwd'),
-
-      releaseStep('debug: list directory contents')
-      + step.withRun('ls -la'),
-
-      releaseStep('debug: list .github directory contents')
-      + step.withRun('find .github -type f'),
-
-      releaseStep('install dependencies')
-      + step.withIf('${{ contains(\'%s\', \'golang\') }}' % buildImage)
-      + step.withRun('./.github/vendor/github.com/grafana/loki-release/workflows/install_workflow_dependencies.sh dist'),
-
       step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
       + step.withId('get-secrets')
       + step.with({
@@ -348,9 +335,12 @@ local runner = import 'runner.libsonnet',
             --entrypoint /bin/sh "%s"
             git config --global --add safe.directory /src/loki
             echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
+            if [[ "%s" == *"golang"* ]]; then
+              /src/loki/.github/vendor/github.com/grafana/loki-release/workflows/install_workflow_dependencies.sh dist
+            fi
             make %s
           EOF
-        ||| % [buildImage, std.join(' ', makeTargets)]
+        ||| % [buildImage, buildImage, std.join(' ', makeTargets)]
       ),
 
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@v2')
