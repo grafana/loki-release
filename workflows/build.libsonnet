@@ -297,7 +297,7 @@ local runner = import 'runner.libsonnet',
 
       releaseStep('install dependencies')
       + step.withIf('${{ contains(\'%s\', \'golang\') }}' % buildImage)
-      + step.withRun('./workflows/install_workflow_dependencies.sh dist'),
+      + step.withRun('lib/workflows/install_workflow_dependencies.sh dist'),
 
       step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
       + step.withId('get-secrets')
