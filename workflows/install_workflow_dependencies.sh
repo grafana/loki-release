@@ -16,6 +16,9 @@ install_dist_dependencies() {
 
     # Install FPM using gem
     gem install --no-document fpm
+
+    # Install RPM build tools
+    apt-get install -y rpm
 }
 
 # Update package lists
