@@ -10,6 +10,17 @@ set -e
 # Set default source directory to GitHub workspace if not provided
 SRC_DIR=${SRC_DIR:-$GITHUB_WORKSPACE}
 
+install_dist_dependencies() {
+    # Install Ruby and development dependencies needed for FPM
+    apt-get install -y ruby ruby-dev rubygems build-essential
+
+    # Install FPM using gem
+    gem install --no-document fpm
+
+    # Install RPM build tools
+    apt-get install -y rpm
+}
+
 # Update package lists
 apt-get update -qq
 
@@ -32,3 +43,8 @@ go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
 
 # Update jsonnet bundles
 cd "${SRC_DIR}/.github" && jb update -q
+
+# Check if "dist" parameter is passed
+if [ "$1" = "dist" ]; then
+    install_dist_dependencies
+fi
