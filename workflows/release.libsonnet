@@ -241,4 +241,43 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         gh release edit ${{ needs.createRelease.outputs.name }} --draft=false --latest=${{ needs.createRelease.outputs.isLatest }}
       |||),
     ]),
+
+  createReleaseBranch: function(branchTemplate='release-v\\${major}.\\${minor}.x', dependencies=['publishRelease'])
+    job.new()
+    + job.withNeeds(dependencies + ['createRelease'])  // always need createRelease for version info
+    + job.withSteps([
+      common.fetchReleaseRepo,
+      common.extractBranchName,
+      common.githubAppToken,
+      common.setToken,
+
+      releaseStep('create release branch')
+      + step.withId('create_branch')
+      + step.withEnv({
+        GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
+      })
+      + step.withRun(|||
+        # Extract version without the 'v' prefix if it exists
+        VERSION="${{ needs.createRelease.outputs.name }}"
+        VERSION="${VERSION#v}"
+
+        # Extract major and minor versions
+        MAJOR=$(echo $VERSION | cut -d. -f1)
+        MINOR=$(echo $VERSION | cut -d. -f2)
+
+        # Create branch name from template
+        BRANCH_TEMPLATE="%s"
+        BRANCH_NAME=${BRANCH_TEMPLATE//\$\{major\}/$MAJOR}
+        BRANCH_NAME=${BRANCH_NAME//\$\{minor\}/$MINOR}
+
+        echo "Creating branch: $BRANCH_NAME from tag: ${{ needs.createRelease.outputs.name }}"
+
+        # Create branch from the tag
+        git fetch --tags
+        git checkout ${{ needs.createRelease.outputs.name }}
+        git checkout ${{ steps.extract_branch.outputs.branch }}"
+        git checkout -b $BRANCH_NAME
+        git push -u origin $BRANCH_NAME
+      ||| % branchTemplate),
+    ]),
 }

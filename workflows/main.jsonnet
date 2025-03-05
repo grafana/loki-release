@@ -88,6 +88,7 @@
     publishToGCS=false,
     releaseLibRef='main',
     releaseRepo='grafana/loki-release',
+    releaseBranchTemplate='release-v${major}.${minor}.x',
     useGitHubAppToken=true,
     dockerPluginPath='clients/cmd/docker-driver',
     publishDockerPlugins=true,
@@ -125,8 +126,10 @@
     } + if publishDockerPlugins then {
       publishDockerPlugins: $.release.publishDockerPlugins(pluginBuildDir, getDockerCredsFromVault, dockerUsername),
       publishRelease: $.release.publishRelease(['createRelease', 'publishImages', 'publishDockerPlugins']),
+      createReleaseBranch: $.release.publishRelease(releaseBranchTemplate, ['publishImages', 'publishDockerPlugins']),
     } else {
       publishRelease: $.release.publishRelease(['createRelease', 'publishImages']),
+      createReleaseBranch: $.release.publishRelease(releaseBranchTemplate, ['publishImages']),
     },
   },
   check: {
