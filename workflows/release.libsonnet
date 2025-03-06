@@ -260,12 +260,21 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         VERSION: '${{ needs.publishRelease.outputs.name }}',
       })
       + step.withRun(|||
+        # Debug and clean the version variable
+        echo "Original VERSION: $VERSION"
+
+        # Remove all quotes (both single and double)
+        VERSION=$(echo $VERSION | tr -d '"' | tr -d "'")
+        echo "After removing quotes: $VERSION"
+
         # Extract version without the 'v' prefix if it exists
         VERSION="${VERSION#v}"
+        echo "After removing v prefix: $VERSION"
 
         # Extract major and minor versions
         MAJOR=$(echo $VERSION | cut -d. -f1)
         MINOR=$(echo $VERSION | cut -d. -f2)
+        echo "MAJOR: $MAJOR, MINOR: $MINOR"
 
         # Create branch name from template
         BRANCH_TEMPLATE="%s"

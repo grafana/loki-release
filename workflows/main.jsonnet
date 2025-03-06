@@ -88,7 +88,7 @@
     publishToGCS=false,
     releaseLibRef='main',
     releaseRepo='grafana/loki-release',
-    releaseBranchTemplate='release-v\\${major}.\\${minor}.x',
+    releaseBranchTemplate='release-\\${major}.\\${minor}.x',
     useGitHubAppToken=true,
     dockerPluginPath='clients/cmd/docker-driver',
     publishDockerPlugins=true,
