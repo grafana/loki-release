@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.2](https://github.com/grafana/loki-release/compare/v1.20.1...v1.20.2) (2025-03-06)
+
+
+### Features
+
+* fix job dependencies ([eadf5b1](https://github.com/grafana/loki-release/commit/eadf5b116d8e1382374a2a562214d0349f415f6b))
+
 ## [1.20.1](https://github.com/grafana/loki-release/compare/v1.20.0...v1.20.1) (2025-03-06)
 
 
