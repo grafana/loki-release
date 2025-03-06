@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.1](https://github.com/grafana/loki-release/compare/v1.20.0...v1.20.1) (2025-03-06)
+
+
+### Features
+
+* fix create branch script ([213055d](https://github.com/grafana/loki-release/commit/213055d87d96564f1afe2c1336dbff6df5082cb7))
+
 ## [1.20.0](https://github.com/grafana/loki-release/compare/v1.14.2...v1.20.0) (2025-03-06)
 
 
