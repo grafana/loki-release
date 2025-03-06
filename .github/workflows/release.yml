@@ -112,8 +112,7 @@ jobs:
         process_gcloudignore: false
   createReleaseBranch:
     needs:
-    - "publishImages"
-    - "publishDockerPlugins"
+    - "publishRelease"
     outputs:
       branchExists: "${{ steps.create_branch.outputs.branch_exists }}"
       branchName: "${{ steps.create_branch.outputs.branch_name }}"
@@ -147,11 +146,11 @@ jobs:
         fi
     - env:
         GH_TOKEN: "${{ steps.github_app_token.outputs.token }}"
+        VERSION: "${{ needs.publishRelease.outputs.name }}"
       id: "create_branch"
       name: "create release branch"
       run: |
         # Extract version without the 'v' prefix if it exists
-        VERSION="${{ needs.publishRelease.outputs.name }}"
         VERSION="${VERSION#v}"
         
         # Extract major and minor versions

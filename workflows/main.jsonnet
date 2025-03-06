@@ -123,13 +123,13 @@
       shouldRelease: $.release.shouldRelease,
       createRelease: $.release.createRelease,
       publishImages: $.release.publishImages(getDockerCredsFromVault, dockerUsername),
-    } + if publishDockerPlugins then {
-      publishDockerPlugins: $.release.publishDockerPlugins(pluginBuildDir, getDockerCredsFromVault, dockerUsername),
-      publishRelease: $.release.publishRelease(['createRelease', 'publishImages', 'publishDockerPlugins']),
-      createReleaseBranch: $.release.createReleaseBranch(releaseBranchTemplate, ['publishImages', 'publishDockerPlugins']),
-    } else {
-      publishRelease: $.release.publishRelease(['createRelease', 'publishImages']),
-      createReleaseBranch: $.release.createReleaseBranch(releaseBranchTemplate, ['publishImages']),
+    } + (if publishDockerPlugins then {
+           publishDockerPlugins: $.release.publishDockerPlugins(pluginBuildDir, getDockerCredsFromVault, dockerUsername),
+           publishRelease: $.release.publishRelease(['createRelease', 'publishImages', 'publishDockerPlugins']),
+         } else {
+           publishRelease: $.release.publishRelease(['createRelease', 'publishImages']),
+         }) + {
+      createReleaseBranch: $.release.createReleaseBranch(releaseBranchTemplate),
     },
   },
   check: {

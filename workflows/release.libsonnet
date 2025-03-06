@@ -244,9 +244,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       name: '${{ needs.createRelease.outputs.name }}',
     }),
 
-  createReleaseBranch: function(branchTemplate='release-v\\${major}.\\${minor}.x', dependencies=['publishRelease'])
+  createReleaseBranch: function(branchTemplate='release-v\\${major}.\\${minor}.x')
     job.new()
-    + job.withNeeds(dependencies)  // always need createRelease for version info
+    + job.withNeeds(['publishRelease'])  // always need createRelease for version info
     + job.withSteps([
       common.fetchReleaseRepo,
       common.extractBranchName,
@@ -257,10 +257,10 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       + step.withId('create_branch')
       + step.withEnv({
         GH_TOKEN: '${{ steps.github_app_token.outputs.token }}',
+        VERSION: '${{ needs.publishRelease.outputs.name }}',
       })
       + step.withRun(|||
         # Extract version without the 'v' prefix if it exists
-        VERSION="${{ needs.publishRelease.outputs.name }}"
         VERSION="${VERSION#v}"
 
         # Extract major and minor versions
