@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.20.3](https://github.com/grafana/loki-release/compare/v1.20.2...v1.20.3) (2025-03-06)
+
+
+### Features
+
+* fix release branch name ([136679b](https://github.com/grafana/loki-release/commit/136679b7c43f05dc8ebaddb0f160b7ef233f1aac))
+
 ## [1.20.2](https://github.com/grafana/loki-release/compare/v1.20.1...v1.20.2) (2025-03-06)
 
 
