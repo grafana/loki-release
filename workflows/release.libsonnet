@@ -270,14 +270,29 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         BRANCH_NAME=${BRANCH_TEMPLATE//\$\{major\}/$MAJOR}
         BRANCH_NAME=${BRANCH_NAME//\$\{minor\}/$MINOR}
 
-        echo "Creating branch: $BRANCH_NAME from tag: ${{ needs.createRelease.outputs.name }}"
+        echo "Checking if branch already exists: $BRANCH_NAME"
 
-        # Create branch from the tag
-        git fetch --tags
-        git checkout ${{ needs.createRelease.outputs.name }}
-        git checkout ${{ steps.extract_branch.outputs.branch }}"
-        git checkout -b $BRANCH_NAME
-        git push -u origin $BRANCH_NAME
+        # Check if branch exists
+        if git ls-remote --heads origin $BRANCH_NAME | grep -q $BRANCH_NAME; then
+          echo "Branch $BRANCH_NAME already exists, skipping creation"
+          echo "branch_exists=true" >> $GITHUB_OUTPUT
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        else
+          echo "Creating branch: $BRANCH_NAME from tag: ${{ needs.createRelease.outputs.name }}"
+          
+          # Create branch from the tag
+          git fetch --tags
+          git checkout ${{ steps.extract_branch.outputs.branch }}"
+          git checkout -b $BRANCH_NAME
+          git push -u origin $BRANCH_NAME
+          
+          echo "branch_exists=false" >> $GITHUB_OUTPUT
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+        fi
       ||| % branchTemplate),
-    ]),
+    ])
+    + job.withOutputs({
+      branchExists: '${{ steps.create_branch.outputs.branch_exists }}',
+      branchName: '${{ steps.create_branch.outputs.branch_name }}',
+    }),
 }

@@ -126,10 +126,10 @@
     } + if publishDockerPlugins then {
       publishDockerPlugins: $.release.publishDockerPlugins(pluginBuildDir, getDockerCredsFromVault, dockerUsername),
       publishRelease: $.release.publishRelease(['createRelease', 'publishImages', 'publishDockerPlugins']),
-      createReleaseBranch: $.release.publishRelease(releaseBranchTemplate, ['publishImages', 'publishDockerPlugins']),
+      createReleaseBranch: $.release.createReleaseBranch(releaseBranchTemplate, ['publishImages', 'publishDockerPlugins']),
     } else {
       publishRelease: $.release.publishRelease(['createRelease', 'publishImages']),
-      createReleaseBranch: $.release.publishRelease(releaseBranchTemplate, ['publishImages']),
+      createReleaseBranch: $.release.createReleaseBranch(releaseBranchTemplate, ['publishImages']),
     },
   },
   check: {
