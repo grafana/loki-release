@@ -227,7 +227,11 @@ jobs:
       if: "${{ !fromJSON(needs.createRelease.outputs.exists) || (needs.createRelease.outputs.draft && fromJSON(needs.createRelease.outputs.draft)) }}"
       name: "publish release"
       run: |
-        gh release edit ${{ needs.createRelease.outputs.name }} --draft=false --latest=${{ needs.createRelease.outputs.isLatest }}
+        if [[ "${{ needs.createRelease.outputs.isLatest }}" == "true" ]]; then
+          gh release edit ${{ needs.createRelease.outputs.name }} --draft=false --latest
+        else
+          gh release edit ${{ needs.createRelease.outputs.name }} --draft=false
+        fi
       working-directory: "release"
   shouldRelease:
     outputs:
