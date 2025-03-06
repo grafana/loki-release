@@ -25,7 +25,9 @@ check-mod:
 	echo "checking mod"
 
 lint-scripts:
-	echo "linting scripts"
+  # Ignore https://github.com/koalaman/shellcheck/wiki/SC2312
+	@find . -name '*.sh' -not -path '*/vendor/*' -not -path '*/node_modules/*' -not -path '*/.husky/*' -print0 | \
+		xargs -0 -n1 shellcheck -e SC2312 -x -o all
 
 check-doc:
 	echo "checking docs"
