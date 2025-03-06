@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.20.0](https://github.com/grafana/loki-release/compare/v1.14.2...v1.20.0) (2025-03-06)
+
+
+### Features
+
+* allow GEL to skip docker pluging publishing ([#209](https://github.com/grafana/loki-release/issues/209)) ([d029380](https://github.com/grafana/loki-release/commit/d0293807d6ca4d7651a0e80e2cec11398af7d478))
+* build docker plugin on native runners ([#185](https://github.com/grafana/loki-release/issues/185)) ([77c60db](https://github.com/grafana/loki-release/commit/77c60db20156d69c1ab872c66ccef4f66b3abb67))
+* create release branch after release ([98f8775](https://github.com/grafana/loki-release/commit/98f877545240e3a2321adfde8583a99c39369a22))
+* fix the docker driver release ([#169](https://github.com/grafana/loki-release/issues/169)) ([cfa2425](https://github.com/grafana/loki-release/commit/cfa24256090828f566f1ba59292ce65d8db4a4ae))
+* only create the branch if it does not exist ([e9c1a74](https://github.com/grafana/loki-release/commit/e9c1a745b3ab041c1f349da565830af0c0aa1369))
+* release 1.20.0 ([9b1457e](https://github.com/grafana/loki-release/commit/9b1457e890cdb8db4b9ef81c864184ce49b2ca95))
+
+
+### Bug Fixes
+
+* **build:** Fix for the dist step ([#223](https://github.com/grafana/loki-release/issues/223)) ([63acf05](https://github.com/grafana/loki-release/commit/63acf05fb8237f546d7cf6d3b491be706a75533c))
+* correct scope of loki make targets ([#215](https://github.com/grafana/loki-release/issues/215)) ([39243bc](https://github.com/grafana/loki-release/commit/39243bc7289a0e13b2eced522ad6c2cc95877ba8))
+
 ## [1.14.2](https://github.com/grafana/loki-release/compare/v1.14.1...v1.14.2) (2024-12-17)
 
 
