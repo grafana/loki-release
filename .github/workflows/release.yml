@@ -114,7 +114,6 @@ jobs:
     needs:
     - "publishImages"
     - "publishDockerPlugins"
-    - "createRelease"
     outputs:
       branchExists: "${{ steps.create_branch.outputs.branch_exists }}"
       branchName: "${{ steps.create_branch.outputs.branch_name }}"
@@ -152,7 +151,7 @@ jobs:
       name: "create release branch"
       run: |
         # Extract version without the 'v' prefix if it exists
-        VERSION="${{ needs.createRelease.outputs.name }}"
+        VERSION="${{ needs.publishRelease.outputs.name }}"
         VERSION="${VERSION#v}"
         
         # Extract major and minor versions
@@ -160,7 +159,7 @@ jobs:
         MINOR=$(echo $VERSION | cut -d. -f2)
         
         # Create branch name from template
-        BRANCH_TEMPLATE="release-v${major}.${minor}.x"
+        BRANCH_TEMPLATE="release-v\${major}.\${minor}.x"
         BRANCH_NAME=${BRANCH_TEMPLATE//\$\{major\}/$MAJOR}
         BRANCH_NAME=${BRANCH_NAME//\$\{minor\}/$MINOR}
         
@@ -172,11 +171,11 @@ jobs:
           echo "branch_exists=true" >> $GITHUB_OUTPUT
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
         else
-          echo "Creating branch: $BRANCH_NAME from tag: ${{ needs.createRelease.outputs.name }}"
+          echo "Creating branch: $BRANCH_NAME from tag: ${{ needs.publishRelease.outputs.name }}"
           
           # Create branch from the tag
           git fetch --tags
-          git checkout ${{ steps.extract_branch.outputs.branch }}"
+          git checkout "${{ steps.extract_branch.outputs.branch }}"
           git checkout -b $BRANCH_NAME
           git push -u origin $BRANCH_NAME
           
@@ -273,6 +272,8 @@ jobs:
     - "createRelease"
     - "publishImages"
     - "publishDockerPlugins"
+    outputs:
+      name: "${{ needs.createRelease.outputs.name }}"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"

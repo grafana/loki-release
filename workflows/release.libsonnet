@@ -240,11 +240,13 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       + step.withRun(|||
         gh release edit ${{ needs.createRelease.outputs.name }} --draft=false --latest=${{ needs.createRelease.outputs.isLatest }}
       |||),
-    ]),
+    ]) + job.withOutputs({
+      name: '${{ needs.createRelease.outputs.name }}',
+    }),
 
   createReleaseBranch: function(branchTemplate='release-v\\${major}.\\${minor}.x', dependencies=['publishRelease'])
     job.new()
-    + job.withNeeds(dependencies + ['createRelease'])  // always need createRelease for version info
+    + job.withNeeds(dependencies)  // always need createRelease for version info
     + job.withSteps([
       common.fetchReleaseRepo,
       common.extractBranchName,
@@ -258,7 +260,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       })
       + step.withRun(|||
         # Extract version without the 'v' prefix if it exists
-        VERSION="${{ needs.createRelease.outputs.name }}"
+        VERSION="${{ needs.publishRelease.outputs.name }}"
         VERSION="${VERSION#v}"
 
         # Extract major and minor versions
@@ -278,11 +280,11 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           echo "branch_exists=true" >> $GITHUB_OUTPUT
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
         else
-          echo "Creating branch: $BRANCH_NAME from tag: ${{ needs.createRelease.outputs.name }}"
+          echo "Creating branch: $BRANCH_NAME from tag: ${{ needs.publishRelease.outputs.name }}"
           
           # Create branch from the tag
           git fetch --tags
-          git checkout ${{ steps.extract_branch.outputs.branch }}"
+          git checkout "${{ steps.extract_branch.outputs.branch }}"
           git checkout -b $BRANCH_NAME
           git push -u origin $BRANCH_NAME
           
