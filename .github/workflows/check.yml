@@ -1,7 +1,7 @@
 "concurrency":
   "group": "check-${{ github.sha }}"
 "env":
-  "RELEASE_LIB_REF": "df5b1143050e2f18bd91f623ca23d9d461ecb560"
+  "RELEASE_LIB_REF": "cb579e462cd19ee1c9062ffb2856f88a5d908b33"
 "jobs":
   "check":
     "env":
@@ -232,6 +232,7 @@
         "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled"
         "only-new-issues": true
         "version": "${{ inputs.golang_ci_lint_version }}"
+      "working-directory": "release"
   "integration":
     "container":
       "image": "${{ inputs.build_image }}"
