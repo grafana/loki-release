@@ -44,6 +44,9 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.
 apt-get update
 apt-get install -y docker-ce-cli docker-buildx-plugin
 
+# Install gotestsum
+curl -sSfL https://github.com/gotestyourself/gotestsum/releases/download/v1.9.0/gotestsum_1.9.0_linux_amd64.tar.gz | tar -xz -C /usr/local/bin gotestsum
+
 # Install jsonnet
 apt-get install -qq -y jsonnet
 
@@ -52,9 +55,6 @@ go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
 
 # Update jsonnet bundles
 cd "${SRC_DIR}/.github" && jb update -q
-
-# Install gotestsum
-curl -sSfL https://github.com/gotestyourself/gotestsum/releases/download/v1.9.0/gotestsum_1.9.0_linux_amd64.tar.gz | tar -xz -C /usr/local/bin gotestsum
 
 # Check if "dist" parameter is passed
 if [ "$1" = "dist" ]; then
