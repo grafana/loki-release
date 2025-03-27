@@ -1,10 +1,7 @@
 "concurrency":
   "group": "check-${{ github.sha }}"
 "env":
-  "RELEASE_LIB_REF": "${{ inputs.release_lib_ref }}"
-  "USE_GITHUB_APP_TOKEN": "${{ inputs.use_github_app_token }}"
-"inputs":
-  "release_lib_ref": "ab26c6c6499e385c3323dfb964b77233573c189f"
+  "RELEASE_LIB_REF": "ab26c6c6499e385c3323dfb964b77233573c189f"
 "jobs":
   "check":
     "env":
