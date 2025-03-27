@@ -76,7 +76,7 @@ local validationJob = _validationJob(false);
                 + job.withSteps([
                   common.fetchReleaseRepo,
                   common.fixDubiousOwnership,
-                  common.checkout,
+                  common.fetchReleaseLib,
                   step.new('install dependencies')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, \'golang\') }}')
                   + step.withRun('lib/workflows/install_workflow_dependencies.sh'),
