@@ -9,7 +9,7 @@
   releasePRWorkflow: function(
     branches=['release-[0-9]+.[0-9]+.x', 'k[0-9]+'],
     buildArtifactsBucket='loki-build-artifacts',
-    buildImage='grafana/loki-build-image:0.34.0',
+    buildImage='golang:1.24',
     changelogPath='CHANGELOG.md',
     checkTemplate='./.github/workflows/check.yml',
     distMakeTargets=['dist', 'packages'],
