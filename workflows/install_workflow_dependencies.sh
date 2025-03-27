@@ -26,6 +26,19 @@ install_dist_dependencies() {
     apt-get install -y rpm
 }
 
+install_loki_release_dependencies() {
+    # Install gotestsum
+    echo "Installing gotestsum"
+    curl -sSfL https://github.com/gotestyourself/gotestsum/releases/download/v1.9.0/gotestsum_1.9.0_linux_amd64.tar.gz | tar -xz -C /usr/local/bin gotestsum
+
+    # Install faillint
+    go install github.com/fatih/faillint@latest
+
+    # Install required Go dependencies for golangci-lint
+    go install gopkg.in/yaml.v3@latest
+    go install github.com/google/uuid@latest
+}
+
 # Update package lists
 apt-get update -qq
 
@@ -49,18 +62,11 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.
 apt-get update
 apt-get install -y docker-ce-cli docker-buildx-plugin
 
-# Install gotestsum
-echo "Installing gotestsum"
-curl -sSfL https://github.com/gotestyourself/gotestsum/releases/download/v1.9.0/gotestsum_1.9.0_linux_amd64.tar.gz | tar -xz -C /usr/local/bin gotestsum
-
 # Install jsonnet
 apt-get install -qq -y jsonnet
 
 # Install jsonnet-bundler
 go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
-
-# Install faillint
-go install github.com/fatih/faillint@latest
 
 # Update jsonnet bundles
 if [ -d "${SRC_DIR}/.github" ]; then
@@ -72,4 +78,7 @@ fi
 # Check if "dist" parameter is passed
 if [ "$1" = "dist" ]; then
     install_dist_dependencies
+fi
+if [ "$1" = "loki-release" ]; then
+    install_loki_release_dependencies
 fi

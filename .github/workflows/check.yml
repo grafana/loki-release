@@ -45,7 +45,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
@@ -168,7 +168,7 @@
         "repository": "grafana/loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "faillint"
       "run": |
@@ -198,7 +198,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
@@ -216,6 +216,15 @@
         "version": "0.9.0"
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
+        "repository": "grafana/loki-release"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
+      "name": "install dependencies"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
@@ -267,7 +276,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
@@ -317,7 +326,7 @@
         "repository": "grafana/loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test push package"
       "run": |
@@ -349,7 +358,7 @@
         "repository": "grafana/loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
@@ -382,7 +391,7 @@
         "repository": "grafana/loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test push package"
       "run": |
