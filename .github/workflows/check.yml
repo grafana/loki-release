@@ -45,7 +45,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "release/lib/workflows/install_workflow_dependencies.sh"
+      "run": "lib/workflows/install_workflow_dependencies.sh"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
@@ -189,7 +189,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "release/lib/workflows/install_workflow_dependencies.sh"
+      "run": "lib/workflows/install_workflow_dependencies.sh"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
@@ -258,7 +258,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "release/lib/workflows/install_workflow_dependencies.sh"
+      "run": "lib/workflows/install_workflow_dependencies.sh"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
