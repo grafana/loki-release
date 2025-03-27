@@ -1,7 +1,7 @@
 "concurrency":
   "group": "check-${{ github.sha }}"
 "env":
-  "RELEASE_LIB_REF": "06b9b6e59164a74204243a7754cfdb7706ed0a46"
+  "RELEASE_LIB_REF": "df5b1143050e2f18bd91f623ca23d9d461ecb560"
 "jobs":
   "check":
     "env":
