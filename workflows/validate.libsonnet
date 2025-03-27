@@ -183,15 +183,13 @@ local validationJob = _validationJob(false);
         step.new('install dependencies')
         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, \'golang\') }}')
         + step.withRun('lib/workflows/install_workflow_dependencies.sh loki-release'),
-        step.new('change directory')
-        + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-        + step.withRun('cd release'),
         step.new('golangci-lint', 'golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5')
         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
         + step.with({
           version: '${{ inputs.golang_ci_lint_version }}',
           'only-new-issues': true,
           args: '-v --timeout 15m --build-tags linux,promtail_journal_enabled',
+          'working-directory': 'release',
         }),
       ],
     )

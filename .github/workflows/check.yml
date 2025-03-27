@@ -226,15 +226,13 @@
       "name": "install dependencies"
       "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "change directory"
-      "run": "cd release"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
       "with":
         "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled"
         "only-new-issues": true
         "version": "${{ inputs.golang_ci_lint_version }}"
+        "working-directory": "release"
   "integration":
     "container":
       "image": "${{ inputs.build_image }}"
