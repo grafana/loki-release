@@ -59,6 +59,9 @@ apt-get install -qq -y jsonnet
 # Install jsonnet-bundler
 go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
 
+# Install faillint
+go install github.com/fatih/faillint@latest
+
 # Update jsonnet bundles
 if [ -d "${SRC_DIR}/.github" ]; then
     cd "${SRC_DIR}/.github" && jb update -q
