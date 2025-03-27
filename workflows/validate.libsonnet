@@ -76,6 +76,9 @@ local validationJob = _validationJob(false);
                 + job.withSteps([
                   common.fetchReleaseRepo,
                   common.fixDubiousOwnership,
+                  step.new('install dependencies')
+                  + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, \'golang\') }}')
+                  + step.withRun('lib/workflows/install_workflow_dependencies.sh'),
                   step.new('test ${{ matrix.package }}')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                   + step.withRun(|||
@@ -84,11 +87,13 @@ local validationJob = _validationJob(false);
                   + step.withWorkingDirectory('release'),
                 ]),
 
-
   testLambdaPromtail: validationJob
                       + job.withSteps([
                         common.fetchReleaseRepo,
                         common.fixDubiousOwnership,
+                        step.new('install dependencies')
+                        + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, \'golang\') }}')
+                        + step.withRun('lib/workflows/install_workflow_dependencies.sh'),
                         step.new('test push package')
                         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                         + step.withWorkingDirectory('tools/lambda-promtail')
@@ -102,6 +107,9 @@ local validationJob = _validationJob(false);
                    + job.withSteps([
                      common.fetchReleaseRepo,
                      common.fixDubiousOwnership,
+                     step.new('install dependencies')
+                     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, \'golang\') }}')
+                     + step.withRun('lib/workflows/install_workflow_dependencies.sh'),
                      step.new('test push package')
                      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                      + step.withWorkingDirectory('pkg/push')
