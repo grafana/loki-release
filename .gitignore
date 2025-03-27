@@ -102,3 +102,4 @@ __tests__/runner/*
 *.code-workspace
 
 cmd/loki/loki
+clients/cmd/docker-driver/docker-driver

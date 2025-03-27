@@ -1,10 +1,10 @@
-FROM golang:1.23.1 as build
+FROM golang:1.24 AS build
 
 COPY . /src/loki
 WORKDIR /src/loki
 RUN make clean && make loki
 
-FROM alpine:3.18.5
+FROM alpine:latest
 
 COPY --from=build /src/loki/cmd/loki/loki /usr/bin/loki
 
