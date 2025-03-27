@@ -65,7 +65,11 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
     }, false, false
   ),
   '.github/workflows/check.yml': std.manifestYamlDoc(
-    lokiRelease.check
+    lokiRelease.check + {
+      inputs: {
+        release_lib_ref: 'ab26c6c6499e385c3323dfb964b77233573c189f',
+      },
+    }
   ),
   '.github/workflows/gel-check.yml': std.manifestYamlDoc(
     lokiRelease.checkGel
