@@ -293,10 +293,10 @@
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "test push package"
+      "name": "test lambda-promtail package"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-      "working-directory": "release"
+      "working-directory": "release/tools/lambda-promtail"
   "testPackages":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -343,7 +343,7 @@
       "name": "test push package"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-      "working-directory": "release"
+      "working-directory": "release/pkg/push"
 "name": "check"
 "on":
   "workflow_call":
