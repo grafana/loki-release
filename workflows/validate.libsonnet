@@ -86,13 +86,12 @@ local validationJob = _validationJob(false);
                       + job.withSteps([
                         common.fetchReleaseRepo,
                         common.fixDubiousOwnership,
-                        step.new('test push package')
+                        step.new('test lambda-promtail package')
                         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-                        + step.withWorkingDirectory('tools/lambda-promtail')
+                        + step.withWorkingDirectory('release/tools/lambda-promtail')
                         + step.withRun(|||
                           gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-                        |||)
-                        + step.withWorkingDirectory('release'),
+                        |||),
                       ]),
 
   testPushPackage: validationJob
@@ -101,11 +100,10 @@ local validationJob = _validationJob(false);
                      common.fixDubiousOwnership,
                      step.new('test push package')
                      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-                     + step.withWorkingDirectory('pkg/push')
+                     + step.withWorkingDirectory('release/pkg/push')
                      + step.withRun(|||
                        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-                     |||)
-                     + step.withWorkingDirectory('release'),
+                     |||),
                    ]),
 
   // Check / lint jobs
