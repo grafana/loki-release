@@ -12,9 +12,23 @@ on:
         default: '^chore\(weekly-'
         type: string
 
+  workflow_call:
+    inputs:
+      pr_title_pattern:
+        description: 'Pattern to match PR titles (regex)'
+        required: true
+        default: '^chore\(weekly-'
+        type: string
+
 env:
   USE_GITHUB_APP_TOKEN: true
-  PR_TITLE_PATTERN: ${{ github.event_name == 'schedule' && '^chore\(weekly-' || github.event.inputs.pr_title_pattern || '^chore\(weekly-' }}
+  DEFAULT_PR_TITLE_REGEX: '^chore\(release-' # default regex to match PR titles in the loki-release repo
+  PR_TITLE_REGEX: >-
+    ${{
+      github.event_name == 'workflow_call' && github.event.inputs.pr_title_pattern ||
+      github.event_name == 'workflow_dispatch' && github.event.inputs.pr_title_pattern ||
+      env.DEFAULT_PR_TITLE_REGEX
+    }}
 
 jobs:
   cleanup-old-releases:
