@@ -98,6 +98,12 @@ local validationJob = _validationJob(false);
                    + job.withSteps([
                      common.fetchReleaseRepo,
                      common.fixDubiousOwnership,
+                     step.new('go mod tidy')
+                     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+                     + step.withWorkingDirectory('release/pkg/push')
+                     + step.withRun(|||
+                       go mod tidy
+                     |||),
                      step.new('test push package')
                      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                      + step.withWorkingDirectory('release/pkg/push')
