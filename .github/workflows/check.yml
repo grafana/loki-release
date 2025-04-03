@@ -340,6 +340,11 @@
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "go mod tidy"
+      "run": |
+        go mod tidy
+      "working-directory": "release/pkg/push"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test push package"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
