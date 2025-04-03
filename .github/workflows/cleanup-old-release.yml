@@ -1,4 +1,4 @@
-name: Close Old PRs
+name: Close Old Release PRs
 
 on:
   schedule:
