@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: true
   group: "close-old-prs-${{ github.sha }}"
 env:
-  DEFAULT_PR_TITLE_REGEX: "^chore\\(weekly-"
+  DEFAULT_PR_TITLE_REGEX: "^chore\\(release-"
   RELEASE_REPO: "grafana/loki-release"
   USE_GITHUB_APP_TOKEN: "true"
 jobs:

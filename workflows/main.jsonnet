@@ -306,7 +306,7 @@
     env: {
       RELEASE_REPO: 'grafana/loki-release',
       USE_GITHUB_APP_TOKEN: 'true',
-      DEFAULT_PR_TITLE_REGEX: '^chore\\(weekly-',
+      DEFAULT_PR_TITLE_REGEX: '^chore\\(release-', // Default value for loki-release repo, other repos can override this with the input pr_title_pattern
     },
     jobs: $.closeOldReleasesJob,
   },
