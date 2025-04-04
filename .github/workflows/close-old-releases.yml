@@ -27,7 +27,7 @@ env:
   RELEASE_REPO: "grafana/loki-release"
   USE_GITHUB_APP_TOKEN: "true"
 jobs:
-  closeOldPRs:
+  close-old-releases:
     runs-on: "ubuntu-latest"
     steps:
       - name: "pull code to release"
