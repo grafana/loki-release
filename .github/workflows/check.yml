@@ -321,7 +321,7 @@
         "required": true
         "type": "string"
       "golang_ci_lint_version":
-        "default": "v1.55.1"
+        "default": "v1.56.0"
         "description": "version of golangci-lint to use"
         "required": false
         "type": "string"
