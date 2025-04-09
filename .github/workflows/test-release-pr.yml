@@ -17,7 +17,7 @@ jobs:
     uses: "./.github/workflows/check.yml"
     with:
       build_image: "grafana/loki-build-image:0.34.1-loki-2.9.x"
-      golang_ci_lint_version: "v1.55.1"
+      golang_ci_lint_version: "v1.56.0"
       release_lib_ref: "release-1.12.x"
       skip_validation: false
       use_github_app_token: true
