@@ -295,7 +295,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           git fetch --tags
           git checkout "${{ steps.extract_branch.outputs.branch }}"
           git checkout -b $BRANCH_NAME
-          git push -u origin $BRANCH_NAME
+          git push -u "https://x-access-token:${{ steps.set_token.outputs.token }}@github.com/${{ env.RELEASE_REPO }}" $BRANCH_NAME
           
           echo "branch_exists=false" >> $GITHUB_OUTPUT
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
