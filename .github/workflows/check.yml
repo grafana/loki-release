@@ -1,8 +1,7 @@
 "concurrency":
   "group": "check-${{ github.sha }}"
 "env":
-  "RELEASE_LIB_REF": "${{ inputs.release_lib_ref }}"
-  "USE_GITHUB_APP_TOKEN": "${{ inputs.use_github_app_token }}"
+  "RELEASE_LIB_REF": "06e329f48326e249aeb36d340130a39504575815"
 "jobs":
   "check":
     "env":
@@ -44,6 +43,9 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
+      "name": "install dependencies"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
@@ -158,6 +160,15 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
+        "repository": "grafana/loki-release"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
+      "name": "install dependencies"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "faillint"
       "run": |
@@ -185,6 +196,9 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
+      "name": "install dependencies"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
@@ -251,6 +265,9 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
+      "name": "install dependencies"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
@@ -292,6 +309,15 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
+        "repository": "grafana/loki-release"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
+      "name": "install dependencies"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test lambda-promtail package"
       "run": |
@@ -315,6 +341,15 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
+        "repository": "grafana/loki-release"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
+      "name": "install dependencies"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
@@ -339,6 +374,15 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - "name": "pull release library code"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "lib"
+        "ref": "${{ env.RELEASE_LIB_REF }}"
+        "repository": "grafana/loki-release"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
+      "name": "install dependencies"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "go mod tidy"
       "run": |
@@ -358,7 +402,7 @@
         "required": true
         "type": "string"
       "golang_ci_lint_version":
-        "default": "v1.60.3"
+        "default": "v1.64.5"
         "description": "version of golangci-lint to use"
         "required": false
         "type": "string"

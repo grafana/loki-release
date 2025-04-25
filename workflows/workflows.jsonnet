@@ -2,7 +2,7 @@ local lokiRelease = import 'main.jsonnet';
 local build = lokiRelease.build;
 
 
-local buildImage = 'grafana/loki-build-image:0.34.3';
+local buildImage = 'golang:1.24';
 local dockerPluginDir = 'clients/cmd/docker-driver';
 
 {
@@ -65,7 +65,11 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
     }, false, false
   ),
   '.github/workflows/check.yml': std.manifestYamlDoc(
-    lokiRelease.check
+    lokiRelease.check + { // TODO: Remove this once we have a stable release lib ref
+      env: {
+        RELEASE_LIB_REF: '06e329f48326e249aeb36d340130a39504575815',
+      },
+    }
   ),
   '.github/workflows/gel-check.yml': std.manifestYamlDoc(
     lokiRelease.checkGel
