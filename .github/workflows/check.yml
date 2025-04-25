@@ -216,11 +216,27 @@
         "version": "0.9.0"
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+    - "name": "debug - list directories"
+      "run": |
+        echo "Current directory:"
+        pwd
+        echo "Directory contents:"
+        ls -la
+        echo "Workspace directory contents:"
+        ls -la $GITHUB_WORKSPACE
+    - "name": "debug - check vendor"
+      "run": |
+        echo "Checking for vendor directory:"
+        ls -la
+        echo "Vendor directory exists?"
+        if [ -d "vendor" ]; then echo "Yes"; else echo "No"; fi
+        echo "Release directory vendor exists?"
+        if [ -d "release/vendor" ]; then echo "Yes"; else echo "No"; fi
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
       "with":
-        "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled --modules-download-mode vendor"
+        "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled"
         "only-new-issues": true
         "version": "${{ inputs.golang_ci_lint_version }}"
   "integration":
