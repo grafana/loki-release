@@ -96,13 +96,12 @@ local validationJob = _validationJob(false);
                         step.new('install dependencies')
                         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, \'golang\') }}')
                         + step.withRun('lib/workflows/install_workflow_dependencies.sh loki-release'),
-                        step.new('test push package')
+                        step.new('test lambda-promtail package')
                         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-                        + step.withWorkingDirectory('tools/lambda-promtail')
+                        + step.withWorkingDirectory('release/tools/lambda-promtail')
                         + step.withRun(|||
                           gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-                        |||)
-                        + step.withWorkingDirectory('release'),
+                        |||),
                       ]),
 
   testPushPackage: validationJob
@@ -113,13 +112,18 @@ local validationJob = _validationJob(false);
                      step.new('install dependencies')
                      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, \'golang\') }}')
                      + step.withRun('lib/workflows/install_workflow_dependencies.sh loki-release'),
+                     step.new('go mod tidy')
+                     + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+                     + step.withWorkingDirectory('release/pkg/push')
+                     + step.withRun(|||
+                       go mod tidy
+                     |||),
                      step.new('test push package')
                      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
-                     + step.withWorkingDirectory('pkg/push')
+                     + step.withWorkingDirectory('release/pkg/push')
                      + step.withRun(|||
                        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-                     |||)
-                     + step.withWorkingDirectory('release'),
+                     |||),
                    ]),
 
   // Check / lint jobs

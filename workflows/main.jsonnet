@@ -221,7 +221,7 @@
         secrets: {
           GCS_SERVICE_ACCOUNT_KEY: {
             description: 'GCS service account key',
-            required: true,
+            required: false,
           },
         },
       },

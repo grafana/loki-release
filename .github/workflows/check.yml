@@ -319,10 +319,10 @@
       "name": "install dependencies"
       "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "test push package"
+      "name": "test lambda-promtail package"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-      "working-directory": "release"
+      "working-directory": "release/tools/lambda-promtail"
   "testPackages":
     "container":
       "image": "${{ inputs.build_image }}"
@@ -384,10 +384,15 @@
       "name": "install dependencies"
       "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+      "name": "go mod tidy"
+      "run": |
+        go mod tidy
+      "working-directory": "release/pkg/push"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test push package"
       "run": |
         gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
-      "working-directory": "release"
+      "working-directory": "release/pkg/push"
 "name": "check"
 "on":
   "workflow_call":
