@@ -6,9 +6,10 @@
 "jobs":
   "check":
     "container":
-      "image": "${{ inputs.build_image }}"
+      "image": "$IMAGE"
     "env":
       "BUILD_IN_CONTAINER": false
+      "IMAGE": "${{ inputs.build_image }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
@@ -72,9 +73,10 @@
         EOF
   "lint":
     "container":
-      "image": "${{ inputs.build_image }}"
+      "image": "$IMAGE"
     "env":
       "BUILD_IN_CONTAINER": false
+      "IMAGE": "${{ inputs.build_image }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
@@ -123,9 +125,10 @@
         "version": "${{ inputs.golang_ci_lint_version }}"
   "test":
     "container":
-      "image": "${{ inputs.build_image }}"
+      "image": "$IMAGE"
     "env":
       "BUILD_IN_CONTAINER": false
+      "IMAGE": "${{ inputs.build_image }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":

@@ -80,6 +80,10 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                  + job.withIf('${{ fromJSON(needs.shouldRelease.outputs.shouldRelease) }}')
                  + job.withEnv({
                     SHA: '${{ needs.shouldRelease.outputs.sha }}',
+                    OUTPUTS_NAME: '${{ needs.shouldRelease.outputs.name }}',
+                    OUTPUTS_IS_LATEST: '${{ needs.shouldRelease.outputs.isLatest }}',
+                    OUTPUTS_DRAFT: '${{ steps.check_release.outputs.draft }}',
+                    OUTPUTS_EXISTS: '${{ steps.check_release.outputs.exists }}',
                  })
                  + job.withSteps([
                    common.fetchReleaseRepo,
@@ -160,11 +164,11 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    }),
                  ])
                  + job.withOutputs({
-                   sha: '${{ needs.shouldRelease.outputs.sha }}',
-                   name: '${{ needs.shouldRelease.outputs.name }}',
-                   isLatest: '${{ needs.shouldRelease.outputs.isLatest }}',
-                   draft: '${{ steps.check_release.outputs.draft }}',
-                   exists: '${{ steps.check_release.outputs.exists }}',
+                   sha: '$SHA',
+                   name: '$OUTPUTS_NAME',
+                   isLatest: '$OUTPUTS_IS_LATEST',
+                   draft: '$OUTPUTS_DRAFT',
+                   exists: '$OUTPUTS_EXISTS',
                  }),
 
   publishImages: function(getDockerCredsFromVault=false, dockerUsername='grafanabot')
