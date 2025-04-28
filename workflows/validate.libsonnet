@@ -83,7 +83,7 @@ local validationJob = _validationJob(false);
                   step.new('install dependencies')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, \'golang\') }}')
                   + step.withRun('lib/workflows/install_workflow_dependencies.sh loki-release'),
-                  step.new('test $MATRIX_PACKAGE')
+                  step.new('test ${{ matrix.package }}')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                   + step.withRun(|||
                     gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${MATRIX_PACKAGE}/...
@@ -227,7 +227,7 @@ local validationJob = _validationJob(false);
              + job.withEnv({
                SKIP_VALIDATION: '${{ inputs.skip_validation }}',
              })
-             + job.withIf("${{ !fromJSON(env.SKIP_VALIDATION) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}")
+             + job.withIf("${{ !fromJSON(inputs.skip_validation) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}")
              + job.withSteps([
                step.new('verify checks passed')
                + step.withRun(|||
