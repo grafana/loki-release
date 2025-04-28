@@ -59,7 +59,13 @@
     } else {},
     local validationSteps = ['check'],
     jobs: {
-      check: {} + $.job.withUses(checkTemplate)
+      check: {
+        permissions: {
+          contents: 'write',
+          'pull-requests': 'write',
+          'id-token': 'write',
+        },
+      } + $.job.withUses(checkTemplate)
              + $.job.with({
                skip_validation: skipValidation,
                build_image: buildImage,
@@ -120,8 +126,20 @@
       PUBLISH_TO_GCS: false,
     },
     jobs: {
-      shouldRelease: $.release.shouldRelease,
-      createRelease: $.release.createRelease,
+      shouldRelease: $.release.shouldRelease + {
+        permissions: {
+          contents: 'write',
+          'pull-requests': 'write',
+          'id-token': 'write',
+        },
+      },
+      createRelease: $.release.createRelease + {
+        permissions: {
+          contents: 'write',
+          'pull-requests': 'write',
+          'id-token': 'write',
+        },
+      },
       publishImages: $.release.publishImages(getDockerCredsFromVault, dockerUsername),
     } + (if publishDockerPlugins then {
            publishDockerPlugins: $.release.publishDockerPlugins(pluginBuildDir, getDockerCredsFromVault, dockerUsername),

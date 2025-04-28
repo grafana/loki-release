@@ -5,6 +5,9 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,6 +39,9 @@ jobs:
       - run: npm run lint
   actions:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -70,6 +76,9 @@ jobs:
             || (echo "Change to actions detected, please run 'npm run actions' and commit the changes" && false)
   workflows:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -85,6 +94,9 @@ jobs:
             || (echo "Change to workflows detected, please run 'npm run workflows' and commit the changes" && false)
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     needs:
       - lint
       - actions
@@ -120,6 +132,9 @@ jobs:
       - run: npm run ci-test
   check-title:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: amannn/action-semantic-pull-request@0723387faaf9b38adef4775cd42cfd5155ed6017  # v5
         env:
