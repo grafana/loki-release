@@ -18,7 +18,7 @@
     - "testPushPackage"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+    - "if": "${{ !fromJSON($SKIP_VALIDATION) }}"
       "name": "checks passed"
       "run": |
         echo "All checks passed"
@@ -129,7 +129,7 @@
   "failCheck":
     "env":
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "if": "${{ !fromJSON(inputs.skip_validation) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}"
+    "if": "${{ !fromJSON($SKIP_VALIDATION) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}"
     "needs":
     - "checkFiles"
     - "faillint"
@@ -328,8 +328,7 @@
     "container":
       "image": "${{ inputs.build_image }}"
     "env":
-      "BUILD_IN_CONTAINER": false
-      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+      "MATRIX_PACKAGE": "${{ matrix.package }}"
     "needs":
     - "collectPackages"
     "runs-on": "ubuntu-latest"
@@ -352,9 +351,9 @@
       "name": "install dependencies"
       "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "test ${{ matrix.package }}"
+      "name": "test $MATRIX_PACKAGE"
       "run": |
-        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${MATRIX_PACKAGE}/...
       "working-directory": "release"
     "strategy":
       "matrix":

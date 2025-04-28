@@ -73,6 +73,9 @@ local validationJob = _validationJob(false);
                     package: '${{fromJson(needs.collectPackages.outputs.packages)}}',
                   },
                 })
+                + job.withEnv({
+                    MATRIX_PACKAGE: '${{ matrix.package }}'
+                })
                 + job.withSteps([
                   common.fetchReleaseRepo,
                   common.fixDubiousOwnership,
@@ -80,10 +83,10 @@ local validationJob = _validationJob(false);
                   step.new('install dependencies')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, \'golang\') }}')
                   + step.withRun('lib/workflows/install_workflow_dependencies.sh loki-release'),
-                  step.new('test ${{ matrix.package }}')
+                  step.new('test $MATRIX_PACKAGE')
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                   + step.withRun(|||
-                    gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
+                    gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${MATRIX_PACKAGE}/...
                   |||)
                   + step.withWorkingDirectory('release'),
                 ]),
@@ -224,7 +227,7 @@ local validationJob = _validationJob(false);
              + job.withEnv({
                SKIP_VALIDATION: '${{ inputs.skip_validation }}',
              })
-             + job.withIf("${{ !fromJSON(inputs.skip_validation) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}")
+             + job.withIf("${{ !fromJSON($SKIP_VALIDATION) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}")
              + job.withSteps([
                step.new('verify checks passed')
                + step.withRun(|||
@@ -249,7 +252,7 @@ local validationJob = _validationJob(false);
          })
          + job.withSteps([
            step.new('checks passed')
-           + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
+           + step.withIf('${{ !fromJSON($SKIP_VALIDATION) }}')
            + step.withRun(|||
              echo "All checks passed"
            |||),

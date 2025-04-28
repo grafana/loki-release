@@ -35,12 +35,15 @@ local runner = import 'runner.libsonnet',
 
       releaseStep('Parse image platform')
       + step.withId('platform')
+      + step.withEnv({
+          GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
+      })
       + step.withRun(|||
         mkdir -p images
 
         platform="$(echo "${{ matrix.arch }}" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
-        echo "platform=${platform}" >> $GITHUB_OUTPUT
-        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT
+        echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
+        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
       |||),
 
       step.new('Build and export', 'docker/build-push-action@v6')
@@ -102,19 +105,25 @@ local runner = import 'runner.libsonnet',
 
       releaseStep('Get weekly version')
       + step.withId('weekly-version')
+      + step.withEnv({
+        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}'
+      })
       + step.withRun(|||
         version=$(./tools/image-tag)
-        echo "image_version=$version" >> $GITHUB_OUTPUT
-        echo "image_name=${{ env.IMAGE_PREFIX }}/%(name)s" >> $GITHUB_OUTPUT
-        echo "image_full_name=${{ env.IMAGE_PREFIX }}/%(name)s:$version" >> $GITHUB_OUTPUT
+        echo "image_version=$version" >> $GITHUB_OUTPUT_FH
+        echo "image_name=${{ env.IMAGE_PREFIX }}/%(name)s" >> $GITHUB_OUTPUT_FH
+        echo "image_full_name=${{ env.IMAGE_PREFIX }}/%(name)s:$version" >> $GITHUB_OUTPUT_FH
       ||| % { name: name }),
 
       releaseStep('Parse image platform')
       + step.withId('platform')
+      + step.withEnv({
+        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}'
+      })
       + step.withRun(|||
         platform="$(echo "${{ matrix.arch }}" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
-        echo "platform=${platform}" >> $GITHUB_OUTPUT
-        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT
+        echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
+        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
       |||),
 
       step.new('Build and push', 'docker/build-push-action@v6')
@@ -135,9 +144,13 @@ local runner = import 'runner.libsonnet',
 
       releaseStep('Process image digest')
       + step.withId('digest')
+      + step.withEnv({
+        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
+        OUTPUTS_DIGEST: '${{ steps.build-push.outputs.digest }}',
+      })
       + step.withRun(|||
         arch=$(echo ${{ matrix.arch }} | tr "/" "_")
-        echo "digest_$arch=${{ steps.build-push.outputs.digest }}" >> $GITHUB_OUTPUT
+        echo "digest_$arch=$OUTPUTS_DIGEST" >> $GITHUB_OUTPUT_FH
       |||),
     ]),
 
@@ -170,17 +183,20 @@ local runner = import 'runner.libsonnet',
 
       releaseStep('parse image platform')
       + step.withId('platform')
+      + step.withEnv({
+        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}'
+      })
       + step.withRun(|||
         mkdir -p images
         mkdir -p plugins
 
         platform="$(echo "${{ matrix.arch}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
-        echo "platform=${platform}" >> $GITHUB_OUTPUT
-        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT
+        echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
+        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
         if [[ "${platform}" == "linux/arm64" ]]; then
-          echo "plugin_arch=-arm64" >> $GITHUB_OUTPUT
+          echo "plugin_arch=-arm64" >> $GITHUB_OUTPUT_FH
         else
-          echo "plugin_arch=" >> $GITHUB_OUTPUT
+          echo "plugin_arch=" >> $GITHUB_OUTPUT_FH
         fi
       |||),
 
@@ -205,9 +221,14 @@ local runner = import 'runner.libsonnet',
 
       step.new('compress rootfs')
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
+      + step.withEnv({
+        OUTPUTS_VERSION: '${{ needs.version.outputs.version }}',
+        OUTPUTS_PLATFORM: '${{ steps.platform.outputs.platform }}',
+
+      })
       + step.withRun(|||
-        tar -cf release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar \
-        -C release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }} \
+        tar -cf release/plugins/%s-${OUTPUTS_VERSION}-${OUTPUTS_PLATFORM}.tar \
+        -C release/plugins/%s-${OUTPUTS_VERSION}-${OUTPUTS_PLATFORM} \
         .
       ||| % [name, name]),
 
@@ -231,6 +252,11 @@ local runner = import 'runner.libsonnet',
       common.setToken,
       releaseLibStep('get release version')
       + step.withId('version')
+      + step.withEnv({
+        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
+        OUTPUTS_BRANCH: '${{ steps.extract_branch.outputs.branch }}',
+        OUTPUTS_TOKEN: '${{ steps.github_app_token.outputs.token }}',
+      })
       + step.withRun(|||
         npm install
 
@@ -245,8 +271,8 @@ local runner = import 'runner.libsonnet',
             --release-type simple \
             --repo-url "${{ env.RELEASE_REPO }}" \
             --separate-pull-requests false \
-            --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-            --token "${{ steps.github_app_token.outputs.token }}" \
+            --target-branch "$OUTPUTS_BRANCH" \
+            --token "$OUTPUTS_TOKEN" \
             --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
         else
           npm exec -- release-please release-pr \
@@ -259,8 +285,8 @@ local runner = import 'runner.libsonnet',
             --release-type simple \
             --repo-url "${{ env.RELEASE_REPO }}" \
             --separate-pull-requests false \
-            --target-branch "${{ steps.extract_branch.outputs.branch }}" \
-            --token "${{ steps.github_app_token.outputs.token }}" \
+            --target-branch "$OUTPUTS_BRANCH" \
+            --token "$OUTPUTS_TOKEN" \
             --release-as "${{ env.RELEASE_AS }}"
         fi
 
@@ -268,17 +294,17 @@ local runner = import 'runner.libsonnet',
 
         if [[ `jq length release.json` -gt 1 ]]; then 
           echo 'release-please would create more than 1 PR, so cannot determine correct version'
-          echo "pr_created=false" >> $GITHUB_OUTPUT
+          echo "pr_created=false" >> $GITHUB_OUTPUT_FH
           exit 1
         fi
 
         if [[ `jq length release.json` -eq 0 ]]; then 
-          echo "pr_created=false" >> $GITHUB_OUTPUT
+          echo "pr_created=false" >> $GITHUB_OUTPUT_FH
         else
           version="$(npm run --silent get-version)"
           echo "Parsed version: ${version}"
-          echo "version=${version}" >> $GITHUB_OUTPUT
-          echo "pr_created=true" >> $GITHUB_OUTPUT
+          echo "version=${version}" >> $GITHUB_OUTPUT_FH
+          echo "pr_created=true" >> $GITHUB_OUTPUT_FH
         fi
       |||),
     ])
