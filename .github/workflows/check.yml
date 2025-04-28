@@ -343,8 +343,7 @@
     "container":
       "image": "${{ inputs.build_image }}"
     "env":
-      "BUILD_IN_CONTAINER": false
-      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
+      "MATRIX_PACKAGE": "${{ matrix.package }}"
     "needs":
     - "collectPackages"
     "runs-on": "ubuntu-latest"
@@ -371,7 +370,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${{ matrix.package }}/...
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${MATRIX_PACKAGE}/...
       "working-directory": "release"
     "strategy":
       "matrix":
@@ -442,6 +441,6 @@
         "required": false
         "type": "boolean"
 "permissions":
-  "contents": "write"
-  "id-token": "write"
-  "pull-requests": "write"
+  "contents": "read"
+  "id-token": "read"
+  "pull-requests": "read"

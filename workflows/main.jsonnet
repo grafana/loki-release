@@ -35,8 +35,8 @@
       },
     },
     permissions: {
-      contents: 'read',
-      'pull-requests': 'read',
+      contents: 'write',
+      'pull-requests': 'write',
       'id-token': 'read',
     },
     concurrency: {
@@ -106,8 +106,8 @@
       },
     },
     permissions: {
-      contents: 'read',
-      'pull-requests': 'read',
+      contents: 'write',
+      'pull-requests': 'write',
       'id-token': 'read',
     },
     concurrency: {
@@ -188,9 +188,9 @@
       },
     },
     permissions: {
-      contents: 'write',
-      'pull-requests': 'write',
-      'id-token': 'write',
+      contents: 'read',
+      'pull-requests': 'read',
+      'id-token': 'read',
     },
     concurrency: {
       group: 'check-${{ github.sha }}',
@@ -245,9 +245,9 @@
       },
     },
     permissions: {
-      contents: 'write',
-      'pull-requests': 'write',
-      'id-token': 'write',
+      contents: 'read',
+      'pull-requests': 'read',
+      'id-token': 'read',
     },
     concurrency: {
       group: 'check-${{ github.sha }}',
