@@ -24,10 +24,9 @@
         echo "All checks passed"
   "checkFiles":
     "container":
-      "image": "$IMAGE"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
-      "IMAGE": "${{ inputs.build_image }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
@@ -112,7 +111,7 @@
       "working-directory": "release"
   "collectPackages":
     "outputs":
-      "packages": "$OUTPUTS_PACKAGES"
+      "packages": "${{ steps.gather-tests.outputs.packages }}"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "checkout"
@@ -122,9 +121,7 @@
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "env":
-        "OUTPUTS_PACKAGES": "${{ steps.gather-tests.outputs.packages }}"
-      "id": "gather-tests"
+    - "id": "gather-tests"
       "name": "gather packages"
       "run": |
         echo "packages=$(find . -path '*_test.go' -printf '%h\n' \
@@ -154,9 +151,10 @@
         exit 1,
   "faillint":
     "container":
-      "image": "$IMAGE"
+      "image": "${{ inputs.build_image }}"
     "env":
-      "BUILD_IMAGE": "${{ inputs.build_image }}"
+      "BUILD_IN_CONTAINER": false
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
     - "name": "pull code to release"
@@ -175,7 +173,7 @@
         "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(BUILD_IMAGE, 'golang') }}"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
       "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
@@ -185,10 +183,9 @@
       "working-directory": "release"
   "golangciLint":
     "container":
-      "image": "$IMAGE"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
-      "IMAGE": "${{ inputs.build_image }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
@@ -230,21 +227,18 @@
       "uses": "actions/checkout@v4"
       "with":
         "persist-credentials": false
-    - "env":
-        "LINT_VERSION": "${{ inputs.golang_ci_lint_version }}"
-      "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
       "with":
         "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled"
         "only-new-issues": true
-        "version": "$LINT_VERSION"
+        "version": "${{ inputs.golang_ci_lint_version }}"
   "integration":
     "container":
-      "image": "$IMAGE"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
-      "IMAGE": "${{ inputs.build_image }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
@@ -263,10 +257,9 @@
       "working-directory": "release"
   "lintFiles":
     "container":
-      "image": "$IMAGE"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
-      "IMAGE": "${{ inputs.build_image }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
@@ -316,10 +309,9 @@
       "working-directory": "release"
   "testLambdaPromtail":
     "container":
-      "image": "$IMAGE"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
-      "IMAGE": "${{ inputs.build_image }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":
@@ -349,10 +341,9 @@
       "working-directory": "release/tools/lambda-promtail"
   "testPackages":
     "container":
-      "image": "$IMAGE"
+      "image": "${{ inputs.build_image }}"
     "env":
       "MATRIX_PACKAGE": "${{ matrix.package }}"
-      "OUTPUTS_PACKAGES": "${{ needs.collectPackages.outputs.packages }}"
     "needs":
     - "collectPackages"
     "runs-on": "ubuntu-latest"
@@ -383,13 +374,12 @@
       "working-directory": "release"
     "strategy":
       "matrix":
-        "package": "${{fromJson(OUTPUTS_PACKAGES)}}"
+        "package": "${{fromJson(needs.collectPackages.outputs.packages)}}"
   "testPushPackage":
     "container":
-      "image": "$IMAGE"
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
-      "IMAGE": "${{ inputs.build_image }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-latest"
     "steps":

@@ -10,20 +10,16 @@ env:
 jobs:
   createRelease:
     env:
-      OUTPUTS_DRAFT: "${{ steps.check_release.outputs.draft }}"
-      OUTPUTS_EXISTS: "${{ steps.check_release.outputs.exists }}"
-      OUTPUTS_IS_LATEST: "${{ needs.shouldRelease.outputs.isLatest }}"
-      OUTPUTS_NAME: "${{ needs.shouldRelease.outputs.name }}"
       SHA: "${{ needs.shouldRelease.outputs.sha }}"
     if: "${{ fromJSON(needs.shouldRelease.outputs.shouldRelease) }}"
     needs:
     - "shouldRelease"
     outputs:
-      draft: "$OUTPUTS_DRAFT"
-      exists: "$OUTPUTS_EXISTS"
-      isLatest: "$OUTPUTS_IS_LATEST"
-      name: "$OUTPUTS_NAME"
-      sha: "$SHA"
+      draft: "${{ steps.check_release.outputs.draft }}"
+      exists: "${{ steps.check_release.outputs.exists }}"
+      isLatest: "${{ needs.shouldRelease.outputs.isLatest }}"
+      name: "${{ needs.shouldRelease.outputs.name }}"
+      sha: "${{ needs.shouldRelease.outputs.sha }}"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -51,15 +47,13 @@ jobs:
       uses: "google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a"
       with:
         version: ">= 452.0.0"
-    - env:
-        OWNER: "${{ github.repository_owner }}"
-      id: "get_github_app_token"
+    - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ secrets.APP_ID }}"
-        owner: "$OWNER"
+        owner: "${{ github.repository_owner }}"
         private-key: "${{ secrets.APP_PRIVATE_KEY }}"
     - env:
         OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"
@@ -148,15 +142,13 @@ jobs:
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       working-directory: "release"
-    - env:
-        OWNER: "${{ github.repository_owner }}"
-      id: "get_github_app_token"
+    - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ secrets.APP_ID }}"
-        owner: "$OWNER"
+        owner: "${{ github.repository_owner }}"
         private-key: "${{ secrets.APP_PRIVATE_KEY }}"
     - env:
         OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"
@@ -327,15 +319,13 @@ jobs:
         path: "release"
         persist-credentials: false
         repository: "${{ env.RELEASE_REPO }}"
-    - env:
-        OWNER: "${{ github.repository_owner }}"
-      id: "get_github_app_token"
+    - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ secrets.APP_ID }}"
-        owner: "$OWNER"
+        owner: "${{ github.repository_owner }}"
         private-key: "${{ secrets.APP_PRIVATE_KEY }}"
     - env:
         OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"

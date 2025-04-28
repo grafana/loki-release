@@ -37,45 +37,34 @@ local runner = import 'runner.libsonnet',
       + step.withId('platform')
       + step.withEnv({
           GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
-          MATRIX_ARCH: '${{ matrix.arch }}'
       })
       + step.withRun(|||
         mkdir -p images
 
         platform="$(echo "${{ matrix.arch }}" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
-        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
+        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
       |||),
 
       step.new('Build and export', 'docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1') // v6
       + step.withTimeoutMinutes('${{ fromJSON(env.BUILD_TIMEOUT) }}')
+      + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.withEnv({
         IMAGE_TAG: '${{ needs.version.outputs.version }}',
-        OUTPUTS_PR_CREATED: '${{ needs.version.outputs.pr_created }}',
-        OUTPUTS_VERSION: '${{ needs.version.outputs.version }}',
-        OUTPUTS_PLATFORM: '${{ steps.platform.outputs.platform }}',
-        OUTPUTS_PLATFORM_SHORT: '${{ steps.platform.outputs.platform_short }}',
-        MATRIX_ARCH: '${{ matrix.arch }}'
       })
-      + step.withIf('${{ fromJSON(env.OUTPUTS_PR_CREATED) }}')
       + step.with({
         context: context,
         file: 'release/%s/%s' % [path, dockerfile],
-        platforms: '$MATRIX_ARCH',
-        tags: '${{ env.IMAGE_PREFIX }}/%s:${OUTPUTS_VERSION}-${OUTPUTS_PLATFORM_SHORT}' % [name],
-        outputs: 'type=docker,dest=release/images/%s-${OUTPUTS_VERSION}-${OUTPUTS_PLATFORM}.tar' % name,
-        'build-args': 'IMAGE_TAG=$OUTPUTS_VERSION',
+        platforms: '${{ matrix.arch }}',
+        tags: '${{ env.IMAGE_PREFIX }}/%s:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
+        outputs: 'type=docker,dest=release/images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
+        'build-args': 'IMAGE_TAG=${{ needs.version.outputs.version }}',
       }),
       step.new('Upload artifacts', 'google-github-actions/upload-cloud-storage@386ab77f37fdf51c0e38b3d229fad286861cc0d0') // v2
-      + step.withEnv({
-            SHA: '${{ github.sha }}',
-            OUTPUTS_VERSION: '${{ needs.version.outputs.pr_created }}',
-            OUTPUTS_PLATFORM: '${{ steps.platform.outputs.platform }}',
-      })
-      + step.withIf('${{ fromJSON(env.OUTPUTS_VERSION) }}')
+      + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.with({
-        path: 'release/images/%s-${OUTPUTS_VERSION}-${OUTPUTS_PLATFORM}.tar' % name,
-        destination: '${{ env.BUILD_ARTIFACTS_BUCKET }}/${SHA}/images',  //TODO: make bucket configurable
+        path: 'release/images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
+        destination: '${{ env.BUILD_ARTIFACTS_BUCKET }}/${{ github.sha }}/images',  //TODO: make bucket configurable
         process_gcloudignore: false,
       }),
     ]),
@@ -99,19 +88,12 @@ local runner = import 'runner.libsonnet',
         include: platform,
       },
     })
-    + job.withEnv({
-        IMAGE_NAME: '${{ steps.weekly-version.outputs.image_name }}',
-        IMAGE_TAG: '${{ steps.weekly-version.outputs.image_version }}',
-        IMAGE_NAME_AMD64: '${{ steps.digest.outputs.digest_linux_amd64 }}',
-        IMAGE_NAME_ARM64: '${{ steps.digest.outputs.digest_linux_arm64 }}',
-        IMAGE_NAME_ARM: '${{ steps.digest.outputs.digest_linux_arm }}',
-    })
     + job.withOutputs({
-      image_name: '$IMAGE_NAME',
-      image_tag: '$IMAGE_TAG',
-      image_digest_linux_amd64: '$IMAGE_NAME_AMD64',
-      image_digest_linux_arm64: '$IMAGE_NAME_ARM64',
-      image_digest_linux_arm: '$IMAGE_NAME_ARM',
+      image_name: '${{ steps.weekly-version.outputs.image_name }}',
+      image_tag: '${{ steps.weekly-version.outputs.image_version }}',
+      image_digest_linux_amd64: '${{ steps.digest.outputs.digest_linux_amd64 }}',
+      image_digest_linux_arm64: '${{ steps.digest.outputs.digest_linux_arm64 }}',
+      image_digest_linux_arm: '${{ steps.digest.outputs.digest_linux_arm }}',
     })
     + job.withSteps([
       common.fetchReleaseLib,
@@ -136,32 +118,26 @@ local runner = import 'runner.libsonnet',
       releaseStep('Parse image platform')
       + step.withId('platform')
       + step.withEnv({
-        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
-        MATRIX_ARCH: '${{ matrix.arch }}'
+        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}'
       })
       + step.withRun(|||
-        platform="$(echo "$MATRIX_ARCH" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
+        platform="$(echo "${{ matrix.arch }}" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
-        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
+        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
       |||),
 
       step.new('Build and push', 'docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1') // v6
       + step.withId('build-push')
-      + step.withEnv({
-        MATRIX_ARCH: '${{ matrix.arch }}',
-        IMAGE_NAME: '${{ steps.weekly-version.outputs.image_name }}',
-        IMAGE_TAG: '${{ steps.weekly-version.outputs.image_version }}',
-      })
       + step.withTimeoutMinutes('${{ fromJSON(env.BUILD_TIMEOUT) }}')
       + step.with({
         context: context,
         file: '%s/%s/%s' % [context, path, dockerfile],
-        platforms: '$MATRIX_ARCH',
+        platforms: '${{ matrix.arch }}',
         provenance: true,
-        outputs: 'push-by-digest=true,type=image,name=${IMAGE_NAME},push=true',
-        tags: '$IMAGE_NAME',
+        outputs: 'push-by-digest=true,type=image,name=${{ steps.weekly-version.outputs.image_name }},push=true',
+        tags: '${{ steps.weekly-version.outputs.image_name }}',
         'build-args': |||
-          IMAGE_TAG=${IMAGE_TAG}
+          IMAGE_TAG=${{ steps.weekly-version.outputs.image_version }}
           GO_VERSION=${{ env.GO_VERSION }}
         |||,
       }),
@@ -171,10 +147,9 @@ local runner = import 'runner.libsonnet',
       + step.withEnv({
         GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
         OUTPUTS_DIGEST: '${{ steps.build-push.outputs.digest }}',
-        MATRIX_ARCH: '${{ matrix.arch }}',
       })
       + step.withRun(|||
-        arch=$(echo $MATRIX_ARCH | tr "/" "_")
+        arch=$(echo ${{ matrix.arch }} | tr "/" "_")
         echo "digest_$arch=$OUTPUTS_DIGEST" >> $GITHUB_OUTPUT_FH
       |||),
     ]),
@@ -209,16 +184,15 @@ local runner = import 'runner.libsonnet',
       releaseStep('parse image platform')
       + step.withId('platform')
       + step.withEnv({
-        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
-        MATRIX_ARCH: '${{ matrix.arch }}',
+        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}'
       })
       + step.withRun(|||
         mkdir -p images
         mkdir -p plugins
 
-        platform="$(echo "$MATRIX_ARCH" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
+        platform="$(echo "${{ matrix.arch}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
         echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
-        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
+        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
         if [[ "${platform}" == "linux/arm64" ]]; then
           echo "plugin_arch=-arm64" >> $GITHUB_OUTPUT_FH
         else
@@ -228,37 +202,30 @@ local runner = import 'runner.libsonnet',
 
       step.new('Build and export', 'docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1') // v6
       + step.withTimeoutMinutes('${{ fromJSON(env.BUILD_TIMEOUT) }}')
-      + step.withEnv({
-        OUTPUTS_PR_CREATED: '${{ needs.version.outputs.pr_created }}',
-        OUTPUTS_VERSION: '${{ needs.version.outputs.version }}',
-        OUTPUTS_PLATFORM: '${{ steps.platform.outputs.platform }}',
-        OUTPUTS_PLATFORM_SHORT: '${{ steps.platform.outputs.platform_short }}',
-        MATRIX_ARCH: "${{ matrix.arch }}",
-      })
-      + step.withIf('${{ fromJSON(env.OUTPUTS_PR_CREATED) }}')
+      + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.with({
         context: context,
         file: 'release/%s/%s' % [path, dockerfile],
-        platforms: '$MATRIX_ARCH',
+        platforms: '${{ matrix.arch }}',
         push: false,
-        tags: '${{ env.IMAGE_PREFIX }}/%s:${OUTPUTS_VERSION}-${OUTPUTS_PLATFORM_SHORT}' % [name],
-        outputs: 'type=local,dest=release/plugins/%s-${OUTPUTS_VERSION}-${OUTPUTS_PLATFORM}' % name,
+        tags: '${{ env.IMAGE_PREFIX }}/%s:${{ needs.version.outputs.version }}-${{ steps.platform.outputs.platform_short }}' % [name],
+        outputs: 'type=local,dest=release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}' % name,
         'build-args': |||
           %s
         ||| % std.rstripChars(std.lines([
-          'IMAGE_TAG=${OUTPUTS_VERSION}',
-          'GOARCH=${OUTPUTS_PLATFORM_SHORT}',
+          'IMAGE_TAG=${{ needs.version.outputs.version }}',
+          'GOARCH=${{ steps.platform.outputs.platform_short }}',
           ('BUILD_IMAGE=%s' % buildImage),
         ]), '\n'),
       }),
 
       step.new('compress rootfs')
+      + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.withEnv({
         OUTPUTS_VERSION: '${{ needs.version.outputs.version }}',
         OUTPUTS_PLATFORM: '${{ steps.platform.outputs.platform }}',
-        OUTPUTS_PR_CREATED: '${{ needs.version.outputs.pr_created }}',
+
       })
-      + step.withIf('${{ fromJSON(env.OUTPUTS_PR_CREATED) }}')
       + step.withRun(|||
         tar -cf release/plugins/%s-${OUTPUTS_VERSION}-${OUTPUTS_PLATFORM}.tar \
         -C release/plugins/%s-${OUTPUTS_VERSION}-${OUTPUTS_PLATFORM} \
@@ -266,16 +233,10 @@ local runner = import 'runner.libsonnet',
       ||| % [name, name]),
 
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@386ab77f37fdf51c0e38b3d229fad286861cc0d0') // v2
-      + step.withEnv({
-        OUTPUTS_VERSION: '${{ needs.version.outputs.version }}',
-        OUTPUTS_PLATFORM: '${{ steps.platform.outputs.platform }}',
-        OUTPUTS_PR_CREATED: '${{ needs.version.outputs.pr_created }}',
-        SHA: '${{ github.sha }}',
-      })
-      + step.withIf('${{ fromJSON(env.OUTPUTS_PR_CREATED) }}')
+      + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.with({
-        path: 'release/plugins/%s-${OUTPUTS_VERSION}-${OUTPUTS_PLATFORM}.tar' % name,
-        destination: '${{ env.BUILD_ARTIFACTS_BUCKET }}/${SHA}/plugins',
+        path: 'release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
+        destination: '${{ env.BUILD_ARTIFACTS_BUCKET }}/${{ github.sha }}/plugins',
         process_gcloudignore: false,
       }),
     ]),
@@ -295,8 +256,6 @@ local runner = import 'runner.libsonnet',
         GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
         OUTPUTS_BRANCH: '${{ steps.extract_branch.outputs.branch }}',
         OUTPUTS_TOKEN: '${{ steps.github_app_token.outputs.token }}',
-        OUTPUTS_VERSION: '${{ steps.version.outputs.version }}',
-        OUTPUTS_PR_CREATED: '${{ steps.version.outputs.pr_created }}',
       })
       + step.withRun(|||
         npm install
@@ -350,8 +309,8 @@ local runner = import 'runner.libsonnet',
       |||),
     ])
     + job.withOutputs({
-      version: '$OUTPUTS_VERSION',
-      pr_created: '$OUTPUTS_PR_CREATED',
+      version: '${{ steps.version.outputs.version }}',
+      pr_created: '${{ steps.version.outputs.pr_created }}',
     }),
 
   dist: function(buildImage, skipArm=true, useGCR=false, makeTargets=['dist', 'packages'])
@@ -362,7 +321,7 @@ local runner = import 'runner.libsonnet',
       common.googleAuth,
       common.setupGoogleCloudSdk,
 
-      step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@9a3fe87979ecafb15dba1fec25d1fff7ce6435f2')
+      step.new('get nfpm signing keys', 'grafana/shared-workflows/actions/get-vault-secrets@main')
       + step.withId('get-secrets')
       + step.with({
         common_secrets: |||
@@ -372,15 +331,14 @@ local runner = import 'runner.libsonnet',
       }),
 
       releaseStep('build artifacts')
+      + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.withEnv({
         BUILD_IN_CONTAINER: false,
         DRONE_TAG: '${{ needs.version.outputs.version }}',
         IMAGE_TAG: '${{ needs.version.outputs.version }}',
         NFPM_SIGNING_KEY_FILE: 'nfpm-private-key.key',
         SKIP_ARM: skipArm,
-        OUTPUTS_PR_CREATED: '${{ needs.version.outputs.pr_created }}',
       })
-      + step.withIf('${{ fromJSON(env.OUTPUTS_PR_CREATED) }}')
       //TODO: the workdir here is loki specific
       + step.withRun(
         (
@@ -412,19 +370,14 @@ local runner = import 'runner.libsonnet',
       ),
 
       step.new('upload artifacts', 'google-github-actions/upload-cloud-storage@386ab77f37fdf51c0e38b3d229fad286861cc0d0') // v2
-      + step.withEnv({
-        OUTPUTS_PR_CREATED: '${{ needs.version.outputs.pr_created }}',
-        OUTPUTS_VERSION: '${{ needs.version.outputs.version }}',
-        SHA: '${{ github.sha }}',
-      })
-      + step.withIf('${{ fromJSON(env.OUTPUTS_PR_CREATED) }}')
+      + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.with({
         path: 'release/dist',
-        destination: '${{ env.BUILD_ARTIFACTS_BUCKET }}/${SHA}',  //TODO: make bucket configurable
+        destination: '${{ env.BUILD_ARTIFACTS_BUCKET }}/${{ github.sha }}',  //TODO: make bucket configurable
         process_gcloudignore: false,
       }),
     ])
     + job.withOutputs({
-      version: '$OUTPUTS_VERSION',
+      version: '${{ needs.version.outputs.version }}',
     }),
 }

@@ -135,14 +135,11 @@
   githubAppToken: $.step.new('get github app token', 'actions/create-github-app-token@v1')
                   + $.step.withId('get_github_app_token')
                   + $.step.withIf('${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}')
-                  + $.step.withEnv({
-                    OWNER: '${{ github.repository_owner }}',
-                  })
                   + $.step.with({
                     'app-id': '${{ secrets.APP_ID }}',
                     'private-key': '${{ secrets.APP_PRIVATE_KEY }}',
                     // By setting owner, we should get access to all repositories in current owner's installation: https://github.com/marketplace/actions/create-github-app-token#create-a-token-for-all-repositories-in-the-current-owners-installation
-                    owner: '$OWNER',
+                    owner: '${{ github.repository_owner }}',
                   }),
 
   setToken: $.step.new('set github token')
@@ -161,7 +158,7 @@
   validationJob: function(useGCR=false)
     $.job.new()
     + $.job.withContainer({
-      image: '$IMAGE',
+      image: '${{ inputs.build_image }}',
     } + if useGCR then {
       credentials: {
         username: '_json_key',
@@ -171,6 +168,5 @@
     + $.job.withEnv({
       BUILD_IN_CONTAINER: false,
       SKIP_VALIDATION: '${{ inputs.skip_validation }}',
-      IMAGE: '${{ inputs.build_image }}',
     }),
 }

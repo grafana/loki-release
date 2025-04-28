@@ -46,9 +46,6 @@ local validationJob = _validationJob(false);
                      common.fixDubiousOwnership,
                      step.new('gather packages')
                      + step.withId('gather-tests')
-                     + step.withEnv({
-                        OUTPUTS_PACKAGES: '${{ steps.gather-tests.outputs.packages }}',
-                     })
                      + step.withRun(|||
                        echo "packages=$(find . -path '*_test.go' -printf '%h\n' \
                          | grep -e "pkg/push" -e "integration" -e "operator" -e "lambda-promtail" -e "helm" -v \
@@ -59,7 +56,7 @@ local validationJob = _validationJob(false);
                      |||),
                    ])
                    + job.withOutputs({
-                     packages: '$OUTPUTS_PACKAGES',
+                     packages: '${{ steps.gather-tests.outputs.packages }}',
                    }),
 
   integration: validationJob
@@ -71,14 +68,13 @@ local validationJob = _validationJob(false);
 
   testPackages: validationJob
                 + job.withNeeds(['collectPackages'])
-                + job.withEnv({
-                    MATRIX_PACKAGE: '${{ matrix.package }}',
-                    OUTPUTS_PACKAGES: '${{ needs.collectPackages.outputs.packages }}',
-                })
                 + job.withStrategy({
                   matrix: {
-                    package: '${{fromJson(OUTPUTS_PACKAGES)}}',
+                    package: '${{fromJson(needs.collectPackages.outputs.packages)}}',
                   },
+                })
+                + job.withEnv({
+                    MATRIX_PACKAGE: '${{ matrix.package }}'
                 })
                 + job.withSteps([
                   common.fetchReleaseRepo,
@@ -170,15 +166,12 @@ local validationJob = _validationJob(false);
 
   faillint:
     validationJob
-    + job.withEnv({
-        BUILD_IMAGE: '${{ inputs.build_image }}',
-    })
     + job.withSteps([
       common.fetchReleaseRepo,
       common.fixDubiousOwnership,
       common.fetchReleaseLib,
       step.new('install dependencies')
-      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(BUILD_IMAGE, \'golang\') }}')
+      + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, \'golang\') }}')
       + step.withRun('lib/workflows/install_workflow_dependencies.sh loki-release'),
       step.new('faillint')
       + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
@@ -194,12 +187,9 @@ local validationJob = _validationJob(false);
       [
         common.checkout,
         step.new('golangci-lint', 'golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5')
-        + step.withEnv({
-            LINT_VERSION: '${{ inputs.golang_ci_lint_version }}',
-        })
         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
         + step.with({
-          version: '$LINT_VERSION',
+          version: '${{ inputs.golang_ci_lint_version }}',
           'only-new-issues': true,
           args: '-v --timeout 15m --build-tags linux,promtail_journal_enabled',
         }),
