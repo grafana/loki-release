@@ -18,7 +18,7 @@
     - "testPushPackage"
     "runs-on": "ubuntu-latest"
     "steps":
-    - "if": "${{ !fromJSON($SKIP_VALIDATION) }}"
+    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "checks passed"
       "run": |
         echo "All checks passed"

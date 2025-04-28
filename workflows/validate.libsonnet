@@ -252,7 +252,7 @@ local validationJob = _validationJob(false);
          })
          + job.withSteps([
            step.new('checks passed')
-           + step.withIf('${{ !fromJSON($SKIP_VALIDATION) }}')
+           + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
            + step.withRun(|||
              echo "All checks passed"
            |||),
