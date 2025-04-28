@@ -1,6 +1,6 @@
 name: Backport PR Creator
 on:
-  pull_request_target:
+  pull_request:
     types:
       - closed
       - labeled
@@ -8,6 +8,9 @@ on:
 jobs:
   main:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout Actions
         uses: actions/checkout@v3
