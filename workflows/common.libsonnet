@@ -73,7 +73,10 @@
                                             $.step.withWorkingDirectory('lib'),
 
   checkout:
-    $.step.new('checkout', 'actions/checkout@v4'),
+    $.step.new('checkout', 'actions/checkout@v4')
+    + $.step.with({
+      'persist-credentials': false,
+    }),
 
   cleanUpBuildCache:
     $.step.new('clean up build tools cache')
