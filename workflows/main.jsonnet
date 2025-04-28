@@ -187,11 +187,11 @@
         },
       },
     },
-    /*permissions: {
+    permissions: {
       contents: 'write',
       'pull-requests': 'write',
       'id-token': 'write',
-    },*/
+    },
     concurrency: {
       group: 'check-${{ github.sha }}',
     },
@@ -244,11 +244,11 @@
         },
       },
     },
-    /*permissions: {
+    permissions: {
       contents: 'write',
       'pull-requests': 'write',
       'id-token': 'write',
-    },*/
+    },
     concurrency: {
       group: 'check-${{ github.sha }}',
     },

@@ -422,3 +422,7 @@
         "description": "whether to use the GitHub App token for GH_TOKEN secret"
         "required": false
         "type": "boolean"
+"permissions":
+  "contents": "write"
+  "id-token": "write"
+  "pull-requests": "write"
