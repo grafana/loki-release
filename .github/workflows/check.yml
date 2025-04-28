@@ -114,6 +114,8 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -217,6 +219,8 @@
         "version": "0.9.0"
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
