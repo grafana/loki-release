@@ -37,7 +37,7 @@
     permissions: {
       contents: 'write',
       'pull-requests': 'write',
-      'id-token': 'write',
+      'id-token': 'read',
     },
     concurrency: {
       group: 'create-release-pr-${{ github.sha }}',
@@ -102,7 +102,7 @@
     permissions: {
       contents: 'write',
       'pull-requests': 'write',
-      'id-token': 'write',
+      'id-token': 'read',
     },
     concurrency: {
       group: 'create-release-${{ github.sha }}',
@@ -170,9 +170,9 @@
       },
     },
     permissions: {
-      contents: 'write',
-      'pull-requests': 'write',
-      'id-token': 'write',
+      contents: 'read',
+      'pull-requests': 'read',
+      'id-token': 'read',
     },
     concurrency: {
       group: 'check-${{ github.sha }}',
@@ -227,9 +227,9 @@
       },
     },
     permissions: {
-      contents: 'write',
-      'pull-requests': 'write',
-      'id-token': 'write',
+      contents: 'read',
+      'pull-requests': 'read',
+      'id-token': 'read',
     },
     concurrency: {
       group: 'check-${{ github.sha }}',
