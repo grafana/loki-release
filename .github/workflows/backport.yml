@@ -15,6 +15,7 @@ jobs:
           repository: "grafana/grafana-github-actions"
           path: ./actions
           ref: main
+          "persist-credentials": false
       - name: Install Actions
         run: npm install --production --prefix ./actions
       - name: Run backport
@@ -23,3 +24,7 @@ jobs:
           token: ${{secrets.GH_TOKEN}}
           labelsToAdd: "backport"
           title: "chore: [{{base}}] {{originalTitle}}"
+permissions:
+  contents: "write"
+  id-token: "write"
+  pull-requests: "write"

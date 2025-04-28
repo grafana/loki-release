@@ -119,7 +119,7 @@ jobs:
         version: ">= 452.0.0"
     - id: "get-secrets"
       name: "get nfpm signing keys"
-      uses: "grafana/shared-workflows/actions/get-vault-secrets@main"
+      uses: "grafana/shared-workflows/actions/get-vault-secrets@fa48192dac470ae356b3f7007229f3ac28c48a25"
       with:
         common_secrets: |
           NFPM_SIGNING_KEY=packages-gpg:private-key
@@ -188,16 +188,14 @@ jobs:
         credentials_json: "${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}"
     - name: "Set up Docker buildx"
       uses: "docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2"
-    - env:
-        GITHUB_OUTPUT_FH: "${{ GITHUB_OUTPUT }}"
-      id: "platform"
+    - id: "platform"
       name: "Parse image platform"
       run: |
         mkdir -p images
         
         platform="$(echo "${{ matrix.arch }}" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
-        echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
-        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
+        echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT
       working-directory: "release"
     - env:
         IMAGE_TAG: "${{ needs.version.outputs.version }}"
@@ -262,21 +260,19 @@ jobs:
       uses: "docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2"
-    - env:
-        GITHUB_OUTPUT_FH: "${{ GITHUB_OUTPUT }}"
-      id: "platform"
+    - id: "platform"
       name: "parse image platform"
       run: |
         mkdir -p images
         mkdir -p plugins
         
         platform="$(echo "${{ matrix.arch}}" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
-        echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
-        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
+        echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo ${{ matrix.arch }} | cut -d / -f 2)" >> $GITHUB_OUTPUT
         if [[ "${platform}" == "linux/arm64" ]]; then
-          echo "plugin_arch=-arm64" >> $GITHUB_OUTPUT_FH
+          echo "plugin_arch=-arm64" >> $GITHUB_OUTPUT
         else
-          echo "plugin_arch=" >> $GITHUB_OUTPUT_FH
+          echo "plugin_arch=" >> $GITHUB_OUTPUT
         fi
       working-directory: "release"
     - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
@@ -369,7 +365,6 @@ jobs:
           echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
         fi
     - env:
-        GITHUB_OUTPUT_FH: "${{ GITHUB_OUTPUT }}"
         OUTPUTS_BRANCH: "${{ steps.extract_branch.outputs.branch }}"
         OUTPUTS_TOKEN: "${{ steps.github_app_token.outputs.token }}"
       id: "version"
@@ -411,17 +406,17 @@ jobs:
         
         if [[ `jq length release.json` -gt 1 ]]; then 
           echo 'release-please would create more than 1 PR, so cannot determine correct version'
-          echo "pr_created=false" >> $GITHUB_OUTPUT_FH
+          echo "pr_created=false" >> $GITHUB_OUTPUT
           exit 1
         fi
         
         if [[ `jq length release.json` -eq 0 ]]; then 
-          echo "pr_created=false" >> $GITHUB_OUTPUT_FH
+          echo "pr_created=false" >> $GITHUB_OUTPUT
         else
           version="$(npm run --silent get-version)"
           echo "Parsed version: ${version}"
-          echo "version=${version}" >> $GITHUB_OUTPUT_FH
-          echo "pr_created=true" >> $GITHUB_OUTPUT_FH
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
         fi
       working-directory: "lib"
 name: "Test Create Release PR Action"
