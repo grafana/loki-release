@@ -36,15 +36,14 @@ local runner = import 'runner.libsonnet',
       releaseStep('Parse image platform')
       + step.withId('platform')
       + step.withEnv({
-          GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
           MATRIX_ARCH: '${{ matrix.arch }}'
       })
       + step.withRun(|||
         mkdir -p images
 
         platform="$(echo "${{ matrix.arch }}" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
-        echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
-        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
+        echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT
       |||),
 
       step.new('Build and export', 'docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1') // v6
@@ -123,26 +122,22 @@ local runner = import 'runner.libsonnet',
 
       releaseStep('Get weekly version')
       + step.withId('weekly-version')
-      + step.withEnv({
-        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}'
-      })
       + step.withRun(|||
         version=$(./tools/image-tag)
-        echo "image_version=$version" >> $GITHUB_OUTPUT_FH
-        echo "image_name=${{ env.IMAGE_PREFIX }}/%(name)s" >> $GITHUB_OUTPUT_FH
-        echo "image_full_name=${{ env.IMAGE_PREFIX }}/%(name)s:$version" >> $GITHUB_OUTPUT_FH
+        echo "image_version=$version" >> $GITHUB_OUTPUT
+        echo "image_name=${{ env.IMAGE_PREFIX }}/%(name)s" >> $GITHUB_OUTPUT
+        echo "image_full_name=${{ env.IMAGE_PREFIX }}/%(name)s:$version" >> $GITHUB_OUTPUT
       ||| % { name: name }),
 
       releaseStep('Parse image platform')
       + step.withId('platform')
       + step.withEnv({
-        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
         MATRIX_ARCH: '${{ matrix.arch }}'
       })
       + step.withRun(|||
         platform="$(echo "$MATRIX_ARCH" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
-        echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
-        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
+        echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT
       |||),
 
       step.new('Build and push', 'docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1') // v6
@@ -169,13 +164,12 @@ local runner = import 'runner.libsonnet',
       releaseStep('Process image digest')
       + step.withId('digest')
       + step.withEnv({
-        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
         OUTPUTS_DIGEST: '${{ steps.build-push.outputs.digest }}',
         MATRIX_ARCH: '${{ matrix.arch }}',
       })
       + step.withRun(|||
         arch=$(echo $MATRIX_ARCH | tr "/" "_")
-        echo "digest_$arch=$OUTPUTS_DIGEST" >> $GITHUB_OUTPUT_FH
+        echo "digest_$arch=$OUTPUTS_DIGEST" >> $GITHUB_OUTPUT
       |||),
     ]),
 
@@ -209,7 +203,6 @@ local runner = import 'runner.libsonnet',
       releaseStep('parse image platform')
       + step.withId('platform')
       + step.withEnv({
-        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
         MATRIX_ARCH: '${{ matrix.arch }}',
       })
       + step.withRun(|||
@@ -217,12 +210,12 @@ local runner = import 'runner.libsonnet',
         mkdir -p plugins
 
         platform="$(echo "$MATRIX_ARCH" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
-        echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
-        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
+        echo "platform=${platform}" >> $GITHUB_OUTPUT
+        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT
         if [[ "${platform}" == "linux/arm64" ]]; then
-          echo "plugin_arch=-arm64" >> $GITHUB_OUTPUT_FH
+          echo "plugin_arch=-arm64" >> $GITHUB_OUTPUT
         else
-          echo "plugin_arch=" >> $GITHUB_OUTPUT_FH
+          echo "plugin_arch=" >> $GITHUB_OUTPUT
         fi
       |||),
 
@@ -292,7 +285,6 @@ local runner = import 'runner.libsonnet',
       releaseLibStep('get release version')
       + step.withId('version')
       + step.withEnv({
-        GITHUB_OUTPUT_FH: '${{ GITHUB_OUTPUT }}',
         OUTPUTS_BRANCH: '${{ steps.extract_branch.outputs.branch }}',
         OUTPUTS_TOKEN: '${{ steps.github_app_token.outputs.token }}',
         OUTPUTS_VERSION: '${{ steps.version.outputs.version }}',
@@ -335,17 +327,17 @@ local runner = import 'runner.libsonnet',
 
         if [[ `jq length release.json` -gt 1 ]]; then 
           echo 'release-please would create more than 1 PR, so cannot determine correct version'
-          echo "pr_created=false" >> $GITHUB_OUTPUT_FH
+          echo "pr_created=false" >> $GITHUB_OUTPUT
           exit 1
         fi
 
         if [[ `jq length release.json` -eq 0 ]]; then 
-          echo "pr_created=false" >> $GITHUB_OUTPUT_FH
+          echo "pr_created=false" >> $GITHUB_OUTPUT
         else
           version="$(npm run --silent get-version)"
           echo "Parsed version: ${version}"
-          echo "version=${version}" >> $GITHUB_OUTPUT_FH
-          echo "pr_created=true" >> $GITHUB_OUTPUT_FH
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
         fi
       |||),
     ])
