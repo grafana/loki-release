@@ -34,11 +34,13 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "release"
+        "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
@@ -114,6 +116,8 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -157,6 +161,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "release"
+        "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
@@ -165,6 +170,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
@@ -187,11 +193,13 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "release"
+        "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
@@ -217,6 +225,8 @@
         "version": "0.9.0"
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
@@ -236,6 +246,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "release"
+        "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
@@ -256,11 +267,13 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "release"
+        "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
@@ -306,6 +319,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "release"
+        "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
@@ -314,6 +328,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
@@ -338,6 +353,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "release"
+        "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
@@ -346,6 +362,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
@@ -371,6 +388,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "release"
+        "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "fix git dubious ownership"
       "run": |
@@ -379,6 +397,7 @@
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"

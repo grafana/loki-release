@@ -14,10 +14,13 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
@@ -77,10 +80,13 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
@@ -125,10 +131,13 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
