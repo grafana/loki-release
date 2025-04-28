@@ -196,6 +196,7 @@ jobs:
     - name: "Set up Docker buildx"
       uses: "docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2"
     - env:
+        GITHUB_OUTPUT_FH: "${{ GITHUB_OUTPUT }}"
         MATRIX_ARCH: "${{ matrix.arch }}"
       id: "platform"
       name: "Parse image platform"
@@ -203,8 +204,8 @@ jobs:
         mkdir -p images
         
         platform="$(echo "${{ matrix.arch }}" | sed "s/\(.*\)\/\(.*\)/\1-\2/")"
-        echo "platform=${platform}" >> $GITHUB_OUTPUT
-        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT
+        echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
+        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
       working-directory: "release"
     - env:
         IMAGE_TAG: "${{ needs.version.outputs.version }}"
@@ -279,6 +280,7 @@ jobs:
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2"
     - env:
+        GITHUB_OUTPUT_FH: "${{ GITHUB_OUTPUT }}"
         MATRIX_ARCH: "${{ matrix.arch }}"
       id: "platform"
       name: "parse image platform"
@@ -287,12 +289,12 @@ jobs:
         mkdir -p plugins
         
         platform="$(echo "$MATRIX_ARCH" |  sed  "s/\(.*\)\/\(.*\)/\1-\2/")"
-        echo "platform=${platform}" >> $GITHUB_OUTPUT
-        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT
+        echo "platform=${platform}" >> $GITHUB_OUTPUT_FH
+        echo "platform_short=$(echo $MATRIX_ARCH | cut -d / -f 2)" >> $GITHUB_OUTPUT_FH
         if [[ "${platform}" == "linux/arm64" ]]; then
-          echo "plugin_arch=-arm64" >> $GITHUB_OUTPUT
+          echo "plugin_arch=-arm64" >> $GITHUB_OUTPUT_FH
         else
-          echo "plugin_arch=" >> $GITHUB_OUTPUT
+          echo "plugin_arch=" >> $GITHUB_OUTPUT_FH
         fi
       working-directory: "release"
     - env:
@@ -399,6 +401,7 @@ jobs:
           echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
         fi
     - env:
+        GITHUB_OUTPUT_FH: "${{ GITHUB_OUTPUT }}"
         OUTPUTS_BRANCH: "${{ steps.extract_branch.outputs.branch }}"
         OUTPUTS_PR_CREATED: "${{ steps.version.outputs.pr_created }}"
         OUTPUTS_TOKEN: "${{ steps.github_app_token.outputs.token }}"
@@ -442,17 +445,17 @@ jobs:
         
         if [[ `jq length release.json` -gt 1 ]]; then 
           echo 'release-please would create more than 1 PR, so cannot determine correct version'
-          echo "pr_created=false" >> $GITHUB_OUTPUT
+          echo "pr_created=false" >> $GITHUB_OUTPUT_FH
           exit 1
         fi
         
         if [[ `jq length release.json` -eq 0 ]]; then 
-          echo "pr_created=false" >> $GITHUB_OUTPUT
+          echo "pr_created=false" >> $GITHUB_OUTPUT_FH
         else
           version="$(npm run --silent get-version)"
           echo "Parsed version: ${version}"
-          echo "version=${version}" >> $GITHUB_OUTPUT
-          echo "pr_created=true" >> $GITHUB_OUTPUT
+          echo "version=${version}" >> $GITHUB_OUTPUT_FH
+          echo "pr_created=true" >> $GITHUB_OUTPUT_FH
         fi
       working-directory: "lib"
 name: "Test Create Release PR Action"
