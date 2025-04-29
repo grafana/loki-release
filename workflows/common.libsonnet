@@ -59,7 +59,7 @@
       container: container,
     },
     withEnv: function(env) {
-      env: env,
+      env+: env,
     },
     withSecrets: function(secrets) {
       secrets: secrets,
@@ -112,11 +112,11 @@
     ],
   },
 
-  googleAuth: $.step.new('auth gcs', 'google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f') // v2
+  googleAuth: $.step.new('auth gcs', 'google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f')  // v2
               + $.step.with({
                 credentials_json: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
               }),
-  setupGoogleCloudSdk: $.step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a') // v2
+  setupGoogleCloudSdk: $.step.new('Set up Cloud SDK', 'google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a')  // v2
                        + $.step.with({
                          version: '>= 452.0.0',
                        }),
@@ -145,7 +145,7 @@
   setToken: $.step.new('set github token')
             + $.step.withId('github_app_token')
             + $.step.withEnv({
-                OUTPUTS_TOKEN: '${{ steps.get_github_app_token.outputs.token }}'
+              OUTPUTS_TOKEN: '${{ steps.get_github_app_token.outputs.token }}',
             })
             + $.step.withRun(|||
               if [[ "${USE_GITHUB_APP_TOKEN}" == "true" ]]; then
