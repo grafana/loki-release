@@ -111,6 +111,10 @@ jobs:
     - "version"
     outputs:
       version: "${{ needs.version.outputs.version }}"
+    permissions:
+      contents: "write"
+      id-token: "write"
+      pull-requests: "write"
     runs-on: "ubuntu-latest"
     steps:
     - name: "clean up build tools cache"
