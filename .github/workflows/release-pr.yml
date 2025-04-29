@@ -30,6 +30,8 @@ jobs:
     - "dist"
     - "loki"
     - "loki-docker-driver"
+    permissions:
+      id-token: "write"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -65,8 +67,6 @@ jobs:
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
-      permissions:
-        id-token: "write"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ env.APP_ID }}"
@@ -341,9 +341,7 @@ jobs:
       pr_created: "${{ steps.version.outputs.pr_created }}"
       version: "${{ steps.version.outputs.version }}"
     permissions:
-      contents: "write"
       id-token: "write"
-      pull-requests: "write"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull release library code"
@@ -379,8 +377,6 @@ jobs:
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
-      permissions:
-        id-token: "write"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ env.APP_ID }}"

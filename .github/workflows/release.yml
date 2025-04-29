@@ -62,8 +62,6 @@ jobs:
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
-      permissions:
-        id-token: "write"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ env.APP_ID }}"
@@ -143,6 +141,8 @@ jobs:
     outputs:
       branchExists: "${{ steps.create_branch.outputs.branch_exists }}"
       branchName: "${{ steps.create_branch.outputs.branch_name }}"
+    permissions:
+      id-token: "write"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -167,8 +167,6 @@ jobs:
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
-      permissions:
-        id-token: "write"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ env.APP_ID }}"
@@ -335,6 +333,8 @@ jobs:
     - "publishDockerPlugins"
     outputs:
       name: "${{ needs.createRelease.outputs.name }}"
+    permissions:
+      id-token: "write"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
@@ -354,8 +354,6 @@ jobs:
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
-      permissions:
-        id-token: "write"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ env.APP_ID }}"

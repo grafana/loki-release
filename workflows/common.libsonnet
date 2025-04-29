@@ -29,9 +29,6 @@
     withTimeoutMinutes: function(timeout) {
       'timeout-minutes': timeout,
     },
-    withPermissions: function(permissions) {
-      permissions+: permissions,
-    },
   },
   job: {
     new: function(runsOn='ubuntu-latest') {
@@ -66,6 +63,9 @@
     },
     withSecrets: function(secrets) {
       secrets: secrets,
+    },
+    withPermissions: function(permissions) {
+      permissions+: permissions,
     },
   },
 
@@ -152,9 +152,6 @@
                     'private-key': '${{ env.PRIVATE_KEY }}',
                     // By setting owner, we should get access to all repositories in current owner's installation: https://github.com/marketplace/actions/create-github-app-token#create-a-token-for-all-repositories-in-the-current-owners-installation
                     owner: '${{ github.repository_owner }}',
-                  })
-                  + $.step.withPermissions({
-                    'id-token': 'write',
                   }),
 
   setToken: $.step.new('set github token')

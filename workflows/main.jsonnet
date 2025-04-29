@@ -77,12 +77,12 @@
              }) else {},
       version: $.build.version + $.common.job.withNeeds(validationSteps),
       dist: $.build.dist(buildImage, skipArm, useGCR, distMakeTargets) + $.common.job.withNeeds(['version']) + {
-                 permissions: {
-                   contents: 'write',
-                   'pull-requests': 'write',
-                   'id-token': 'write',
-                 },
-               },
+        permissions: {
+          contents: 'write',
+          'pull-requests': 'write',
+          'id-token': 'write',
+        },
+      },
     } + std.mapWithKey(function(name, job) job + $.common.job.withNeeds(['version']), imageJobs) + {
       local buildImageSteps = ['dist'] + std.objectFields(imageJobs),
       'create-release-pr': $.release.createReleasePR + $.common.job.withNeeds(buildImageSteps),
