@@ -201,6 +201,5 @@
         "description": "GCS service account key"
         "required": false
 "permissions":
-  "contents": "write"
-  "id-token": "write"
-  "pull-requests": "write"
+  "contents": "read"
+  "pull-requests": "read"
