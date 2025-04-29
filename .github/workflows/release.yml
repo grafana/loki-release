@@ -395,5 +395,4 @@ name: "Create Release"
     - "release-[0-9]+.[0-9]+.x"
 permissions:
   contents: "read"
-  id-token: "read"
   pull-requests: "read"

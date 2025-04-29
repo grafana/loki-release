@@ -442,5 +442,4 @@
         "type": "boolean"
 "permissions":
   "contents": "read"
-  "id-token": "read"
   "pull-requests": "read"
