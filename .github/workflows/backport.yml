@@ -29,5 +29,4 @@ jobs:
           title: "chore: [{{base}}] {{originalTitle}}"
 permissions:
   contents: "write"
-  id-token: "read"
   pull-requests: "write"
