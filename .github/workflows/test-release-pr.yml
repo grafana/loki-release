@@ -327,7 +327,9 @@ jobs:
       pr_created: "${{ steps.version.outputs.pr_created }}"
       version: "${{ steps.version.outputs.version }}"
     permissions:
+      contents: "write"
       id-token: "write"
+      pull-requests: "write"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull release library code"
