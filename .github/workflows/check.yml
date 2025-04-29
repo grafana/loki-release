@@ -343,7 +343,9 @@
     "container":
       "image": "${{ inputs.build_image }}"
     "env":
+      "BUILD_IN_CONTAINER": false
       "MATRIX_PACKAGE": "${{ matrix.package }}"
+      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
     - "collectPackages"
     "runs-on": "ubuntu-latest"
@@ -442,5 +444,4 @@
         "type": "boolean"
 "permissions":
   "contents": "read"
-  "id-token": "read"
   "pull-requests": "read"

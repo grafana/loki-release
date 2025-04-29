@@ -202,5 +202,4 @@
         "required": false
 "permissions":
   "contents": "read"
-  "id-token": "read"
   "pull-requests": "read"
