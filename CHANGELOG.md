@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.21.0](https://github.com/grafana/loki-release/compare/v1.20.3...v1.21.0) (2025-04-29)
+
+
+### Features
+
+* create release branch after publishing release ([#230](https://github.com/grafana/loki-release/issues/230)) ([8c7c51b](https://github.com/grafana/loki-release/commit/8c7c51b23d9d13078a8c44740e3eb6983f7bb667))
+* do not require GCS_SERVICE_ACCOUNT ([d552a4b](https://github.com/grafana/loki-release/commit/d552a4b9bd945e15f2829c75753e27d83b71c350))
+* explicitly set token when creating release branch ([0227e9c](https://github.com/grafana/loki-release/commit/0227e9cd1fb912e8e91b7116d0186959210b7eba))
+* release 1.21 ([fd83d8d](https://github.com/grafana/loki-release/commit/fd83d8d7af0f72ed7b4b3c949f398a40072720b1))
+
+
+### Bug Fixes
+
+* Add go mod tify step to testPushPackage ([#236](https://github.com/grafana/loki-release/issues/236)) ([4e0fd95](https://github.com/grafana/loki-release/commit/4e0fd9512dc99ff0e1c105c881c5a22847e9a18e))
+* **ci:** Always set checkout without persisting credentials ([#240](https://github.com/grafana/loki-release/issues/240)) ([72c8219](https://github.com/grafana/loki-release/commit/72c821916ad9b13ae86027c88c7f32174260fdd9))
+* correct permissions for github app token ([#249](https://github.com/grafana/loki-release/issues/249)) ([8fcb611](https://github.com/grafana/loki-release/commit/8fcb6112bafc77227851c09b3c52c78e310f32a7))
+* Remove invalid `id-token: read` permission ([#246](https://github.com/grafana/loki-release/issues/246)) ([f61895f](https://github.com/grafana/loki-release/commit/f61895f7d4c8661daf8a083c6ed9b40be0c759ed))
+* remove redundant tests ([#235](https://github.com/grafana/loki-release/issues/235)) ([0ae118e](https://github.com/grafana/loki-release/commit/0ae118e5370089405621c5df97c796aa53c81cec))
+
 ## [1.20.3](https://github.com/grafana/loki-release/compare/v1.20.2...v1.20.3) (2025-03-06)
 
 
