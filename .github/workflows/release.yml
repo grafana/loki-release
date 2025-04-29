@@ -62,6 +62,8 @@ jobs:
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
+      permissions:
+        id-token: "write"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ env.APP_ID }}"
@@ -167,6 +169,8 @@ jobs:
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
+      permissions:
+        id-token: "write"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ env.APP_ID }}"
@@ -354,6 +358,8 @@ jobs:
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
+      permissions:
+        id-token: "write"
       uses: "actions/create-github-app-token@v1"
       with:
         app-id: "${{ env.APP_ID }}"
