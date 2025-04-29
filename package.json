@@ -10,7 +10,7 @@
     "format:check": "prettier --check **/*.ts",
     "format:write": "prettier --write **/*.ts",
     "get-version": "npx ts-node actions/get-version.ts",
-    "jsonnetfmt": "jsonnetfmt -i -n 2 ./workflows/**/*.{jsonnet,libsonnet}",
+    "jsonnetfmt": "jsonnetfmt -i -n 2 ./workflows/*.{jsonnet,libsonnet}",
     "lint": "npx eslint . -c .eslintrc.yml && make lint-scripts",
     "actions": "for p in install-binary push-images should-release; do ncc build actions/${p}/src/index.ts --license licenses.txt --out actions/${p}/dist; done",
     "prepare": "husky install",
