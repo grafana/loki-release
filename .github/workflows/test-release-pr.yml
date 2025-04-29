@@ -59,7 +59,7 @@ jobs:
       name: "fetch app credentials from vault"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
       with:
-        repo-secrets: |
+        repo_secrets: |
           APP_ID=loki-gh-app:app-id
           PRIVATE_KEY=loki-gh-app:private-key
     - id: "get_github_app_token"
@@ -367,7 +367,7 @@ jobs:
       name: "fetch app credentials from vault"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
       with:
-        repo-secrets: |
+        repo_secrets: |
           APP_ID=loki-gh-app:app-id
           PRIVATE_KEY=loki-gh-app:private-key
     - id: "get_github_app_token"

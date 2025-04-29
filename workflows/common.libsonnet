@@ -136,7 +136,7 @@
                        + $.step.withId('fetch_app_credentials')
                        + $.step.withIf('${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}')
                        + $.step.with({
-                         'repo-secrets': |||
+                         repo_secrets: |||
                            APP_ID=loki-gh-app:app-id
                            PRIVATE_KEY=loki-gh-app:private-key
                          |||,
