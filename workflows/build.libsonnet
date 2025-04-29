@@ -231,6 +231,8 @@ local runner = import 'runner.libsonnet',
   version:
     job.new()
     + job.withPermissions({
+      contents: 'write',
+      'pull-requests': 'write',
       'id-token': 'write',
     })
     + job.withSteps([
