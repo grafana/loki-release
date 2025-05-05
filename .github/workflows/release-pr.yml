@@ -32,7 +32,9 @@ jobs:
     - "loki"
     - "loki-docker-driver"
     permissions:
+      contents: "write"
       id-token: "write"
+      pull-requests: "write"
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
