@@ -18,12 +18,12 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       'id-token': 'write',
     })
     + job.withSteps([
+      common.fetchAppCredentials,
+      common.githubAppToken,
       common.fetchReleaseRepo,
       common.fetchReleaseLib,
       common.setupNode,
       common.extractBranchName,
-      common.fetchAppCredentials,
-      common.githubAppToken,
       common.setToken,
 
       releaseLibStep('release please')
