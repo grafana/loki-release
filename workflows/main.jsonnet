@@ -6,6 +6,7 @@
   release: import 'release.libsonnet',
   validate: import 'validate.libsonnet',
   validateGel: import 'validate-gel.libsonnet',
+
   releasePRWorkflow: function(
     branches=['release-[0-9]+.[0-9]+.x', 'k[0-9]+'],
     buildArtifactsBucket='loki-build-artifacts',
@@ -34,6 +35,7 @@
       push: {
         branches: branches,
       },
+      workflow_dispatch: {},
     },
     permissions: {
       contents: 'read',
