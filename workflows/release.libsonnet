@@ -16,7 +16,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
     job.new()
     + job.withPermissions({
       'id-token': 'write',
-      'contents': 'write',
+      contents: 'write',
       'pull-requests': 'write',
     })
     + job.withSteps([
@@ -180,6 +180,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
   publishImages: function(getDockerCredsFromVault=false, dockerUsername='grafanabot')
     job.new()
     + job.withNeeds(['createRelease'])
+    + job.withPermissions({
+      'id-token': 'write',
+    })
     + job.withSteps(
       [
         common.fetchReleaseLib,
