@@ -20,7 +20,6 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
       releaseRepo='grafana/loki-release',
       skipValidation=false,
       versioningStrategy='always-bump-patch',
-      githubApp='loki-gh-app',
     ) + {
       name: 'Create Release PR',
     }, false, false
@@ -40,7 +39,6 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
       releaseRepo='grafana/loki-release',
       skipValidation=false,
       versioningStrategy='always-bump-patch',
-      githubApp='loki-gh-app',
     ) + {
       name: 'Test Create Release PR Action',
       on+: {
@@ -59,7 +57,6 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
       releaseLibRef='main',
       releaseRepo='grafana/loki-release',
       useGitHubAppToken=true,
-      githubApp='loki-gh-app',
     ) + {
       name: 'Create Release',
       on+: {
