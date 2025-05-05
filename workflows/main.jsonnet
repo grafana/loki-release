@@ -27,6 +27,7 @@
     useGitHubAppToken=true,
     useGCR=false,
     versioningStrategy='always-bump-patch',
+    githubApp='loki-gh-app',
                     ) {
     name: 'create release PR',
     on: {
@@ -53,6 +54,7 @@
       SKIP_VALIDATION: skipValidation,
       USE_GITHUB_APP_TOKEN: useGitHubAppToken,
       VERSIONING_STRATEGY: versioningStrategy,
+      GITHUB_APP: githubApp,
     } + if releaseAs != null then {
       RELEASE_AS: releaseAs,
     } else {},
@@ -103,6 +105,7 @@
     useGitHubAppToken=true,
     dockerPluginPath='clients/cmd/docker-driver',
     publishDockerPlugins=true,
+    githubApp='loki-gh-app',
                   ) {
     name: 'create release',
     on: {
@@ -123,6 +126,7 @@
       RELEASE_LIB_REF: releaseLibRef,
       RELEASE_REPO: releaseRepo,
       USE_GITHUB_APP_TOKEN: useGitHubAppToken,
+      GITHUB_APP: githubApp,
     } + if publishToGCS then {
       PUBLISH_BUCKET: publishBucket,
       PUBLISH_TO_GCS: true,

@@ -2,6 +2,7 @@ concurrency:
   group: "create-release-${{ github.sha }}"
 env:
   BUILD_ARTIFACTS_BUCKET: "loki-build-artifacts"
+  GITHUB_APP: "loki-gh-app"
   IMAGE_PREFIX: "trevorwhitney075"
   PUBLISH_TO_GCS: false
   RELEASE_LIB_REF: "main"
@@ -57,8 +58,8 @@ jobs:
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
       with:
         repo_secrets: |
-          APP_ID=loki-gh-app:app-id
-          PRIVATE_KEY=loki-gh-app:private-key
+          APP_ID=${{ env.GITHUB_APP }}:app-id
+          PRIVATE_KEY=${{ env.GITHUB_APP }}:private-key
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
@@ -162,8 +163,8 @@ jobs:
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
       with:
         repo_secrets: |
-          APP_ID=loki-gh-app:app-id
-          PRIVATE_KEY=loki-gh-app:private-key
+          APP_ID=${{ env.GITHUB_APP }}:app-id
+          PRIVATE_KEY=${{ env.GITHUB_APP }}:private-key
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
@@ -349,8 +350,8 @@ jobs:
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
       with:
         repo_secrets: |
-          APP_ID=loki-gh-app:app-id
-          PRIVATE_KEY=loki-gh-app:private-key
+          APP_ID=${{ env.GITHUB_APP }}:app-id
+          PRIVATE_KEY=${{ env.GITHUB_APP }}:private-key
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
