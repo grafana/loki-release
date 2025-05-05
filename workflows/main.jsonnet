@@ -38,7 +38,6 @@
     permissions: {
       contents: 'read',
       'pull-requests': 'read',
-      'id-token': 'write',
     },
     concurrency: {
       group: 'create-release-pr-${{ github.sha }}',
@@ -116,8 +115,7 @@
     },
     permissions: {
       contents: 'read',
-      'pull-requests': 'read',
-      'id-token': 'write',
+      'pull-requests': 'read'
     },
     concurrency: {
       group: 'create-release-${{ github.sha }}',

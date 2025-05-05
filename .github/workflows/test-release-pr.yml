@@ -458,5 +458,4 @@ name: "Test Create Release PR Action"
     - "release-[0-9]+.[0-9]+.x"
 permissions:
   contents: "read"
-  id-token: "write"
   pull-requests: "read"
