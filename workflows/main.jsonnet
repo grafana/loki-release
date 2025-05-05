@@ -115,7 +115,7 @@
     },
     permissions: {
       contents: 'read',
-      'pull-requests': 'read'
+      'pull-requests': 'read',
     },
     concurrency: {
       group: 'create-release-${{ github.sha }}',
