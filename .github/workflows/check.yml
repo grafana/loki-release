@@ -20,6 +20,8 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "checks passed"
       "run": |
@@ -34,10 +36,13 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
@@ -105,6 +110,8 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -134,6 +141,8 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "verify checks passed"
       "run": |
         echo "Some checks have failed!"
@@ -148,6 +157,8 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -166,10 +177,13 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
@@ -206,6 +220,8 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -222,10 +238,13 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "pull release library code"
       "uses": "actions/checkout@v4"
       "with":
         "path": "lib"
+        "persist-credentials": false
         "ref": "${{ env.RELEASE_LIB_REF }}"
         "repository": "grafana/loki-release"
     - "name": "fix git dubious ownership"
@@ -264,6 +283,8 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -284,6 +305,8 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -304,6 +327,8 @@
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
+      "with":
+        "persist-credentials": false
     - "name": "fix git dubious ownership"
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
