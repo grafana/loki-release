@@ -337,6 +337,7 @@ jobs:
     outputs:
       name: "${{ needs.createRelease.outputs.name }}"
     permissions:
+      contents: "write"
       id-token: "write"
     runs-on: "ubuntu-latest"
     steps:

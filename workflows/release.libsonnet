@@ -263,6 +263,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
     + job.withNeeds(dependencies)
     + job.withPermissions({
       'id-token': 'write',
+      contents: 'write',
     })
     + job.withSteps([
       common.fetchReleaseRepo,
