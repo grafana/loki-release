@@ -189,6 +189,8 @@ jobs:
   loki:
     needs:
     - "version"
+    permissions:
+      id-token: "write"
     runs-on: "${{ matrix.runs_on }}"
     steps:
     - name: "pull release library code"
@@ -264,6 +266,8 @@ jobs:
   loki-docker-driver:
     needs:
     - "version"
+    permissions:
+      id-token: "write"
     runs-on: "${{ matrix.runs_on }}"
     steps:
     - name: "pull release library code"

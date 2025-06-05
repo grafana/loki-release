@@ -25,6 +25,9 @@ local runner = import 'runner.libsonnet',
         include: platform,
       },
     })
+    + job.withPermissions({
+      'id-token': 'write',
+    })
     + job.withSteps([
       common.fetchReleaseLib,
       common.fetchReleaseRepo,
@@ -157,6 +160,9 @@ local runner = import 'runner.libsonnet',
     ]
                )
     job.new('${{ matrix.runs_on }}')
+    + job.withPermissions({
+      'id-token': 'write',
+    })
     + job.withStrategy({
       'fail-fast': true,
       matrix: {
@@ -309,6 +315,9 @@ local runner = import 'runner.libsonnet',
 
   dist: function(buildImage, skipArm=true, useGCR=false, makeTargets=['dist', 'packages'])
     job.new()
+    + job.withPermissions({
+      'id-token': 'write',
+    })
     + job.withSteps([
       common.cleanUpBuildCache,
       common.fetchReleaseRepo,
