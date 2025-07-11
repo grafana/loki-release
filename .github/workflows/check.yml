@@ -179,7 +179,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "faillint"
       "run": |
-        faillint -paths "sync/atomic=go.uber.org/atomic" ./...
+        GOFLAGS="-tags=slicelabels" faillint -paths "sync/atomic=go.uber.org/atomic" ./...
       "working-directory": "release"
   "golangciLint":
     "container":
