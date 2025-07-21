@@ -179,7 +179,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "faillint"
       "run": |
-        GOFLAGS="-tags=slicelabels" faillint -paths "sync/atomic=go.uber.org/atomic" ./...
+        faillint -paths "sync/atomic=go.uber.org/atomic" ./...
       "working-directory": "release"
   "golangciLint":
     "container":
@@ -231,7 +231,7 @@
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
       "with":
-        "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled,slicelabels"
+        "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled"
         "only-new-issues": false
         "version": "${{ inputs.golang_ci_lint_version }}"
   "integration":
@@ -337,7 +337,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test lambda-promtail package"
       "run": |
-        gotestsum -- -tags slicelabels -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
       "working-directory": "release/tools/lambda-promtail"
   "testPackages":
     "container":
@@ -372,7 +372,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test ${{ matrix.package }}"
       "run": |
-        gotestsum -- -tags slicelabels -covermode=atomic -coverprofile=coverage.txt -p=4 ./${MATRIX_PACKAGE}/...
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./${MATRIX_PACKAGE}/...
       "working-directory": "release"
     "strategy":
       "matrix":
@@ -412,7 +412,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "test push package"
       "run": |
-        gotestsum -- -tags slicelabels -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
+        gotestsum -- -covermode=atomic -coverprofile=coverage.txt -p=4 ./...
       "working-directory": "release/pkg/push"
 "name": "check"
 "on":
