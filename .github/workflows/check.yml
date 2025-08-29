@@ -227,7 +227,7 @@
         "persist-credentials": false
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "golangci-lint"
-      "uses": "golangci/golangci-lint-action@08e2f20817b15149a52b5b3ebe7de50aff2ba8c5"
+      "uses": "golangci/golangci-lint-action@4afd733a84b1f43292c63897423277bb7f4313a9"
       "with":
         "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled"
         "only-new-issues": false
@@ -389,7 +389,7 @@
         "required": true
         "type": "string"
       "golang_ci_lint_version":
-        "default": "v1.64.5"
+        "default": "v2.3.0"
         "description": "version of golangci-lint to use"
         "required": false
         "type": "string"
