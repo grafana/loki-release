@@ -54,3 +54,6 @@ packages:
 	./tools/nfpm-env-var-test.sh
 	mkdir -p dist
 	cp CHANGELOG.md dist/PACKAGING.MD
+
+release-workflows:
+	jsonnet -Sm . workflows/workflows.jsonnet 

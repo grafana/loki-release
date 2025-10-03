@@ -43,6 +43,7 @@ jobs:
       uses: "actions/setup-node@v4"
       with:
         node-version: 20
+        package-manager-cache: false
     - id: "fetch_gcs_credentials"
       name: "fetch gcs credentials from vault"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
