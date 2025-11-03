@@ -6,7 +6,7 @@
 "jobs":
   "check":
     "container":
-      "image": "${{ inputs.build_image }}"
+      "image": "${{ inputs.build_image }}" # zizmor: ignore[unpinned-images] reusable workflow parameter
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -72,7 +72,7 @@
         EOF
   "lint":
     "container":
-      "image": "${{ inputs.build_image }}"
+      "image": "${{ inputs.build_image }}" # zizmor: ignore[unpinned-images] reusable workflow parameter
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -123,7 +123,7 @@
         "version": "${{ inputs.golang_ci_lint_version }}"
   "test":
     "container":
-      "image": "${{ inputs.build_image }}"
+      "image": "${{ inputs.build_image }}" # zizmor: ignore[unpinned-images] reusable workflow parameter
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
