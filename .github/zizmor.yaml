@@ -1,8 +1,0 @@
-rules:
-  unpinned-uses:
-    config:
-      policies:
-        actions/*: any  # trust GitHub
-        grafana/*: any  # trust Grafana
-  unpinned-images:
-    disable: true  # These are reusable workflows that accept build_image as input parameter

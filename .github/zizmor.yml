@@ -1,0 +1,10 @@
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        actions/*: any  # trust GitHub
+        grafana/*: any  # trust Grafana
+  unpinned-images:
+    ignore:
+      - check.yml  # Reusable workflow accepts build_image as input parameter
+      - gel-check.yml  # Reusable workflow accepts build_image as input parameter
