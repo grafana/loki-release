@@ -23,7 +23,7 @@
         echo "All checks passed"
   "checkFiles":
     "container":
-      "image": "${{ inputs.build_image }}" # zizmor: ignore[unpinned-images] reusable workflow parameter
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -149,7 +149,7 @@
         exit 1,
   "faillint":
     "container":
-      "image": "${{ inputs.build_image }}" # zizmor: ignore[unpinned-images] reusable workflow parameter
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -181,7 +181,7 @@
       "working-directory": "release"
   "golangciLint":
     "container":
-      "image": "${{ inputs.build_image }}" # zizmor: ignore[unpinned-images] reusable workflow parameter
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -234,7 +234,7 @@
         "version": "${{ inputs.golang_ci_lint_version }}"
   "integration":
     "container":
-      "image": "${{ inputs.build_image }}" # zizmor: ignore[unpinned-images] reusable workflow parameter
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -255,7 +255,7 @@
       "working-directory": "release"
   "lintFiles":
     "container":
-      "image": "${{ inputs.build_image }}" # zizmor: ignore[unpinned-images] reusable workflow parameter
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -307,7 +307,7 @@
       "working-directory": "release"
   "testPackages":
     "container":
-      "image": "${{ inputs.build_image }}" # zizmor: ignore[unpinned-images] reusable workflow parameter
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "MATRIX_PACKAGE": "${{ matrix.package }}"
@@ -345,7 +345,7 @@
         "package": "${{fromJson(needs.collectPackages.outputs.packages)}}"
   "testPushPackage":
     "container":
-      "image": "${{ inputs.build_image }}" # zizmor: ignore[unpinned-images] reusable workflow parameter
+      "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
