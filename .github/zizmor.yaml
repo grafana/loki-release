@@ -1,6 +1,0 @@
-rules:
-  unpinned-uses:
-    config:
-      policies:
-        actions/*: any  # trust GitHub
-        grafana/*: any  # trust Grafana
