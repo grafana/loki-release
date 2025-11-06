@@ -286,7 +286,7 @@ jobs:
       with:
         repo_secrets: "DOCKER_PASSWORD=docker:password"
     - name: "Login to DockerHub (from secrets)"
-      uses: "docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772"
+      uses: "docker/login-action@28fdb31ff34708d19615a74d67103ddc2ea9725c"
       with:
         password: "${{ env.DOCKER_PASSWORD }}"
         username: "trevorwhitney075"
@@ -342,7 +342,7 @@ jobs:
       with:
         repo_secrets: "DOCKER_PASSWORD=docker:password"
     - name: "Login to DockerHub (from secrets)"
-      uses: "docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772"
+      uses: "docker/login-action@28fdb31ff34708d19615a74d67103ddc2ea9725c"
       with:
         password: "${{ env.DOCKER_PASSWORD }}"
         username: "trevorwhitney075"
