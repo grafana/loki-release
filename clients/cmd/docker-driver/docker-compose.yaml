@@ -1,7 +1,7 @@
 version: "3"
 services:
   nginx:
-    image: grafana/grafana
+    image: grafana/grafana@sha256:35c41e0fd0295f5d0ee5db7e780cf33506abfaf47686196f825364889dee878b
     logging:
       driver: loki
       options:
