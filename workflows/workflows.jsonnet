@@ -1,7 +1,5 @@
 local lokiRelease = import 'main.jsonnet';
 local build = lokiRelease.build;
-
-
 local buildImage = 'golang:1.24';
 local dockerPluginDir = 'clients/cmd/docker-driver';
 
@@ -69,5 +67,8 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
   ),
   '.github/workflows/gel-check.yml': std.manifestYamlDoc(
     lokiRelease.checkGel
+  ),
+  '.github/workflows/close-old-releases.yml': std.manifestYamlDoc(
+    lokiRelease.closeOldReleases
   ),
 }

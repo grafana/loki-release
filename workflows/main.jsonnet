@@ -6,7 +6,7 @@
   release: import 'release.libsonnet',
   validate: import 'validate.libsonnet',
   validateGel: import 'validate-gel.libsonnet',
-
+  closeOldReleasesJob: import 'close-old-releases.libsonnet',
   releasePRWorkflow: function(
     branches=['release-[0-9]+.[0-9]+.x', 'k[0-9]+'],
     buildArtifactsBucket='loki-build-artifacts',
@@ -267,5 +267,48 @@
       USE_GITHUB_APP_TOKEN: '${{ inputs.use_github_app_token }}',
     },
     jobs: $.validateGel,
+  },
+
+  closeOldReleases: {
+    name: 'Close Old Release PRs',
+    concurrency: {
+      group: 'close-old-prs-${{ github.sha }}',
+      'cancel-in-progress': true,
+    },
+    on: {
+      schedule: [
+        {cron: '0 0 * * 1'},
+      ],
+      workflow_call: {
+        inputs: {
+          pr_title_pattern: {
+            default: '^chore\\(weekly-',
+            description: 'Pattern to match PR titles (regex)',
+            required: true,
+            type: 'string',
+          },
+        },
+      },
+      workflow_dispatch: {
+        inputs: {
+          pr_title_pattern: {
+            default: '^chore\\(weekly-',
+            description: 'Pattern to match PR titles (regex)',
+            required: true,
+            type: 'string',
+          },
+        },
+      },
+    },
+    permissions: {
+      contents: 'read',
+      'pull-requests': 'write',
+    },
+    env: {
+      RELEASE_REPO: 'grafana/loki-release',
+      USE_GITHUB_APP_TOKEN: 'true',
+      DEFAULT_PR_TITLE_REGEX: '^chore\\(release-', // Default value for loki-release repo, other repos can override this with the input pr_title_pattern
+    },
+    jobs: $.closeOldReleasesJob,
   },
 }

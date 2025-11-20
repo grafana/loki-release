@@ -1,0 +1,105 @@
+"concurrency":
+  "cancel-in-progress": true
+  "group": "close-old-prs-${{ github.sha }}"
+"env":
+  "DEFAULT_PR_TITLE_REGEX": "^chore\\(release-"
+  "RELEASE_REPO": "grafana/loki-release"
+  "USE_GITHUB_APP_TOKEN": "true"
+"jobs":
+  "close-old-releases":
+    "runs-on": "ubuntu-latest"
+    "steps":
+    - "name": "pull code to release"
+      "uses": "actions/checkout@v4"
+      "with":
+        "path": "release"
+        "persist-credentials": false
+        "repository": "${{ env.RELEASE_REPO }}"
+    - "id": "get_github_app_token"
+      "if": "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
+      "name": "get github app token"
+      "uses": "actions/create-github-app-token@v1"
+      "with":
+        "app-id": "${{ env.APP_ID }}"
+        "owner": "${{ github.repository_owner }}"
+        "private-key": "${{ env.PRIVATE_KEY }}"
+    - "env":
+        "OUTPUTS_TOKEN": "${{ steps.get_github_app_token.outputs.token }}"
+      "id": "github_app_token"
+      "name": "set github token"
+      "run": |
+        if [[ "${USE_GITHUB_APP_TOKEN}" == "true" ]]; then
+          echo "token=$OUTPUTS_TOKEN" >> $GITHUB_OUTPUT
+        else
+          echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
+        fi
+    - "name": "Close old release PRs"
+      "uses": "actions/github-script@v7"
+      "with":
+        "github-token": "${{ steps.github_app_token.outputs.token }}"
+        "script": |
+          const threeWeeksAgo = new Date();
+          threeWeeksAgo.setDate(threeWeeksAgo.getDate() - 21);
+          
+          let allPRs = [];
+          let page = 1;
+          let hasMore = true;
+          
+          while (hasMore) {
+              const response = await github.rest.pulls.list({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  state: 'open',
+                  sort: 'created',
+                  direction: 'desc',
+                  per_page: 100,
+                  page: page
+              });
+          
+              allPRs = allPRs.concat(response.data);
+              hasMore = response.data.length === 100;
+              page++;
+          }
+          
+          console.log(`Found ${allPRs.length} open PRs`);
+          
+          let regexPattern = context.payload.inputs?.pr_title_pattern || process.env.DEFAULT_PR_TITLE_REGEX;
+          console.log(`Using regex pattern: ${regexPattern}`);
+          
+          let closedPrs = 0;
+          for (const pr of allPRs) {
+              if (new Date(pr.created_at) < threeWeeksAgo) { // older than 3 weeks ago
+                  if (pr.title.match(new RegExp(regexPattern))) {
+                      await github.rest.pulls.update({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          pull_number: pr.number,
+                          state: 'closed'
+                        });
+                      console.log(`Closed PR #${pr.number}: ${pr.title}`);
+                      closedPrs++;
+                  }
+              }
+          }
+          console.log(`Closed ${closedPrs} old release PRs`);
+"name": "Close Old Release PRs"
+"on":
+  "schedule":
+  - "cron": "0 0 * * 1"
+  "workflow_call":
+    "inputs":
+      "pr_title_pattern":
+        "default": "^chore\\(weekly-"
+        "description": "Pattern to match PR titles (regex)"
+        "required": true
+        "type": "string"
+  "workflow_dispatch":
+    "inputs":
+      "pr_title_pattern":
+        "default": "^chore\\(weekly-"
+        "description": "Pattern to match PR titles (regex)"
+        "required": true
+        "type": "string"
+"permissions":
+  "contents": "read"
+  "pull-requests": "write"
