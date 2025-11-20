@@ -6,7 +6,7 @@ toolchain go1.24.10
 
 require (
 	github.com/containerd/fifo v1.1.0
-	github.com/docker/docker v27.1.2+incompatible
+	github.com/docker/docker v28.0.0+incompatible
 	github.com/docker/go-plugins-helpers v0.0.0-20240701071450-45e2431495c8
 	github.com/go-kit/log v0.2.1
 	github.com/gogo/protobuf v1.3.2
