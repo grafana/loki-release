@@ -239,7 +239,7 @@ jobs:
       if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "Build and export"
       timeout-minutes: "${{ fromJSON(env.BUILD_TIMEOUT) }}"
-      uses: "docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1"
+      uses: "docker/build-push-action@9e436ba9f2d7bcd1d038c8e55d039d37896ddc5d"
       with:
         build-args: "IMAGE_TAG=${{ needs.version.outputs.version }}"
         context: "release"
@@ -323,7 +323,7 @@ jobs:
     - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "Build and export"
       timeout-minutes: "${{ fromJSON(env.BUILD_TIMEOUT) }}"
-      uses: "docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1"
+      uses: "docker/build-push-action@9e436ba9f2d7bcd1d038c8e55d039d37896ddc5d"
       with:
         build-args: |
           IMAGE_TAG=${{ needs.version.outputs.version }}
