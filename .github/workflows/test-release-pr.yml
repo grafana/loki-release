@@ -38,20 +38,20 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull code to release"
-      uses: "actions/checkout@v4"
+      uses: "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5" # v4
       with:
         path: "release"
         persist-credentials: false
         repository: "${{ env.RELEASE_REPO }}"
     - name: "pull release library code"
-      uses: "actions/checkout@v4"
+      uses: "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5" # v4
       with:
         path: "lib"
         persist-credentials: false
         ref: "${{ env.RELEASE_LIB_REF }}"
         repository: "grafana/loki-release"
     - name: "setup node"
-      uses: "actions/setup-node@v4"
+      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020" # v4
       with:
         node-version: 20
         package-manager-cache: false
@@ -71,7 +71,7 @@ jobs:
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
-      uses: "actions/create-github-app-token@v1"
+      uses: "actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547" # v1
       with:
         app-id: "${{ env.APP_ID }}"
         owner: "${{ github.repository_owner }}"
@@ -126,7 +126,7 @@ jobs:
     - name: "clean up build tools cache"
       run: "rm -rf /opt/hostedtoolcache"
     - name: "pull code to release"
-      uses: "actions/checkout@v4"
+      uses: "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5" # v4
       with:
         path: "release"
         persist-credentials: false
@@ -197,20 +197,20 @@ jobs:
     runs-on: "${{ matrix.runs_on }}"
     steps:
     - name: "pull release library code"
-      uses: "actions/checkout@v4"
+      uses: "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5" # v4
       with:
         path: "lib"
         persist-credentials: false
         ref: "${{ env.RELEASE_LIB_REF }}"
         repository: "grafana/loki-release"
     - name: "pull code to release"
-      uses: "actions/checkout@v4"
+      uses: "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5" # v4
       with:
         path: "release"
         persist-credentials: false
         repository: "${{ env.RELEASE_REPO }}"
     - name: "setup node"
-      uses: "actions/setup-node@v4"
+      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020" # v4
       with:
         node-version: 20
         package-manager-cache: false
@@ -275,20 +275,20 @@ jobs:
     runs-on: "${{ matrix.runs_on }}"
     steps:
     - name: "pull release library code"
-      uses: "actions/checkout@v4"
+      uses: "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5" # v4
       with:
         path: "lib"
         persist-credentials: false
         ref: "${{ env.RELEASE_LIB_REF }}"
         repository: "grafana/loki-release"
     - name: "pull code to release"
-      uses: "actions/checkout@v4"
+      uses: "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5" # v4
       with:
         path: "release"
         persist-credentials: false
         repository: "${{ env.RELEASE_REPO }}"
     - name: "setup node"
-      uses: "actions/setup-node@v4"
+      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020" # v4
       with:
         node-version: 20
         package-manager-cache: false
@@ -374,20 +374,20 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - name: "pull release library code"
-      uses: "actions/checkout@v4"
+      uses: "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5" # v4
       with:
         path: "lib"
         persist-credentials: false
         ref: "${{ env.RELEASE_LIB_REF }}"
         repository: "grafana/loki-release"
     - name: "pull code to release"
-      uses: "actions/checkout@v4"
+      uses: "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5" # v4
       with:
         path: "release"
         persist-credentials: false
         repository: "${{ env.RELEASE_REPO }}"
     - name: "setup node"
-      uses: "actions/setup-node@v4"
+      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020" # v4
       with:
         node-version: 20
         package-manager-cache: false
@@ -407,7 +407,7 @@ jobs:
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
-      uses: "actions/create-github-app-token@v1"
+      uses: "actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547" # v1
       with:
         app-id: "${{ env.APP_ID }}"
         owner: "${{ github.repository_owner }}"
