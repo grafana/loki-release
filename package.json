@@ -69,7 +69,7 @@
     "release-please": "grafana/release-please"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.10",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20.11.16",
     "@types/sinon": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
