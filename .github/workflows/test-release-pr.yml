@@ -180,6 +180,16 @@ jobs:
           make dist packages
         EOF
       working-directory: "release"
+    - continue-on-error: true
+      env:
+        BUILD_IN_CONTAINER: false
+        DRONE_TAG: "${{ needs.version.outputs.version }}"
+        IMAGE_TAG: "${{ needs.version.outputs.version }}"
+      if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
+      name: "build optional artifacts"
+      run: |
+        echo "Nothing to do"
+      working-directory: "release"
     - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "upload artifacts"
       uses: "google-github-actions/upload-cloud-storage@386ab77f37fdf51c0e38b3d229fad286861cc0d0"

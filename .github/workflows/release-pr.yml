@@ -121,7 +121,7 @@ jobs:
       contents: "write"
       id-token: "write"
       pull-requests: "write"
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-26.04"
     steps:
     - name: "clean up build tools cache"
       run: "rm -rf /opt/hostedtoolcache"
@@ -178,6 +178,29 @@ jobs:
             /src/loki/.github/vendor/github.com/grafana/loki-release/workflows/install_workflow_dependencies.sh dist
           fi
           make dist packages
+        EOF
+      working-directory: "release"
+    - continue-on-error: true
+      env:
+        BUILD_IN_CONTAINER: false
+        DRONE_TAG: "${{ needs.version.outputs.version }}"
+        IMAGE_TAG: "${{ needs.version.outputs.version }}"
+      if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
+      name: "build optional artifacts"
+      run: |
+        cat <<EOF | docker run \
+          --interactive \
+          --env BUILD_IN_CONTAINER \
+          --env DRONE_TAG \
+          --env IMAGE_TAG \
+          --volume .:/src/loki \
+          --workdir /src/loki \
+          --entrypoint /bin/sh "golang:1.24"
+          git config --global --add safe.directory /src/loki
+          if echo "golang:1.24" | grep -q "golang"; then
+            /src/loki/.github/vendor/github.com/grafana/loki-release/workflows/install_workflow_dependencies.sh dist
+          fi
+          make dist/loki-linux-riscv64
         EOF
       working-directory: "release"
     - if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
