@@ -123,8 +123,6 @@ jobs:
       pull-requests: "write"
     runs-on: "ubuntu-26.04"
     steps:
-    - name: "clean up build tools cache"
-      run: "rm -rf /opt/hostedtoolcache"
     - name: "pull code to release"
       uses: "actions/checkout@v4"
       with:
