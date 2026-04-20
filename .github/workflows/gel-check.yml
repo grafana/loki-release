@@ -10,7 +10,7 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
@@ -76,7 +76,7 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
@@ -127,7 +127,7 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"

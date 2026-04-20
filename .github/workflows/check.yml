@@ -15,7 +15,7 @@
     - "integration"
     - "testPackages"
     - "testPushPackage"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "checks passed"
@@ -27,7 +27,7 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
       "uses": "actions/checkout@v4"
@@ -111,7 +111,7 @@
   "collectPackages":
     "outputs":
       "packages": "${{ steps.gather-tests.outputs.packages }}"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@v4"
@@ -141,7 +141,7 @@
     - "integration"
     - "testPackages"
     - "testPushPackage"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "verify checks passed"
       "run": |
@@ -153,7 +153,7 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
       "uses": "actions/checkout@v4"
@@ -185,7 +185,7 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
       "uses": "actions/checkout@v4"
@@ -238,7 +238,7 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
       "uses": "actions/checkout@v4"
@@ -259,7 +259,7 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
       "uses": "actions/checkout@v4"
@@ -314,7 +314,7 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
     - "collectPackages"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
       "uses": "actions/checkout@v4"
@@ -349,7 +349,7 @@
     "env":
       "BUILD_IN_CONTAINER": false
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-latest"
+    "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
       "uses": "actions/checkout@v4"

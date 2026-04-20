@@ -4,7 +4,7 @@ on:
   pull_request: {}
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-x64
     permissions:
       contents: write
       pull-requests: write
@@ -38,7 +38,7 @@ jobs:
       - run: npm install
       - run: npm run lint
   actions:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-x64
     permissions:
       contents: write
       pull-requests: write
@@ -75,7 +75,7 @@ jobs:
           git diff --name-only -- "actions/**/*.js" | xargs --no-run-if-empty git diff --exit-code -- \
             || (echo "Change to actions detected, please run 'npm run actions' and commit the changes" && false)
   workflows:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-x64
     permissions:
       contents: write
       pull-requests: write
@@ -93,7 +93,7 @@ jobs:
           git diff --name-only -w -- ".github/workflows/*.yml" | xargs --no-run-if-empty git diff -w --exit-code -- \
             || (echo "Change to workflows detected, please run 'npm run workflows' and commit the changes" && false)
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-x64
     permissions:
       contents: write
       pull-requests: write
@@ -131,7 +131,7 @@ jobs:
       - run: npm install
       - run: npm run ci-test
   check-title:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-x64
     permissions:
       contents: write
       pull-requests: write
