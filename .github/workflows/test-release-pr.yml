@@ -268,13 +268,13 @@ jobs:
         include:
         - arch: "linux/amd64"
           runs_on:
-          - "github-hosted-ubuntu-x64-small"
+          - "ubuntu-x64"
         - arch: "linux/arm64"
           runs_on:
-          - "github-hosted-ubuntu-arm64-small"
+          - "ubuntu-arm64"
         - arch: "linux/arm"
           runs_on:
-          - "github-hosted-ubuntu-arm64-small"
+          - "ubuntu-arm64"
   loki-docker-driver:
     needs:
     - "version"
@@ -365,10 +365,10 @@ jobs:
         include:
         - arch: "linux/amd64"
           runs_on:
-          - "github-hosted-ubuntu-x64-small"
+          - "ubuntu-x64"
         - arch: "linux/arm64"
           runs_on:
-          - "github-hosted-ubuntu-arm64-small"
+          - "ubuntu-arm64"
   version:
     needs:
     - "check"
