@@ -258,6 +258,7 @@
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
+      "GIT_TARGET_BRANCH": "${{ vars.GIT_TARGET_BRANCH }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "runs-on": "ubuntu-x64"
     "steps":
@@ -302,7 +303,7 @@
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "check format"
       "run": |
-        git fetch origin
+        git fetch https://github.com/grafana/loki.git main:refs/remotes/origin/${GIT_TARGET_BRANCH:-main}
         make check-format
       "working-directory": "release"
   "testPackages":
