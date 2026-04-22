@@ -193,7 +193,7 @@ local validationJob = _validationJob(false);
         + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
         + step.withRun(|||
           git fetch https://github.com/grafana/loki.git main:refs/remotes/origin/${GIT_TARGET_BRANCH:-main}
-          make check-format
+          GIT_TARGET_BRANCH="${GIT_TARGET_BRANCH:-main}" make check-format
         |||)
         + step.withWorkingDirectory('release'),
       ]
