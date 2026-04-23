@@ -6,9 +6,15 @@ set -e
 # "golang" container.
 # It houses all of the dependencies for the workflows, as well as the dependencies
 # needed for the make release-workflows target.
+#
+# Optional arguments (combinable): dist, lint, loki-release.
+# Environment: GOLANGCI_LINT_VERSION for lint (default v2.10.1); LYCHEE_VER; BUF_VER.
 
 # Set default source directory to GitHub workspace if not provided
 SRC_DIR=${SRC_DIR:-${GITHUB_WORKSPACE}}
+
+# golangci-lint version (e.g. v2.10.1). Override when invoking with the "lint" mode.
+GOLANGCI_LINT_VERSION=${GOLANGCI_LINT_VERSION:-v2.10.1}
 
 # Debug information
 echo "Current directory: $(pwd)"
@@ -24,6 +30,50 @@ install_dist_dependencies() {
 
     # Install RPM build tools
     apt-get install -y rpm
+}
+
+install_lint_dependencies() {
+    echo "Installing golangci-lint ${GOLANGCI_LINT_VERSION}"
+    curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh |
+        sh -s -- -b /usr/local/bin "${GOLANGCI_LINT_VERSION}"
+}
+
+install_build_image_tools() {
+    # Versions aligned with grafana/loki loki-build-image Dockerfile where applicable.
+    LYCHEE_VER=${LYCHEE_VER:-0.7.0}
+    BUF_VER=${BUF_VER:-v1.4.0}
+
+    echo "Installing mixtool and goyacc"
+    GO111MODULE=on go install github.com/monitoring-mixins/mixtool/cmd/mixtool@16dc166166d91e93475b86b9355a4faed2400c18
+    GO111MODULE=on go install golang.org/x/tools/cmd/goyacc@58d531046acdc757f177387bc1725bfa79895d69
+
+    MACHINE=$(uname -m)
+    case "${MACHINE}" in
+        x86_64)
+            LYCHEE_ARCH=x86_64-unknown-linux-gnu
+            BUF_ARCH=x86_64
+            ;;
+        aarch64)
+            LYCHEE_ARCH=aarch64-unknown-linux-gnu
+            BUF_ARCH=aarch64
+            ;;
+        *)
+            echo "Unsupported machine for lychee/buf downloads: ${MACHINE}" >&2
+            exit 1
+            ;;
+    esac
+
+    echo "Installing lychee ${LYCHEE_VER}"
+    curl -fsSL -o /tmp/lychee.tgz \
+        "https://github.com/lycheeverse/lychee/releases/download/${LYCHEE_VER}/lychee-${LYCHEE_VER}-${LYCHEE_ARCH}.tar.gz"
+    tar -xz -C /tmp -f /tmp/lychee.tgz
+    install -m 0755 /tmp/lychee /usr/local/bin/lychee
+    rm -f /tmp/lychee.tgz
+
+    echo "Installing buf ${BUF_VER}"
+    curl -fsSL -o /usr/local/bin/buf \
+        "https://github.com/bufbuild/buf/releases/download/${BUF_VER}/buf-Linux-${BUF_ARCH}"
+    chmod 0755 /usr/local/bin/buf
 }
 
 install_loki_release_dependencies() {
@@ -58,8 +108,8 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.
 apt-get update
 apt-get install -y docker-ce-cli docker-buildx-plugin
 
-# Install jsonnet
-apt-get install -qq -y jsonnet
+# jsonnet CLI plus ragel / protoc (parity with grafana/loki loki-build-image)
+apt-get install -qq -y jsonnet ragel protobuf-compiler libprotobuf-dev
 
 # Install jsonnet-bundler
 go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
@@ -71,10 +121,23 @@ else
     echo "Warning: ${SRC_DIR}/.github directory not found, skipping jsonnet bundle update"
 fi
 
-# Check if "dist" parameter is passed
-if [ "$1" = "dist" ]; then
-    install_dist_dependencies
-fi
-if [ "$1" = "loki-release" ]; then
-    install_loki_release_dependencies
-fi
+install_build_image_tools
+
+# Optional modes (any combination, e.g. "dist lint")
+for arg in "$@"; do
+    case "${arg}" in
+        dist)
+            install_dist_dependencies
+            ;;
+        lint)
+            install_lint_dependencies
+            ;;
+        loki-release)
+            install_loki_release_dependencies
+            ;;
+        *)
+            echo "Unknown install mode: ${arg}" >&2
+            exit 1
+            ;;
+    esac
+done
