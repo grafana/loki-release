@@ -7,7 +7,7 @@ set -e
 # It houses all of the dependencies for the workflows, as well as the dependencies
 # needed for the make release-workflows target.
 #
-# Optional arguments (combinable): dist, lint, loki-release.
+# Optional arguments (combinable): dist, lint, loki-release, loki-build-tools.
 # Environment: GOLANGCI_LINT_VERSION for lint (default v2.10.1); LYCHEE_VER; BUF_VER.
 
 # Set default source directory to GitHub workspace if not provided
