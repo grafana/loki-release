@@ -130,8 +130,6 @@ else
     echo "Warning: ${SRC_DIR}/.github directory not found, skipping jsonnet bundle update"
 fi
 
-install_build_image_tools
-
 # Optional modes (any combination, e.g. "dist lint")
 for arg in "$@"; do
     case "${arg}" in
@@ -144,6 +142,8 @@ for arg in "$@"; do
         loki-release)
             install_loki_release_dependencies
             ;;
+        loki-build-tools)
+            install_build_image_tools
         *)
             echo "Unknown install mode: ${arg}" >&2
             exit 1
