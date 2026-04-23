@@ -136,12 +136,12 @@ for arg in "$@"; do
         dist)
             install_dist_dependencies
             ;;
-        lint)
-            install_lint_dependencies
-            ;;
         loki-release)
             install_loki_release_dependencies
             ;;
+        lint)
+            install_lint_dependencies
+            ;;    
         loki-build-tools)
             install_build_image_tools
         *)
