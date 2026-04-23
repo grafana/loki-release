@@ -74,6 +74,7 @@ install_build_image_tools() {
     curl -fsSL -o /usr/local/bin/buf \
         "https://github.com/bufbuild/buf/releases/download/${BUF_VER}/buf-Linux-${BUF_ARCH}"
     chmod 0755 /usr/local/bin/buf
+    apt-get install -y protobuf-compiler libprotobuf-dev
 
     # Install protoc
     # Forcing GO111MODULE=on is required to specify dependencies at specific versions using the go mod notation.
@@ -116,7 +117,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.
 apt-get update
 apt-get install -y docker-ce-cli docker-buildx-plugin
 
-# jsonnet CLI plus ragel
+# Install jsonnet CLI plus ragel
 apt-get install -qq -y jsonnet ragel
 
 # Install jsonnet-bundler
