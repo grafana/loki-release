@@ -74,6 +74,14 @@ install_build_image_tools() {
     curl -fsSL -o /usr/local/bin/buf \
         "https://github.com/bufbuild/buf/releases/download/${BUF_VER}/buf-Linux-${BUF_ARCH}"
     chmod 0755 /usr/local/bin/buf
+
+    # Install protoc
+    # Forcing GO111MODULE=on is required to specify dependencies at specific versions using the go mod notation.
+    # If we don't force this, Go is going to default to GOPATH mode as we do not have an active project or go.mod
+    # file for it to detect and switch to Go Modules automatically.
+    # It's possible this can be revisited in newer versions of Go if the behavior around GOPATH vs GO111MODULES changes
+    GO111MODULE=on go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
+    GO111MODULE=on go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
 }
 
 install_loki_release_dependencies() {
@@ -113,14 +121,6 @@ apt-get install -qq -y jsonnet ragel
 
 # Install jsonnet-bundler
 go install github.com/jsonnet-bundler/jsonnet-bundler/cmd/jb@latest
-
-# Install protoc
-# Forcing GO111MODULE=on is required to specify dependencies at specific versions using the go mod notation.
-# If we don't force this, Go is going to default to GOPATH mode as we do not have an active project or go.mod
-# file for it to detect and switch to Go Modules automatically.
-# It's possible this can be revisited in newer versions of Go if the behavior around GOPATH vs GO111MODULES changes
-RUN GO111MODULE=on go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
-RUN GO111MODULE=on go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
 
 # Update jsonnet bundles
 if [ -d "${SRC_DIR}/.github" ]; then
