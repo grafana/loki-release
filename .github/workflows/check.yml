@@ -47,7 +47,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release loki-build-tools"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
@@ -205,7 +205,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release loki-build-tools"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
@@ -280,7 +280,7 @@
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
       "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
+      "run": "lib/workflows/install_workflow_dependencies.sh loki-release loki-build-tools"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "install tar"
       "run": |
