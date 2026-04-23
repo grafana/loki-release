@@ -144,6 +144,7 @@ for arg in "$@"; do
             ;;    
         loki-build-tools)
             install_build_image_tools
+            ;;
         *)
             echo "Unknown install mode: ${arg}" >&2
             exit 1
