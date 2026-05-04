@@ -101,8 +101,9 @@ install_build_image_tools() {
     GO111MODULE=on go install github.com/golang/protobuf/protoc-gen-go@v1.3.1
     GO111MODULE=on go install github.com/gogo/protobuf/protoc-gen-gogoslick@v1.3.0
 
-    # Install gox for loki `dist` target
+    # Install gox and zip for loki `dist` target
     GO111MODULE=on go install github.com/mitchellh/gox@9f71238
+    apt-get install -qy zip
 }
 
 install_loki_release_dependencies() {
