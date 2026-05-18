@@ -24,8 +24,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       common.fetchReleaseLib,
       common.setupNode,
       common.extractBranchName,
-      common.fetchAppCredentials,
-      common.githubAppToken,
+      common.sharedGithubAppToken,
       common.setToken,
 
       releaseLibStep('release please')

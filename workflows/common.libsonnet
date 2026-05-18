@@ -164,6 +164,13 @@
                     owner: '${{ github.repository_owner }}',
                   }),
 
+  sharedGithubAppToken: $.step.new('get github app token', 'grafana/shared-workflows/actions/create-github-app-token@580590a644e82e79bb2598bdaba0be245a14dda0')  // create-github-app-token/v0.2.2
+                        + $.step.withId('get_github_app_token')
+                        + $.step.withIf('${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}')
+                        + $.step.with({
+                          github_app: '${{ env.GITHUB_APP }}',
+                        }),
+
   setToken: $.step.new('set github token')
             + $.step.withId('github_app_token')
             + $.step.withEnv({
