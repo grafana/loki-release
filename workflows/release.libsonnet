@@ -24,7 +24,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       common.fetchReleaseLib,
       common.setupNode,
       common.extractBranchName,
-      common.sharedGithubAppToken,
+      common.githubAppToken,
       common.setToken,
 
       releaseLibStep('release please')
@@ -96,7 +96,6 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    common.fetchGcsCredentials,
                    common.googleAuth,
                    common.setupGoogleCloudSdk,
-                   common.fetchAppCredentials,
                    common.githubAppToken,
                    common.setToken,
 
@@ -282,7 +281,6 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
     })
     + job.withSteps([
       common.fetchReleaseRepo,
-      common.fetchAppCredentials,
       common.githubAppToken,
       common.setToken,
       releaseStep('publish release')
@@ -309,7 +307,6 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
     + job.withSteps([
       common.fetchReleaseRepo,
       common.extractBranchName,
-      common.fetchAppCredentials,
       common.githubAppToken,
       common.setToken,
 
