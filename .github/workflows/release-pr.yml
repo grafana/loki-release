@@ -60,22 +60,12 @@ jobs:
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       working-directory: "release"
-    - id: "fetch_app_credentials"
-      if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
-      name: "fetch app credentials from vault"
-      uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
-      with:
-        repo_secrets: |
-          APP_ID=${{ env.GITHUB_APP }}:app-id
-          PRIVATE_KEY=${{ env.GITHUB_APP }}:private-key
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
-      uses: "actions/create-github-app-token@v1"
+      uses: "grafana/shared-workflows/actions/create-github-app-token@580590a644e82e79bb2598bdaba0be245a14dda0"
       with:
-        app-id: "${{ env.APP_ID }}"
-        owner: "${{ github.repository_owner }}"
-        private-key: "${{ env.PRIVATE_KEY }}"
+        github_app: "${{ env.GITHUB_APP }}"
     - env:
         OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"
       id: "github_app_token"
@@ -417,22 +407,12 @@ jobs:
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       working-directory: "release"
-    - id: "fetch_app_credentials"
-      if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
-      name: "fetch app credentials from vault"
-      uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
-      with:
-        repo_secrets: |
-          APP_ID=${{ env.GITHUB_APP }}:app-id
-          PRIVATE_KEY=${{ env.GITHUB_APP }}:private-key
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
-      uses: "actions/create-github-app-token@v1"
+      uses: "grafana/shared-workflows/actions/create-github-app-token@580590a644e82e79bb2598bdaba0be245a14dda0"
       with:
-        app-id: "${{ env.APP_ID }}"
-        owner: "${{ github.repository_owner }}"
-        private-key: "${{ env.PRIVATE_KEY }}"
+        github_app: "${{ env.GITHUB_APP }}"
     - env:
         OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"
       id: "github_app_token"
