@@ -6,8 +6,8 @@ jobs:
   lint:
     runs-on: ubuntu-x64
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,8 +40,8 @@ jobs:
   actions:
     runs-on: ubuntu-x64
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -77,8 +77,8 @@ jobs:
   workflows:
     runs-on: ubuntu-x64
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -95,8 +95,8 @@ jobs:
   test:
     runs-on: ubuntu-x64
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
+      pull-requests: read
     needs:
       - lint
       - actions
@@ -133,12 +133,12 @@ jobs:
   check-title:
     runs-on: ubuntu-x64
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
+      pull-requests: read
     steps:
       - uses: amannn/action-semantic-pull-request@0723387faaf9b38adef4775cd42cfd5155ed6017  # v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 permissions:
-  contents: "write"
-  pull-requests: "write"
+  contents: "read"
+  pull-requests: "read"
