@@ -132,18 +132,10 @@ jobs:
       uses: "google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a"
       with:
         version: ">= 452.0.0"
-    - id: "get-secrets"
-      name: "get nfpm signing keys"
-      uses: "grafana/shared-workflows/actions/get-vault-secrets@fa48192dac470ae356b3f7007229f3ac28c48a25"
-      with:
-        common_secrets: |
-          NFPM_SIGNING_KEY=packages-gpg:private-key
-          NFPM_PASSPHRASE=packages-gpg:passphrase
     - env:
         BUILD_IN_CONTAINER: false
         DRONE_TAG: "${{ needs.version.outputs.version }}"
         IMAGE_TAG: "${{ needs.version.outputs.version }}"
-        NFPM_SIGNING_KEY_FILE: "nfpm-private-key.key"
         SKIP_ARM: false
       if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "build artifacts"
@@ -153,15 +145,11 @@ jobs:
           --env BUILD_IN_CONTAINER \
           --env DRONE_TAG \
           --env IMAGE_TAG \
-          --env NFPM_PASSPHRASE \
-          --env NFPM_SIGNING_KEY \
-          --env NFPM_SIGNING_KEY_FILE \
           --env SKIP_ARM \
           --volume .:/src/loki \
           --workdir /src/loki \
           --entrypoint /bin/sh "golang:1.24"
           git config --global --add safe.directory /src/loki
-          echo "${NFPM_SIGNING_KEY}" > $NFPM_SIGNING_KEY_FILE
           if echo "golang:1.24" | grep -q "golang"; then
             /src/loki/.github/vendor/github.com/grafana/loki-release/workflows/install_workflow_dependencies.sh dist
           fi
