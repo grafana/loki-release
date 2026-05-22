@@ -24,8 +24,12 @@
   "exports": {
     ".": "./dist/index.js"
   },
+  "packageManager": "yarn@1.22.22",
   "engines": {
-    "node": ">=22"
+    "node": ">=22",
+    "yarn": ">=1.22.0",
+    "npm": "please-use-yarn",
+    "pnpm": "please-use-yarn"
   },
   "bugs": {
     "url": "https://github.com/grafana/loki-release/issues"
