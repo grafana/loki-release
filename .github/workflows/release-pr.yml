@@ -55,6 +55,8 @@ jobs:
       with:
         node-version: 24
         package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
     - id: "extract_branch"
       name: "extract branch name"
       run: |
@@ -213,6 +215,8 @@ jobs:
       with:
         node-version: 24
         package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
     - id: "fetch_gcs_credentials"
       name: "fetch gcs credentials from vault"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
@@ -291,6 +295,8 @@ jobs:
       with:
         node-version: 24
         package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
     - id: "fetch_gcs_credentials"
       name: "fetch gcs credentials from vault"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
@@ -390,6 +396,8 @@ jobs:
       with:
         node-version: 24
         package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
     - id: "extract_branch"
       name: "extract branch name"
       run: |
