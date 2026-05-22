@@ -45,6 +45,7 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
       name: 'Test Create Release PR Action',
       on+: {
         pull_request: {},
+        workflow_dispatch: {},
       },
     }, false, false
   ),
