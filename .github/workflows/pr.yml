@@ -15,28 +15,19 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: Cache node modules
-        id: cache-npm
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
+          node-version: 24
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
         with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-        name: List the state of node modules
-        continue-on-error: true
-        run: npm list
-
-      - run: npm install
-      - run: npm run lint
+          path: |
+            ~/.yarn/berry/cache
+            .yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+      - run: yarn install --immutable
+      - run: yarn run lint
   actions:
     runs-on: ubuntu-x64
     permissions:
@@ -49,31 +40,22 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: Cache node modules
-        id: cache-npm
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
+          node-version: 24
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
         with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-        name: List the state of node modules
-        continue-on-error: true
-        run: npm list
-
-      - run: npm install
-      - run: npm run actions
+          path: |
+            ~/.yarn/berry/cache
+            .yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+      - run: yarn install --immutable
+      - run: yarn run actions
       - run: |
           git diff --name-only -- "actions/**/*.js" | xargs --no-run-if-empty git diff --exit-code -- \
-            || (echo "Change to actions detected, please run 'npm run actions' and commit the changes" && false)
+            || (echo "Change to actions detected, please run 'yarn run actions' and commit the changes" && false)
   workflows:
     runs-on: ubuntu-x64
     permissions:
@@ -86,12 +68,23 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.yarn/berry/cache
+            .yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
       - uses: kobtea/setup-jsonnet-action@1ba74f3571a59047dd4c5b8cb365bd3656f88e2a # v1
-      - run: npm run workflows
+      - run: yarn install --immutable
+      - run: yarn run workflows
       - run: |
           git diff --name-only -w -- ".github/workflows/*.yml" | xargs --no-run-if-empty git diff -w --exit-code -- \
-            || (echo "Change to workflows detected, please run 'npm run workflows' and commit the changes" && false)
+            || (echo "Change to workflows detected, please run 'yarn run workflows' and commit the changes" && false)
   test:
     runs-on: ubuntu-x64
     permissions:
@@ -108,28 +101,19 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: Cache node modules
-        id: cache-npm
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
+          node-version: 24
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
         with:
-          # npm cache files are stored in `~/.npm` on Linux/macOS
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
-        name: List the state of node modules
-        continue-on-error: true
-        run: npm list
-
-      - run: npm install
-      - run: npm run ci-test
+          path: |
+            ~/.yarn/berry/cache
+            .yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+      - run: yarn install --immutable
+      - run: yarn run ci-test
   check-title:
     runs-on: ubuntu-x64
     permissions:

@@ -53,8 +53,10 @@ jobs:
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
-        node-version: 20
+        node-version: 24
         package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
     - id: "extract_branch"
       name: "extract branch name"
       run: |
@@ -84,8 +86,8 @@ jobs:
       id: "release"
       name: "release please"
       run: |
-        npm install
-        npm exec -- release-please release-pr \
+        yarn install
+        yarn exec -- release-please release-pr \
           --changelog-path "${CHANGELOG_PATH}" \
           --consider-all-branches \
           --group-pull-request-title-pattern "chore\${scope}: release\${component} \${version}" \
@@ -198,8 +200,10 @@ jobs:
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
-        node-version: 20
+        node-version: 24
         package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
     - id: "fetch_gcs_credentials"
       name: "fetch gcs credentials from vault"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
@@ -276,8 +280,10 @@ jobs:
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
-        node-version: 20
+        node-version: 24
         package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
     - id: "fetch_gcs_credentials"
       name: "fetch gcs credentials from vault"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
@@ -375,8 +381,10 @@ jobs:
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
-        node-version: 20
+        node-version: 24
         package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
     - id: "extract_branch"
       name: "extract branch name"
       run: |
@@ -404,10 +412,10 @@ jobs:
       id: "version"
       name: "get release version"
       run: |
-        npm install
+        yarn install
         
         if [[ -z "${{ env.RELEASE_AS }}" ]]; then
-          npm exec -- release-please release-pr \
+          yarn exec -- release-please release-pr \
             --consider-all-branches \
             --dry-run \
             --dry-run-output release.json \
@@ -421,7 +429,7 @@ jobs:
             --token "$OUTPUTS_TOKEN" \
             --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
         else
-          npm exec -- release-please release-pr \
+          yarn exec -- release-please release-pr \
             --consider-all-branches \
             --dry-run \
             --dry-run-output release.json \
@@ -447,7 +455,7 @@ jobs:
         if [[ `jq length release.json` -eq 0 ]]; then 
           echo "pr_created=false" >> $GITHUB_OUTPUT
         else
-          version="$(npm run --silent get-version)"
+          version="$(yarn run --silent get-version)"
           echo "Parsed version: ${version}"
           echo "version=${version}" >> $GITHUB_OUTPUT
           echo "pr_created=true" >> $GITHUB_OUTPUT

@@ -1,18 +1,21 @@
 {
   "name": "loki-release",
   "version": "0.1.0",
-  "description": "release pipeline and actions for Loki",
+  "description": "Release pipeline and Github Actions for Grafana Loki",
   "scripts": {
-    "all": "npm run workflows && npm run format:write && npm run lint && npm run test && npm run coverage && npm run actions",
-    "bundle": "npm run format:write && npm run actions",
+    "all": "yarn run workflows && yarn run format:write && yarn run lint && yarn run test && yarn run coverage && yarn run actions",
+    "bundle": "yarn run format:write && yarn run actions",
     "ci-test": "jest",
     "coverage": "make-coverage-badge --output-path ./badges/coverage.svg",
     "format:check": "prettier --check **/*.ts",
     "format:write": "prettier --write **/*.ts",
-    "get-version": "npx ts-node actions/get-version.ts",
+    "get-version": "yarn exec -- ts-node actions/get-version.ts",
     "jsonnetfmt": "jsonnetfmt -i -n 2 ./workflows/*.{jsonnet,libsonnet}",
-    "lint": "npx eslint . -c .eslintrc.yml && make lint-scripts",
-    "actions": "for p in install-binary push-images should-release; do ncc build actions/${p}/src/index.ts --license licenses.txt --out actions/${p}/dist; done",
+    "lint": "yarn exec -- eslint . -c .eslintrc.yml && make lint-scripts",
+    "actions": "yarn run actions:install-binary && yarn run actions:push-images && yarn run actions:should-release",
+    "actions:install-binary": "ncc build actions/install-binary/src/index.ts --license licenses.txt --out actions/install-binary/dist",
+    "actions:push-images": "ncc build actions/push-images/src/index.ts --license licenses.txt --out actions/push-images/dist",
+    "actions:should-release": "ncc build actions/should-release/src/index.ts --license licenses.txt --out actions/should-release/dist",
     "prepare": "husky install",
     "test": "jest",
     "workflows": "jsonnet -Sm . workflows/workflows.jsonnet"
@@ -24,8 +27,12 @@
   "exports": {
     ".": "./dist/index.js"
   },
+  "packageManager": "yarn@4.15.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=24",
+    "yarn": ">=4.0.0",
+    "npm": "please-use-yarn",
+    "pnpm": "please-use-yarn"
   },
   "bugs": {
     "url": "https://github.com/grafana/loki-release/issues"
@@ -77,6 +84,7 @@
     "@vercel/ncc": "^0.38.1",
     "eslint": "^8.54.0",
     "eslint-plugin-github": "^4.10.1",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jest": "^27.6.0",
     "eslint-plugin-jsonc": "^2.10.0",
     "eslint-plugin-prettier": "^5.0.1",

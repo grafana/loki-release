@@ -104,3 +104,12 @@ __tests__/runner/*
 cmd/loki/loki
 clients/cmd/docker-driver/docker-driver
 dist/
+
+# Yarn 4
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

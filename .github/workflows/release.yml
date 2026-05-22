@@ -43,8 +43,10 @@ jobs:
     - name: "setup node"
       uses: "actions/setup-node@v4"
       with:
-        node-version: 20
+        node-version: 24
         package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
     - id: "fetch_gcs_credentials"
       name: "fetch gcs credentials from vault"
       uses: "grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760"
@@ -107,8 +109,8 @@ jobs:
       if: "${{ !fromJSON(steps.check_release.outputs.exists) }}"
       name: "create release"
       run: |
-        npm install
-        npm exec -- release-please github-release \
+        yarn install
+        yarn exec -- release-please github-release \
           --draft \
           --release-type simple \
           --repo-url "${{ env.RELEASE_REPO }}" \

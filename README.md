@@ -72,7 +72,7 @@ graph TD;
 1. Install node dependencies
 
    ```bash
-   npm install
+   yarn install
    ```
 
 ## Backlog
