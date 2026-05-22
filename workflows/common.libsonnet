@@ -106,7 +106,7 @@
 
   setupNode: $.step.new('setup node', 'actions/setup-node@v4')
              + $.step.with({
-               'node-version': 20,
+               'node-version': 24,
                'package-manager-cache': false,
              }),
 

@@ -15,7 +15,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - name: Enable Corepack
         run: corepack enable
       - name: Cache yarn dependencies
@@ -40,7 +40,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - name: Enable Corepack
         run: corepack enable
       - name: Cache yarn dependencies
@@ -68,7 +68,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - name: Enable Corepack
         run: corepack enable
       - name: Cache yarn dependencies
@@ -101,7 +101,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
       - name: Enable Corepack
         run: corepack enable
       - name: Cache yarn dependencies
