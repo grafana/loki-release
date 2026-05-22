@@ -39,8 +39,8 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       //TODO make a type/release in the backport action
       //TODO backport action should not bring over autorelease: pending label
       + step.withRun(|||
-        npm install
-        npm exec -- release-please release-pr \
+        yarn install
+        yarn exec -- release-please release-pr \
           --changelog-path "${CHANGELOG_PATH}" \
           --consider-all-branches \
           --group-pull-request-title-pattern "chore\${scope}: release\${component} \${version}" \
@@ -139,8 +139,8 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      SHA: '${{ needs.shouldRelease.outputs.sha }}',
                    })
                    + step.withRun(|||
-                     npm install
-                     npm exec -- release-please github-release \
+                     yarn install
+                     yarn exec -- release-please github-release \
                        --draft \
                        --release-type simple \
                        --repo-url "${{ env.RELEASE_REPO }}" \

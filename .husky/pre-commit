@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 . "$(dirname -- "$0")/_/husky.sh"
 
-npx lint-staged
+yarn exec -- lint-staged
 
 workflow_files_count="$(git diff --name-only --cached workflows/*.{libsonnet,jsonnet} | wc -l)"
 if [[ "${workflow_files_count}" -gt 0 ]]; then
-	npm run workflows
+	yarn run workflows
 	git add .github/workflows
 fi
 
 action_files_count="$(git diff --name-only --cached actions/**/*.{js,ts} | wc -l)"
 if [[ "${action_files_count}" -gt 0 ]]; then
-	npm run actions
+	yarn run actions
 	git add actions/*/dist
 fi

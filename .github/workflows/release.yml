@@ -107,8 +107,8 @@ jobs:
       if: "${{ !fromJSON(steps.check_release.outputs.exists) }}"
       name: "create release"
       run: |
-        npm install
-        npm exec -- release-please github-release \
+        yarn install
+        yarn exec -- release-please github-release \
           --draft \
           --release-type simple \
           --repo-url "${{ env.RELEASE_REPO }}" \
