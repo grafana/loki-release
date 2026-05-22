@@ -16,8 +16,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
-      - run: yarn install --frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.yarn/berry/cache
+            .yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+      - run: yarn install --immutable
       - run: yarn run lint
   actions:
     runs-on: ubuntu-x64
@@ -32,8 +41,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
-      - run: yarn install --frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.yarn/berry/cache
+            .yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+      - run: yarn install --immutable
       - run: yarn run actions
       - run: |
           git diff --name-only -- "actions/**/*.js" | xargs --no-run-if-empty git diff --exit-code -- \
@@ -51,9 +69,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.yarn/berry/cache
+            .yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
       - uses: kobtea/setup-jsonnet-action@1ba74f3571a59047dd4c5b8cb365bd3656f88e2a # v1
-      - run: yarn install --frozen-lockfile
+      - run: yarn install --immutable
       - run: yarn run workflows
       - run: |
           git diff --name-only -w -- ".github/workflows/*.yml" | xargs --no-run-if-empty git diff -w --exit-code -- \
@@ -75,8 +102,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
-      - run: yarn install --frozen-lockfile
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.yarn/berry/cache
+            .yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+      - run: yarn install --immutable
       - run: yarn run ci-test
   check-title:
     runs-on: ubuntu-x64
