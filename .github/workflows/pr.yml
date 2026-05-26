@@ -79,7 +79,22 @@ jobs:
             .yarn/cache
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           restore-keys: ${{ runner.os }}-yarn-
-      - uses: kobtea/setup-jsonnet-action@1ba74f3571a59047dd4c5b8cb365bd3656f88e2a # v1
+      - name: Cache jsonnet binary
+        id: cache-jsonnet
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/bin/jsonnet
+            /usr/local/bin/jsonnetfmt
+          key: jsonnet-v0.22.0-linux-amd64
+      - name: Install jsonnet
+        if: steps.cache-jsonnet.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL -o /tmp/go-jsonnet.tar.gz \
+            https://github.com/google/go-jsonnet/releases/download/v0.22.0/go-jsonnet_0.22.0_linux_amd64.tar.gz
+          echo "e87a93ea44e34da92c15636205c7f2240bf3ac92d00ccb855dbb4e7e03ea6941  /tmp/go-jsonnet.tar.gz" | sha256sum --check
+          tar xzf /tmp/go-jsonnet.tar.gz -C /usr/local/bin jsonnet jsonnetfmt
+          rm /tmp/go-jsonnet.tar.gz
       - run: yarn install --immutable
       - run: yarn run workflows
       - run: |
