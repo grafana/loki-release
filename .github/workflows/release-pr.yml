@@ -4,10 +4,9 @@ env:
   BUILD_ARTIFACTS_BUCKET: "loki-build-artifacts"
   BUILD_TIMEOUT: 25
   CHANGELOG_PATH: "CHANGELOG.md"
-  DOCKER_USERNAME: "grafana"
   DRY_RUN: false
   GITHUB_APP: "loki-gh-app"
-  IMAGE_PREFIX: "trevorwhitney075"
+  IMAGE_PREFIX: "us-docker.pkg.dev/grafanalabs-dev/docker-loki-dev"
   RELEASE_LIB_REF: "main"
   RELEASE_REPO: "grafana/loki-release"
   SKIP_VALIDATION: false

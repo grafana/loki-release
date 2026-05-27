@@ -17,7 +17,6 @@
     distOptionalTargets=[],
     distRunsOn='ubuntu-x64',
     dryRun=false,
-    dockerUsername='grafana',
     golangCiLintVersion='v2.3.0',
     imageBuildTimeoutMin=25,
     imageJobs={},
@@ -50,7 +49,6 @@
       BUILD_ARTIFACTS_BUCKET: buildArtifactsBucket,
       BUILD_TIMEOUT: imageBuildTimeoutMin,
       CHANGELOG_PATH: changelogPath,
-      DOCKER_USERNAME: dockerUsername,
       DRY_RUN: dryRun,
       IMAGE_PREFIX: imagePrefix,
       RELEASE_LIB_REF: releaseLibRef,
@@ -97,8 +95,6 @@
   releaseWorkflow: function(
     branches=['release-[0-9].[0-9].x', 'k[0-9]*'],
     buildArtifactsBucket='loki-build-artifacts',
-    dockerUsername='grafanabot',
-    getDockerCredsFromVault=false,
     imagePrefix='grafana',
     pluginBuildDir='release/plugin-tmp-dir',
     publishBucket='',
@@ -153,9 +149,9 @@
           'id-token': 'write',
         },
       },
-      publishImages: $.release.publishImages(getDockerCredsFromVault, dockerUsername),
+      publishImages: $.release.publishImages(),
     } + (if publishDockerPlugins then {
-           publishDockerPlugins: $.release.publishDockerPlugins(pluginBuildDir, getDockerCredsFromVault, dockerUsername),
+           publishDockerPlugins: $.release.publishDockerPlugins(pluginBuildDir),
            publishRelease: $.release.publishRelease(['createRelease', 'publishImages', 'publishDockerPlugins']),
          } else {
            publishRelease: $.release.publishRelease(['createRelease', 'publishImages']),
