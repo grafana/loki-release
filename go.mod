@@ -14,7 +14,7 @@ require (
 	github.com/grafana/loki/v3 v3.3.1
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.20.5
+	github.com/prometheus/client_golang v1.23.2
 	github.com/prometheus/common v0.55.0
 	github.com/prometheus/prometheus v0.53.2-0.20240726125539-d4f098ae80fb
 	github.com/stretchr/testify v1.11.1
