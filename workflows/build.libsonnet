@@ -413,7 +413,7 @@ local runner = import 'runner.libsonnet',
         |||
       ),
 
-      step.new('Login to GAR', 'grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136'),      releaseStep('upload artifacts'),
+      step.new('Login to GAR', 'grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136'),
       releaseStep('upload artifacts')
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.withEnv({

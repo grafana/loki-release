@@ -156,8 +156,6 @@ jobs:
       working-directory: "release"
     - name: "Login to GAR"
       uses: "grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136"
-    - name: "upload artifacts"
-      working-directory: "release"
     - env:
         path: "release/dist"
       if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
