@@ -6212,7 +6212,7 @@ __metadata:
 
 release-please@grafana/release-please:
   version: 16.9.0
-  resolution: "release-please@https://github.com/grafana/release-please.git#commit=b07e6f4cf10bf1f8db5c6d9f74730e10ac22f142"
+  resolution: "release-please@https://github.com/grafana/release-please.git#commit=a0e181337facaf5a50bbaef6666fa1551cf8aec0"
   dependencies:
     "@conventional-commits/parser": "npm:^0.4.1"
     "@google-automations/git-file-utils": "npm:^2.0.0"
@@ -6247,7 +6247,7 @@ release-please@grafana/release-please:
     yargs: "npm:^17.0.0"
   bin:
     release-please: ./build/src/bin/release-please.js
-  checksum: 10c0/1f00069d58242b215d712095625399526c84e6f72ada064b61412a47301a85e95765a1e67a07464e8392f57629de3519da238c725e957ca310d9ccbac5bdc1f3
+  checksum: 10c0/1f045bff121e542bfbff6961224cf32cbea8f16b58b8d315d2912ec799d7605ca7e75648cc314ae88f74483739ed8d293485224939a9026f9c83a8bc49e26a24
   languageName: node
   linkType: hard
 
