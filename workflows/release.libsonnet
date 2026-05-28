@@ -178,7 +178,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    exists: '${{ steps.check_release.outputs.exists }}',
                  }),
 
-  publishImages: function(getDockerCredsFromVault=false, dockerUsername='grafanabot')
+  publishImages: function()
     job.new()
     + job.withNeeds(['createRelease'])
     + job.withPermissions({
@@ -192,21 +192,8 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         common.setupGoogleCloudSdk,
         step.new('Set up QEMU', 'docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392'),  // v3
         step.new('set up docker buildx', 'docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2'),  //v3
-      ] + (if getDockerCredsFromVault then [
-             step.new('Login to DockerHub (from vault)', 'grafana/shared-workflows/actions/dockerhub-login@fa48192dac470ae356b3f7007229f3ac28c48a25'),  // main
-           ] else [
-             step.new('fetch docker credentials from vault', 'grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760')
-             + step.withId('fetch_docker_credentials')
-             + step.with({
-               repo_secrets: 'DOCKER_PASSWORD=docker:password',
-             }),
-             step.new('Login to DockerHub (from secrets)', 'docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772')  // v3
-             + step.with({
-               username: dockerUsername,
-               password: '${{ env.DOCKER_PASSWORD }}',
-             }),
-           ]) +
-      [
+        step.new('Login to DockerHub', 'grafana/shared-workflows/actions/dockerhub-login@ef3a62a3ca4c1a15505b4235a5a51493194da3c7'),  // v1.0.4
+        step.new('Login to GAR', 'grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136'),  // v1.0.2
         step.new('download images')
         + step.withEnv({
           SHA: '${{ needs.createRelease.outputs.sha }}',
@@ -224,7 +211,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       ]
     ),
 
-  publishDockerPlugins: function(path, getDockerCredsFromVault=false, dockerUsername='grafanabot')
+  publishDockerPlugins: function(path)
     job.new()
     + job.withNeeds(['createRelease'])
     + job.withPermissions({
@@ -239,21 +226,8 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         common.setupGoogleCloudSdk,
         step.new('Set up QEMU', 'docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392'),  // v3
         step.new('set up docker buildx', 'docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2'),  //v3
-      ] + (if getDockerCredsFromVault then [
-             step.new('Login to DockerHub (from vault)', 'grafana/shared-workflows/actions/dockerhub-login@fa48192dac470ae356b3f7007229f3ac28c48a25'),  // main
-           ] else [
-             step.new('fetch docker credentials from vault', 'grafana/shared-workflows/actions/get-vault-secrets@28361cdb22223e5f1e34358c86c20908e7248760')
-             + step.withId('fetch_docker_credentials')
-             + step.with({
-               repo_secrets: 'DOCKER_PASSWORD=docker:password',
-             }),
-             step.new('Login to DockerHub (from secrets)', 'docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772')  // v3
-             + step.with({
-               username: dockerUsername,
-               password: '${{ env.DOCKER_PASSWORD }}',
-             }),
-           ]) +
-      [
+        step.new('Login to DockerHub', 'grafana/shared-workflows/actions/dockerhub-login@ef3a62a3ca4c1a15505b4235a5a51493194da3c7'),  // v1.0.4
+        step.new('Login to GAR', 'grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136'),  // v1.0.2
         step.new('download and prepare plugins')
         + step.withEnv({
           SHA: '${{ needs.createRelease.outputs.sha }}',
