@@ -417,7 +417,7 @@ local runner = import 'runner.libsonnet',
       releaseStep('upload artifacts')
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.withEnv({
-        path: 'release/dist',
+        path: 'dist/',
       })
       + step.withRun(|||
         gcloud artifacts generic upload \

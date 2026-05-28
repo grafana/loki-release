@@ -157,7 +157,7 @@ jobs:
     - name: "Login to GAR"
       uses: "grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136"
     - env:
-        path: "release/dist"
+        path: "dist/"
       if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "upload artifacts"
       run: |
