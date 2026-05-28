@@ -424,7 +424,7 @@ local runner = import 'runner.libsonnet',
           --project="grafanalabs-dev" \
           --repository="generic-loki-dev" \
           --location="us" \
-          --source=${{env.path}} \
+          --source-directory=${{env.path}} \
           --package=binaries \
           --version=${{ github.sha }}
       |||),
