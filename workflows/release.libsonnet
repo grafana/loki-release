@@ -95,19 +95,20 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    common.fetchReleaseLib,
                    common.setupNode,
                    common.enableCorepack,
-                   common.fetchGcsCredentials,
-                   common.googleAuth,
-                   common.setupGoogleCloudSdk,
                    common.githubAppToken,
                    common.setToken,
 
-                   // exits with code 1 if the url does not match
-                   // meaning there are no artifacts for that sha
-                   // we need to handle this if we're going to run this pipeline on every merge to main
+                   step.new('Login to GAR', 'grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136'),
                    releaseStep('download binaries')
                    + step.withRun(|||
                      echo "downloading binaries to $(pwd)/dist"
-                     gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/$(echo ${SHA} | tr -d '"')/dist .
+                     gcloud artifacts generic download \
+                       --project="grafanalabs-dev" \
+                       --repository="generic-loki-dev" \
+                       --location="us" \
+                       --package=binaries \
+                       --version=${{ github.sha }} \
+                       --destination=dist/
                    |||),
 
                    releaseStep('check if release exists')
@@ -161,13 +162,20 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      gh release upload --clobber $(echo $OUTPUTS_NAME | tr -d '"') dist/*
                    |||),
 
-                   step.new('release artifacts', 'google-github-actions/upload-cloud-storage@386ab77f37fdf51c0e38b3d229fad286861cc0d0')  // v2
+                   releaseStep('release artifacts')
                    + step.withIf('${{ fromJSON(env.PUBLISH_TO_GCS) }}')
-                   + step.with({
+                   + step.withRun(|||
+                     echo "downloading binaries to $(pwd)/dist"
+                     gcloud artifacts generic upload \
+                       --project="grafanalabs-global" \
+                       --repository="generic-loki-prod" \
+                       --location="us" \
+                       --source-directory=${{ env.path }}, \
+                       --package=binaries \
+                       --version=${{ github.sha }}
+                   |||)
+                   + step.withEnv({
                      path: 'release/dist',
-                     destination: '${{ env.PUBLISH_BUCKET }}',
-                     parent: false,
-                     process_gcloudignore: false,
                    }),
                  ])
                  + job.withOutputs({
@@ -187,9 +195,6 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
     + job.withSteps(
       [
         common.fetchReleaseLib,
-        common.fetchGcsCredentials,
-        common.googleAuth,
-        common.setupGoogleCloudSdk,
         step.new('Set up QEMU', 'docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392'),  // v3
         step.new('set up docker buildx', 'docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2'),  //v3
         step.new('Login to DockerHub', 'grafana/shared-workflows/actions/dockerhub-login@ef3a62a3ca4c1a15505b4235a5a51493194da3c7'),  // v1.0.4
@@ -200,7 +205,13 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         })
         + step.withRun(|||
           echo "downloading images to $(pwd)/images"
-          gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/$(echo ${SHA} | tr -d '"')/images .
+          gcloud artifacts generic download \
+            --project="grafanalabs-dev" \
+            --repository="generic-loki-dev" \
+            --location="us" \
+            --package=images \
+            --version=${{ github.sha }} \
+            --destination=images/
         |||),
         step.new('publish docker images', './lib/actions/push-images')
         + step.with({
@@ -221,9 +232,6 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
       [
         common.fetchReleaseLib,
         common.fetchReleaseRepo,
-        common.fetchGcsCredentials,
-        common.googleAuth,
-        common.setupGoogleCloudSdk,
         step.new('Set up QEMU', 'docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392'),  // v3
         step.new('set up docker buildx', 'docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2'),  //v3
         step.new('Login to DockerHub', 'grafana/shared-workflows/actions/dockerhub-login@ef3a62a3ca4c1a15505b4235a5a51493194da3c7'),  // v1.0.4
@@ -233,8 +241,14 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           SHA: '${{ needs.createRelease.outputs.sha }}',
         })
         + step.withRun(|||
-          echo "downloading images to $(pwd)/plugins"
-          gsutil cp -r gs://${BUILD_ARTIFACTS_BUCKET}/$(echo ${SHA} | tr -d '"')/plugins .
+          echo "downloading plugins to $(pwd)/plugins"
+          gcloud artifacts generic download \
+            --project="grafanalabs-dev" \
+            --repository="generic-loki-dev" \
+            --location="us" \
+            --package=plugins \
+            --version=${{ github.sha }} \
+            --destination=plugins/
           mkdir -p "release/%s"
         ||| % path),
         step.new('publish docker driver', './lib/actions/push-images')
