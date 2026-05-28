@@ -60,7 +60,6 @@ jobs:
       name: "extract branch name"
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      working-directory: "release"
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
@@ -225,7 +224,7 @@ jobs:
     - name: "Login to GAR"
       uses: "grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136"
     - env:
-        path: "release/images/fake-loki-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
+        path: "images/fake-loki-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
       if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "upload artifacts"
       run: |
@@ -323,7 +322,7 @@ jobs:
     - name: "Login to GAR"
       uses: "grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136"
     - env:
-        path: "release/plugins/loki-docker-driver-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
+        path: "plugins/loki-docker-driver-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"
       if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
       name: "upload artifacts"
       run: |
@@ -381,7 +380,6 @@ jobs:
       name: "extract branch name"
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      working-directory: "release"
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"

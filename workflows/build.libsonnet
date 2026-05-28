@@ -67,7 +67,7 @@ local runner = import 'runner.libsonnet',
       releaseStep('upload artifacts')
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.withEnv({
-        path: 'release/images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
+        path: 'images/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
       })
       + step.withRun(|||
         gcloud artifacts generic upload \
@@ -242,7 +242,7 @@ local runner = import 'runner.libsonnet',
       releaseStep('upload artifacts')
       + step.withIf('${{ fromJSON(needs.version.outputs.pr_created) }}')
       + step.withEnv({
-        path: 'release/plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
+        path: 'plugins/%s-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar' % name,
       })
       + step.withRun(|||
         gcloud artifacts generic upload \

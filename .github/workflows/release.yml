@@ -156,7 +156,6 @@ jobs:
       name: "extract branch name"
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      working-directory: "release"
     - id: "get_github_app_token"
       if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
@@ -389,7 +388,6 @@ jobs:
       name: "extract branch name"
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-      working-directory: "release"
     - id: "should_release"
       name: "should a release be created?"
       uses: "./lib/actions/should-release"

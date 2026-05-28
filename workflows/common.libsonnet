@@ -126,7 +126,7 @@
     ],
   },
 
-  extractBranchName: $.releaseStep('extract branch name')
+  extractBranchName: $.step.new('extract branch name')
                      + $.step.withId('extract_branch')
                      + $.step.withRun(|||
                        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
