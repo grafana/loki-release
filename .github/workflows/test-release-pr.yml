@@ -11,7 +11,6 @@ env:
   RELEASE_LIB_REF: "main"
   RELEASE_REPO: "grafana/loki-release"
   SKIP_VALIDATION: false
-  USE_GITHUB_APP_TOKEN: true
   VERSIONING_STRATEGY: "always-bump-patch"
 jobs:
   check:
@@ -25,7 +24,6 @@ jobs:
       golang_ci_lint_version: "v2.3.0"
       release_lib_ref: "main"
       skip_validation: false
-      use_github_app_token: true
   create-release-pr:
     needs:
     - "dist"
@@ -62,24 +60,13 @@ jobs:
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
     - id: "get_github_app_token"
-      if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
       uses: "grafana/shared-workflows/actions/create-github-app-token@580590a644e82e79bb2598bdaba0be245a14dda0"
       with:
         github_app: "${{ env.GITHUB_APP }}"
     - env:
-        OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"
-      id: "github_app_token"
-      name: "set github token"
-      run: |
-        if [[ "${USE_GITHUB_APP_TOKEN}" == "true" ]]; then
-          echo "token=$OUTPUTS_TOKEN" >> $GITHUB_OUTPUT
-        else
-          echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
-        fi
-    - env:
         OUTPUTS_BRANCH: "${{ steps.extract_branch.outputs.branch }}"
-        OUTPUTS_TOKEN: "${{ steps.github_app_token.outputs.token }}"
+        OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"
         OUTPUTS_VERSION: "${{ needs.dist.outputs.version }}"
         SHA: "${{ github.sha }}"
       id: "release"
@@ -382,24 +369,13 @@ jobs:
       run: |
         echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
     - id: "get_github_app_token"
-      if: "${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}"
       name: "get github app token"
       uses: "grafana/shared-workflows/actions/create-github-app-token@580590a644e82e79bb2598bdaba0be245a14dda0"
       with:
         github_app: "${{ env.GITHUB_APP }}"
     - env:
-        OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"
-      id: "github_app_token"
-      name: "set github token"
-      run: |
-        if [[ "${USE_GITHUB_APP_TOKEN}" == "true" ]]; then
-          echo "token=$OUTPUTS_TOKEN" >> $GITHUB_OUTPUT
-        else
-          echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
-        fi
-    - env:
         OUTPUTS_BRANCH: "${{ steps.extract_branch.outputs.branch }}"
-        OUTPUTS_TOKEN: "${{ steps.github_app_token.outputs.token }}"
+        OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"
       id: "version"
       name: "get release version"
       run: |
