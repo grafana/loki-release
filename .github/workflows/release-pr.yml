@@ -5,6 +5,7 @@ env:
   BUILD_TIMEOUT: 25
   CHANGELOG_PATH: "CHANGELOG.md"
   DRY_RUN: false
+  GAR_REPO_SLUG: "loki"
   GITHUB_APP: "loki-gh-app"
   IMAGE_PREFIX: "us-docker.pkg.dev/grafanalabs-dev/docker-loki-dev"
   RELEASE_LIB_REF: "main"
@@ -175,7 +176,7 @@ jobs:
       run: |
         gcloud artifacts generic upload \
           --project="grafanalabs-dev" \
-          --repository="generic-loki-dev" \
+          --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
           --location="us" \
           --source-directory=${{env.path}} \
           --package=binaries \
@@ -243,7 +244,7 @@ jobs:
       run: |
         gcloud artifacts generic upload \
           --project="grafanalabs-dev" \
-          --repository="generic-loki-dev" \
+          --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
           --location="us" \
           --source=${{ env.path }} \
           --package=images \
@@ -341,7 +342,7 @@ jobs:
       run: |
         gcloud artifacts generic upload \
           --project="grafanalabs-dev" \
-          --repository="generic-loki-dev" \
+          --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
           --location="us" \
           --source=${{env.path}} \
           --package=plugins \
