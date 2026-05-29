@@ -52,6 +52,8 @@ jobs:
       uses: "grafana/shared-workflows/actions/create-github-app-token@580590a644e82e79bb2598bdaba0be245a14dda0"
       with:
         github_app: "${{ env.GITHUB_APP }}"
+    - name: "Login to GAR"
+      uses: "grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136"
     - name: "download binaries"
       run: |
         echo "downloading binaries to $(pwd)/dist"
