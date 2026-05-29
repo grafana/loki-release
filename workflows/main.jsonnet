@@ -26,7 +26,6 @@
     releaseRepo='grafana/loki-release',
     skipArm=false,
     skipValidation=false,
-    useGCR=false,
     versioningStrategy='always-bump-patch',
                     ) {
     local githubApp = if releaseRepo == 'grafana/enterprise-logs' then 'enterprise-logs-app' else 'loki-gh-app',
@@ -74,12 +73,9 @@
                build_image: buildImage,
                golang_ci_lint_version: golangCiLintVersion,
                release_lib_ref: releaseLibRef,
-             })
-             + if useGCR then $.job.withSecrets({
-               GCS_SERVICE_ACCOUNT_KEY: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
-             }) else {},
+             }),
       version: $.build.version + $.common.job.withNeeds(validationSteps),
-      dist: $.build.dist(buildImage, skipArm, useGCR, distMakeTargets, distOptionalTargets, distRunsOn)
+      dist: $.build.dist(buildImage, skipArm, distMakeTargets, distOptionalTargets, distRunsOn)
             + $.common.job.withNeeds(['version'])
             + $.common.job.withPermissions({
               contents: 'write',
@@ -240,12 +236,6 @@
             description: 'whether to use the GitHub App token for GH_TOKEN secret',
             required: false,
             type: 'boolean',
-          },
-        },
-        secrets: {
-          GCS_SERVICE_ACCOUNT_KEY: {
-            description: 'GCS service account key',
-            required: false,
           },
         },
       },
