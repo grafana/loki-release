@@ -331,7 +331,7 @@ local runner = import 'runner.libsonnet',
       pr_created: '${{ steps.version.outputs.pr_created }}',
     }),
 
-  dist: function(buildImage, skipArm=true, useGCR=false, makeTargets=['dist', 'packages'], optionalTargets=[], runsOn='ubuntu-x64')
+  dist: function(buildImage, skipArm=true, makeTargets=['dist', 'packages'], optionalTargets=[], runsOn='ubuntu-x64')
     job.new(runsOn)
     + job.withPermissions({
       'id-token': 'write',
@@ -349,11 +349,6 @@ local runner = import 'runner.libsonnet',
       })
       //TODO: the workdir here is loki specific
       + step.withRun(
-        (
-          if useGCR then |||
-            gcloud auth configure-docker
-          ||| else ''
-        ) +
         |||
           cat <<EOF | docker run \
             --interactive \
@@ -382,11 +377,6 @@ local runner = import 'runner.libsonnet',
         IMAGE_TAG: '${{ needs.version.outputs.version }}',
       })
       + if std.length(optionalTargets) > 0 then step.withRun(
-        (
-          if useGCR then |||
-            gcloud auth configure-docker
-          ||| else ''
-        ) +
         |||
           cat <<EOF | docker run \
             --interactive \

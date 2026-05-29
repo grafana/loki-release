@@ -143,16 +143,11 @@
                     github_app: '${{ env.GITHUB_APP }}',
                   }),
 
-  validationJob: function(useGCR=false)
+  validationJob: function()
     $.job.new()
     + $.job.withContainer({
       image: '${{ inputs.build_image }}',
-    } + if useGCR then {
-      credentials: {
-        username: '_json_key',
-        password: '${{ secrets.GCS_SERVICE_ACCOUNT_KEY }}',
-      },
-    } else {})
+    })
     + $.job.withEnv({
       BUILD_IN_CONTAINER: false,
       SKIP_VALIDATION: '${{ inputs.skip_validation }}',
