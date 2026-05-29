@@ -5303,7 +5303,7 @@ __metadata:
     make-coverage-badge: "npm:1.2.0"
     prettier: "npm:3.8.3"
     prettier-eslint: "npm:16.4.2"
-    release-please: "grafana/release-please#a0e181337facaf5a50bbaef6666fa1551cf8aec0"
+    release-please: "grafana/release-please#32b5b78a94632f4c2920e1beaca57abab2e16ead"
     sinon: "npm:16.0.0"
     ts-jest: "npm:29.4.9"
     ts-node: "npm:10.9.2"
@@ -6210,9 +6210,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"release-please@grafana/release-please#a0e181337facaf5a50bbaef6666fa1551cf8aec0":
+"release-please@grafana/release-please#32b5b78a94632f4c2920e1beaca57abab2e16ead":
   version: 16.9.0
-  resolution: "release-please@https://github.com/grafana/release-please.git#commit=a0e181337facaf5a50bbaef6666fa1551cf8aec0"
+  resolution: "release-please@https://github.com/grafana/release-please.git#commit=32b5b78a94632f4c2920e1beaca57abab2e16ead"
   dependencies:
     "@conventional-commits/parser": "npm:^0.4.1"
     "@google-automations/git-file-utils": "npm:^2.0.0"
@@ -6247,7 +6247,7 @@ __metadata:
     yargs: "npm:^17.0.0"
   bin:
     release-please: ./build/src/bin/release-please.js
-  checksum: 10c0/1f045bff121e542bfbff6961224cf32cbea8f16b58b8d315d2912ec799d7605ca7e75648cc314ae88f74483739ed8d293485224939a9026f9c83a8bc49e26a24
+  checksum: 10c0/e996fe15540c8c8b217fcf45d98dd5348c97b9f34c80e40115a636dc38b1758b965cce440bce07333b98e1fb94e9291e176fbb6e88a8ddce6a804dc00cca085b
   languageName: node
   linkType: hard
 

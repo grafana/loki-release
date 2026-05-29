@@ -73,7 +73,7 @@
     "@actions/tool-cache": "2.0.2",
     "chalk": "4.1.2",
     "figures": "3.2.0",
-    "release-please": "grafana/release-please#a0e181337facaf5a50bbaef6666fa1551cf8aec0"
+    "release-please": "grafana/release-please#32b5b78a94632f4c2920e1beaca57abab2e16ead"
   },
   "devDependencies": {
     "@types/jest": "29.5.14",
