@@ -31,6 +31,7 @@
     versioningStrategy='always-bump-patch',
                     ) {
     local githubApp = if releaseRepo == 'grafana/enterprise-logs' then 'enterprise-logs-app' else 'loki-gh-app',
+    local garRepoSlug = if releaseRepo == 'grafana/enterprise-logs' then 'enterprise-logs' else 'loki',
 
     name: 'create release PR',
     on: {
@@ -53,6 +54,7 @@
       IMAGE_PREFIX: imagePrefix,
       RELEASE_LIB_REF: releaseLibRef,
       RELEASE_REPO: releaseRepo,
+      GAR_REPO_SLUG: garRepoSlug,
       SKIP_VALIDATION: skipValidation,
       USE_GITHUB_APP_TOKEN: useGitHubAppToken,
       VERSIONING_STRATEGY: versioningStrategy,
@@ -107,6 +109,7 @@
     publishDockerPlugins=true,
                   ) {
     local githubApp = if releaseRepo == 'grafana/enterprise-logs' then 'enterprise-logs-app' else 'loki-gh-app',
+    local garRepoSlug = if releaseRepo == 'grafana/enterprise-logs' then 'enterprise-logs' else 'loki',
 
     name: 'create release',
     on: {
@@ -126,6 +129,7 @@
       IMAGE_PREFIX: imagePrefix,
       RELEASE_LIB_REF: releaseLibRef,
       RELEASE_REPO: releaseRepo,
+      GAR_REPO_SLUG: garRepoSlug,
       USE_GITHUB_APP_TOKEN: useGitHubAppToken,
       GITHUB_APP: githubApp,
     } + if publishToGCS then {

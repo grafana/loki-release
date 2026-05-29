@@ -72,7 +72,7 @@ local runner = import 'runner.libsonnet',
       + step.withRun(|||
         gcloud artifacts generic upload \
           --project="grafanalabs-dev" \
-          --repository="generic-loki-dev" \
+          --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
           --location="us" \
           --source=${{ env.path }} \
           --package=images \
@@ -247,7 +247,7 @@ local runner = import 'runner.libsonnet',
       + step.withRun(|||
         gcloud artifacts generic upload \
           --project="grafanalabs-dev" \
-          --repository="generic-loki-dev" \
+          --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
           --location="us" \
           --source=${{env.path}} \
           --package=plugins \
@@ -422,7 +422,7 @@ local runner = import 'runner.libsonnet',
       + step.withRun(|||
         gcloud artifacts generic upload \
           --project="grafanalabs-dev" \
-          --repository="generic-loki-dev" \
+          --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
           --location="us" \
           --source-directory=${{env.path}} \
           --package=binaries \

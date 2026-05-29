@@ -104,7 +104,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      echo "downloading binaries to $(pwd)/dist"
                      gcloud artifacts generic download \
                        --project="grafanalabs-dev" \
-                       --repository="generic-loki-dev" \
+                       --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
                        --location="us" \
                        --package=binaries \
                        --version=${{ github.sha }} \
@@ -168,7 +168,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                      echo "downloading binaries to $(pwd)/dist"
                      gcloud artifacts generic upload \
                        --project="grafanalabs-global" \
-                       --repository="generic-loki-prod" \
+                       --repository="generic-${{ env.GAR_REPO_SLUG }}-prod" \
                        --location="us" \
                        --source-directory=${{ env.path }}, \
                        --package=binaries \
@@ -207,7 +207,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           echo "downloading images to $(pwd)/images"
           gcloud artifacts generic download \
             --project="grafanalabs-dev" \
-            --repository="generic-loki-dev" \
+            --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
             --location="us" \
             --package=images \
             --version=${{ github.sha }} \
@@ -244,7 +244,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           echo "downloading plugins to $(pwd)/plugins"
           gcloud artifacts generic download \
             --project="grafanalabs-dev" \
-            --repository="generic-loki-dev" \
+            --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
             --location="us" \
             --package=plugins \
             --version=${{ github.sha }} \
