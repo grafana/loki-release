@@ -20,8 +20,18 @@ jobs:
           path: ./actions
           ref: main
           "persist-credentials": false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Enable corepack
+        run: corepack enable
       - name: Install Actions
-        run: npm install --production --prefix ./actions
+        # grafana/grafana-github-actions uses yarn 4 (engines.npm = please-use-yarn).
+        # --immutable honors its checked-in yarn.lock.
+        working-directory: ./actions
+        run: yarn install --immutable
       - name: Generate GitHub App Token
         id: app-token
         uses: grafana/shared-workflows/actions/create-github-app-token@580590a644e82e79bb2598bdaba0be245a14dda0 # create-github-app-token/v0.2.2

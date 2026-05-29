@@ -5,7 +5,7 @@ __metadata:
   version: 10
   cacheKey: 10c0
 
-"@actions/core@npm:^1.10.0, @actions/core@npm:^1.11.1":
+"@actions/core@npm:1.11.1, @actions/core@npm:^1.11.1":
   version: 1.11.1
   resolution: "@actions/core@npm:1.11.1"
   dependencies:
@@ -15,7 +15,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@actions/exec@npm:^1.0.0, @actions/exec@npm:^1.1.1":
+"@actions/exec@npm:1.1.1, @actions/exec@npm:^1.0.0, @actions/exec@npm:^1.1.1":
   version: 1.1.1
   resolution: "@actions/exec@npm:1.1.1"
   dependencies:
@@ -41,7 +41,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@actions/tool-cache@npm:^2.0.1":
+"@actions/tool-cache@npm:2.0.2":
   version: 2.0.2
   resolution: "@actions/tool-cache@npm:2.0.2"
   dependencies:
@@ -1201,7 +1201,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:^29.5.10":
+"@types/jest@npm:29.5.14":
   version: 29.5.14
   resolution: "@types/jest@npm:29.5.14"
   dependencies:
@@ -1241,7 +1241,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^20.11.16":
+"@types/node@npm:20.19.41":
   version: 20.19.41
   resolution: "@types/node@npm:20.19.41"
   dependencies:
@@ -1271,7 +1271,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:^10.0.0":
+"@types/sinon@npm:10.0.20":
   version: 10.0.20
   resolution: "@types/sinon@npm:10.0.20"
   dependencies:
@@ -1326,7 +1326,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/eslint-plugin@npm:^6.12.0":
+"@typescript-eslint/eslint-plugin@npm:6.21.0":
   version: 6.21.0
   resolution: "@typescript-eslint/eslint-plugin@npm:6.21.0"
   dependencies:
@@ -1374,7 +1374,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@typescript-eslint/parser@npm:^6.12.0, @typescript-eslint/parser@npm:^6.21.0":
+"@typescript-eslint/parser@npm:6.21.0, @typescript-eslint/parser@npm:^6.21.0":
   version: 6.21.0
   resolution: "@typescript-eslint/parser@npm:6.21.0"
   dependencies:
@@ -1637,7 +1637,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vercel/ncc@npm:^0.38.1":
+"@vercel/ncc@npm:0.38.4":
   version: 0.38.4
   resolution: "@vercel/ncc@npm:0.38.4"
   dependencies:
@@ -2219,6 +2219,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chalk@npm:4.1.2, chalk@npm:^4.0.0":
+  version: 4.1.2
+  resolution: "chalk@npm:4.1.2"
+  dependencies:
+    ansi-styles: "npm:^4.1.0"
+    supports-color: "npm:^7.1.0"
+  checksum: 10c0/4a3fef5cc34975c898ffe77141450f679721df9dde00f6c304353fa9c8b571929123b26a0e4617bde5018977eb655b31970c297b91b63ee83bb82aeb04666880
+  languageName: node
+  linkType: hard
+
 "chalk@npm:5.3.0":
   version: 5.3.0
   resolution: "chalk@npm:5.3.0"
@@ -2236,16 +2246,6 @@ __metadata:
     strip-ansi: "npm:^3.0.0"
     supports-color: "npm:^2.0.0"
   checksum: 10c0/28c3e399ec286bb3a7111fd4225ebedb0d7b813aef38a37bca7c498d032459c265ef43404201d5fbb8d888d29090899c95335b4c0cda13e8b126ff15c541cef8
-  languageName: node
-  linkType: hard
-
-"chalk@npm:^4.0.0":
-  version: 4.1.2
-  resolution: "chalk@npm:4.1.2"
-  dependencies:
-    ansi-styles: "npm:^4.1.0"
-    supports-color: "npm:^7.1.0"
-  checksum: 10c0/4a3fef5cc34975c898ffe77141450f679721df9dde00f6c304353fa9c8b571929123b26a0e4617bde5018977eb655b31970c297b91b63ee83bb82aeb04666880
   languageName: node
   linkType: hard
 
@@ -3105,7 +3105,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-github@npm:^4.10.1":
+"eslint-plugin-github@npm:4.10.2":
   version: 4.10.2
   resolution: "eslint-plugin-github@npm:4.10.2"
   dependencies:
@@ -3143,7 +3143,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-import@npm:^2.25.2, eslint-plugin-import@npm:^2.32.0":
+"eslint-plugin-import@npm:2.32.0, eslint-plugin-import@npm:^2.25.2":
   version: 2.32.0
   resolution: "eslint-plugin-import@npm:2.32.0"
   dependencies:
@@ -3172,7 +3172,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jest@npm:^27.6.0":
+"eslint-plugin-jest@npm:27.9.0":
   version: 27.9.0
   resolution: "eslint-plugin-jest@npm:27.9.0"
   dependencies:
@@ -3190,7 +3190,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-jsonc@npm:^2.10.0":
+"eslint-plugin-jsonc@npm:2.21.1":
   version: 2.21.1
   resolution: "eslint-plugin-jsonc@npm:2.21.1"
   dependencies:
@@ -3241,7 +3241,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-prettier@npm:^5.0.0, eslint-plugin-prettier@npm:^5.0.1":
+"eslint-plugin-prettier@npm:5.5.5, eslint-plugin-prettier@npm:^5.0.0":
   version: 5.5.5
   resolution: "eslint-plugin-prettier@npm:5.5.5"
   dependencies:
@@ -3302,7 +3302,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^8.54.0, eslint@npm:^8.57.1":
+"eslint@npm:8.57.1, eslint@npm:^8.57.1":
   version: 8.57.1
   resolution: "eslint@npm:8.57.1"
   dependencies:
@@ -3570,7 +3570,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"figures@npm:^3.0.0":
+"figures@npm:3.2.0, figures@npm:^3.0.0":
   version: 3.2.0
   resolution: "figures@npm:3.2.0"
   dependencies:
@@ -4018,7 +4018,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^8.0.3":
+"husky@npm:8.0.3":
   version: 8.0.3
   resolution: "husky@npm:8.0.3"
   bin:
@@ -4907,7 +4907,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:^29.7.0":
+"jest@npm:29.7.0":
   version: 29.7.0
   resolution: "jest@npm:29.7.0"
   dependencies:
@@ -4933,6 +4933,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-yaml@npm:4.1.1, js-yaml@npm:^4.0.0, js-yaml@npm:^4.1.0":
+  version: 4.1.1
+  resolution: "js-yaml@npm:4.1.1"
+  dependencies:
+    argparse: "npm:^2.0.1"
+  bin:
+    js-yaml: bin/js-yaml.js
+  checksum: 10c0/561c7d7088c40a9bb53cc75becbfb1df6ae49b34b5e6e5a81744b14ae8667ec564ad2527709d1a6e7d5e5fa6d483aa0f373a50ad98d42fde368ec4a190d4fae7
+  languageName: node
+  linkType: hard
+
 "js-yaml@npm:^3.13.1":
   version: 3.14.2
   resolution: "js-yaml@npm:3.14.2"
@@ -4942,17 +4953,6 @@ __metadata:
   bin:
     js-yaml: bin/js-yaml.js
   checksum: 10c0/3261f25912f5dd76605e5993d0a126c2b6c346311885d3c483706cd722efe34f697ea0331f654ce27c00a42b426e524518ec89d65ed02ea47df8ad26dcc8ce69
-  languageName: node
-  linkType: hard
-
-"js-yaml@npm:^4.0.0, js-yaml@npm:^4.1.0":
-  version: 4.1.1
-  resolution: "js-yaml@npm:4.1.1"
-  dependencies:
-    argparse: "npm:^2.0.1"
-  bin:
-    js-yaml: bin/js-yaml.js
-  checksum: 10c0/561c7d7088c40a9bb53cc75becbfb1df6ae49b34b5e6e5a81744b14ae8667ec564ad2527709d1a6e7d5e5fa6d483aa0f373a50ad98d42fde368ec4a190d4fae7
   languageName: node
   linkType: hard
 
@@ -5132,7 +5132,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lint-staged@npm:^13.2.2":
+"lint-staged@npm:13.3.0":
   version: 13.3.0
   resolution: "lint-staged@npm:13.3.0"
   dependencies:
@@ -5279,35 +5279,35 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "loki-release@workspace:."
   dependencies:
-    "@actions/core": "npm:^1.10.0"
-    "@actions/exec": "npm:^1.1.1"
-    "@actions/tool-cache": "npm:^2.0.1"
-    "@types/jest": "npm:^29.5.10"
-    "@types/node": "npm:^20.11.16"
-    "@types/sinon": "npm:^10.0.0"
-    "@typescript-eslint/eslint-plugin": "npm:^6.12.0"
-    "@typescript-eslint/parser": "npm:^6.12.0"
-    "@vercel/ncc": "npm:^0.38.1"
-    chalk: "npm:^4.0.0"
-    eslint: "npm:^8.54.0"
-    eslint-plugin-github: "npm:^4.10.1"
-    eslint-plugin-import: "npm:^2.32.0"
-    eslint-plugin-jest: "npm:^27.6.0"
-    eslint-plugin-jsonc: "npm:^2.10.0"
-    eslint-plugin-prettier: "npm:^5.0.1"
-    figures: "npm:^3.0.0"
-    husky: "npm:^8.0.3"
-    jest: "npm:^29.7.0"
-    js-yaml: "npm:^4.1.0"
-    lint-staged: "npm:^13.2.2"
-    make-coverage-badge: "npm:^1.2.0"
-    prettier: "npm:^3.1.0"
-    prettier-eslint: "npm:^16.1.2"
-    release-please: grafana/release-please
+    "@actions/core": "npm:1.11.1"
+    "@actions/exec": "npm:1.1.1"
+    "@actions/tool-cache": "npm:2.0.2"
+    "@types/jest": "npm:29.5.14"
+    "@types/node": "npm:20.19.41"
+    "@types/sinon": "npm:10.0.20"
+    "@typescript-eslint/eslint-plugin": "npm:6.21.0"
+    "@typescript-eslint/parser": "npm:6.21.0"
+    "@vercel/ncc": "npm:0.38.4"
+    chalk: "npm:4.1.2"
+    eslint: "npm:8.57.1"
+    eslint-plugin-github: "npm:4.10.2"
+    eslint-plugin-import: "npm:2.32.0"
+    eslint-plugin-jest: "npm:27.9.0"
+    eslint-plugin-jsonc: "npm:2.21.1"
+    eslint-plugin-prettier: "npm:5.5.5"
+    figures: "npm:3.2.0"
+    husky: "npm:8.0.3"
+    jest: "npm:29.7.0"
+    js-yaml: "npm:4.1.1"
+    lint-staged: "npm:13.3.0"
+    make-coverage-badge: "npm:1.2.0"
+    prettier: "npm:3.8.3"
+    prettier-eslint: "npm:16.4.2"
+    release-please: "grafana/release-please#32b5b78a94632f4c2920e1beaca57abab2e16ead"
     sinon: "npm:16.0.0"
-    ts-jest: "npm:^29.1.1"
-    ts-node: "npm:^10.9.2"
-    typescript: "npm:^5.3.2"
+    ts-jest: "npm:29.4.9"
+    ts-node: "npm:10.9.2"
+    typescript: "npm:5.9.3"
   languageName: unknown
   linkType: soft
 
@@ -5329,7 +5329,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"make-coverage-badge@npm:^1.2.0":
+"make-coverage-badge@npm:1.2.0":
   version: 1.2.0
   resolution: "make-coverage-badge@npm:1.2.0"
   dependencies:
@@ -6038,7 +6038,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier-eslint@npm:^16.1.2":
+"prettier-eslint@npm:16.4.2":
   version: 16.4.2
   resolution: "prettier-eslint@npm:16.4.2"
   dependencies:
@@ -6075,7 +6075,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.0.0, prettier@npm:^3.1.0, prettier@npm:^3.5.3":
+"prettier@npm:3.8.3, prettier@npm:^3.0.0, prettier@npm:^3.5.3":
   version: 3.8.3
   resolution: "prettier@npm:3.8.3"
   bin:
@@ -6210,9 +6210,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-release-please@grafana/release-please:
+"release-please@grafana/release-please#32b5b78a94632f4c2920e1beaca57abab2e16ead":
   version: 16.9.0
-  resolution: "release-please@https://github.com/grafana/release-please.git#commit=b07e6f4cf10bf1f8db5c6d9f74730e10ac22f142"
+  resolution: "release-please@https://github.com/grafana/release-please.git#commit=32b5b78a94632f4c2920e1beaca57abab2e16ead"
   dependencies:
     "@conventional-commits/parser": "npm:^0.4.1"
     "@google-automations/git-file-utils": "npm:^2.0.0"
@@ -6247,7 +6247,7 @@ release-please@grafana/release-please:
     yargs: "npm:^17.0.0"
   bin:
     release-please: ./build/src/bin/release-please.js
-  checksum: 10c0/1f00069d58242b215d712095625399526c84e6f72ada064b61412a47301a85e95765a1e67a07464e8392f57629de3519da238c725e957ca310d9ccbac5bdc1f3
+  checksum: 10c0/e996fe15540c8c8b217fcf45d98dd5348c97b9f34c80e40115a636dc38b1758b965cce440bce07333b98e1fb94e9291e176fbb6e88a8ddce6a804dc00cca085b
   languageName: node
   linkType: hard
 
@@ -7002,7 +7002,7 @@ release-please@grafana/release-please:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:^29.1.1":
+"ts-jest@npm:29.4.9":
   version: 29.4.9
   resolution: "ts-jest@npm:29.4.9"
   dependencies:
@@ -7042,7 +7042,7 @@ release-please@grafana/release-please:
   languageName: node
   linkType: hard
 
-"ts-node@npm:^10.9.2":
+"ts-node@npm:10.9.2":
   version: 10.9.2
   resolution: "ts-node@npm:10.9.2"
   dependencies:
@@ -7256,6 +7256,16 @@ release-please@grafana/release-please:
   languageName: node
   linkType: hard
 
+"typescript@npm:5.9.3":
+  version: 5.9.3
+  resolution: "typescript@npm:5.9.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10c0/6bd7552ce39f97e711db5aa048f6f9995b53f1c52f7d8667c1abdc1700c68a76a308f579cd309ce6b53646deb4e9a1be7c813a93baaf0a28ccd536a30270e1c5
+  languageName: node
+  linkType: hard
+
 "typescript@npm:^4.6.4":
   version: 4.9.5
   resolution: "typescript@npm:4.9.5"
@@ -7266,13 +7276,13 @@ release-please@grafana/release-please:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.3.2":
+"typescript@patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>":
   version: 5.9.3
-  resolution: "typescript@npm:5.9.3"
+  resolution: "typescript@patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 10c0/6bd7552ce39f97e711db5aa048f6f9995b53f1c52f7d8667c1abdc1700c68a76a308f579cd309ce6b53646deb4e9a1be7c813a93baaf0a28ccd536a30270e1c5
+  checksum: 10c0/ad09fdf7a756814dce65bc60c1657b40d44451346858eea230e10f2e95a289d9183b6e32e5c11e95acc0ccc214b4f36289dcad4bf1886b0adb84d711d336a430
   languageName: node
   linkType: hard
 
@@ -7283,16 +7293,6 @@ release-please@grafana/release-please:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10c0/e3333f887c6829dfe0ab6c1dbe0dd1e3e2aeb56c66460cb85c5440c566f900c833d370ca34eb47558c0c69e78ced4bfe09b8f4f98b6de7afed9b84b8d1dd06a1
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A^5.3.2#optional!builtin<compat/typescript>":
-  version: 5.9.3
-  resolution: "typescript@patch:typescript@npm%3A5.9.3#optional!builtin<compat/typescript>::version=5.9.3&hash=5786d5"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 10c0/ad09fdf7a756814dce65bc60c1657b40d44451346858eea230e10f2e95a289d9183b6e32e5c11e95acc0ccc214b4f36289dcad4bf1886b0adb84d711d336a430
   languageName: node
   linkType: hard
 
