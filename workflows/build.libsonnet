@@ -269,12 +269,11 @@ local runner = import 'runner.libsonnet',
       common.enableCorepack,
       common.extractBranchName,
       common.githubAppToken,
-      common.setToken,
       releaseLibStep('get release version')
       + step.withId('version')
       + step.withEnv({
         OUTPUTS_BRANCH: '${{ steps.extract_branch.outputs.branch }}',
-        OUTPUTS_TOKEN: '${{ steps.github_app_token.outputs.token }}',
+        OUTPUTS_TOKEN: '${{ steps.get_github_app_token.outputs.token }}',
       })
       + step.withRun(|||
         yarn install

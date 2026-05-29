@@ -2,7 +2,6 @@
   "group": "check-${{ github.sha }}"
 "env":
   "RELEASE_LIB_REF": "${{ inputs.release_lib_ref }}"
-  "USE_GITHUB_APP_TOKEN": "${{ inputs.use_github_app_token }}"
 "jobs":
   "check":
     "container":

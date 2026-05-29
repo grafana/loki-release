@@ -139,23 +139,9 @@
 
   githubAppToken: $.step.new('get github app token', 'grafana/shared-workflows/actions/create-github-app-token@580590a644e82e79bb2598bdaba0be245a14dda0')  // create-github-app-token/v0.2.2
                   + $.step.withId('get_github_app_token')
-                  + $.step.withIf('${{ fromJSON(env.USE_GITHUB_APP_TOKEN) }}')
                   + $.step.with({
                     github_app: '${{ env.GITHUB_APP }}',
                   }),
-
-  setToken: $.step.new('set github token')
-            + $.step.withId('github_app_token')
-            + $.step.withEnv({
-              OUTPUTS_TOKEN: '${{ steps.get_github_app_token.outputs.token }}',
-            })
-            + $.step.withRun(|||
-              if [[ "${USE_GITHUB_APP_TOKEN}" == "true" ]]; then
-                echo "token=$OUTPUTS_TOKEN" >> $GITHUB_OUTPUT
-              else
-                echo "token=${{ secrets.GH_TOKEN }}" >> $GITHUB_OUTPUT
-              fi
-            |||),
 
   validationJob: function(useGCR=false)
     $.job.new()
