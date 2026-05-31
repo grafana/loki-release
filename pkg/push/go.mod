@@ -6,7 +6,7 @@ toolchain go1.21.3
 
 require (
 	github.com/hashicorp/go-uuid v1.0.3
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
