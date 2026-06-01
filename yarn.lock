@@ -5304,7 +5304,7 @@ __metadata:
     prettier: "npm:3.8.3"
     prettier-eslint: "npm:16.4.2"
     release-please: "grafana/release-please#32b5b78a94632f4c2920e1beaca57abab2e16ead"
-    sinon: "npm:16.0.0"
+    sinon: "npm:16.1.3"
     ts-jest: "npm:29.4.9"
     ts-node: "npm:10.9.2"
     typescript: "npm:5.9.3"
@@ -6575,9 +6575,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sinon@npm:16.0.0":
-  version: 16.0.0
-  resolution: "sinon@npm:16.0.0"
+"sinon@npm:16.1.3":
+  version: 16.1.3
+  resolution: "sinon@npm:16.1.3"
   dependencies:
     "@sinonjs/commons": "npm:^3.0.0"
     "@sinonjs/fake-timers": "npm:^10.3.0"
@@ -6585,7 +6585,7 @@ __metadata:
     diff: "npm:^5.1.0"
     nise: "npm:^5.1.4"
     supports-color: "npm:^7.2.0"
-  checksum: 10c0/acb6e77155491d3d7fee6dd76a5db9618b9deee20ff14fc75be7524035cfa75dcdba4bb6f3f69e31a0093c2ea31591945f6c97ea57a40f099882c544a543582c
+  checksum: 10c0/a30e80cb9293cc2954074a461349ac7df1fd0c1ed746c6828b65ea908711b8b4b6598182252c3971bf60bba134a492dc1c294b54919f073f3b29acced76de411
   languageName: node
   linkType: hard
 
