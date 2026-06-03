@@ -1,8 +1,8 @@
 module github.com/grafana/loki-release
 
-go 1.24.0
+go 1.24.11
 
-toolchain go1.24.10
+toolchain go1.25.11
 
 require (
 	github.com/containerd/fifo v1.1.0
