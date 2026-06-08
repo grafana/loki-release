@@ -18,7 +18,7 @@ inputs:
   pullRequestTitlePattern:
     description: 'pattern of the pull request title to parse version from'
     required: false
-    default: "chore${scope}: release${component} ${version}"
+    default: "chore${scope}: Release${component} ${version}"
 
 # Define your outputs here.
 outputs: { }
