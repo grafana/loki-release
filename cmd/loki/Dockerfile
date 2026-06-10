@@ -1,10 +1,10 @@
-FROM golang:1.24 AS build
+FROM golang:1.24@sha256:d2d2bc1c84f7e60d7d2438a3836ae7d0c847f4888464e7ec9ba3a1339a1ee804 AS build
 
 COPY . /src/loki
 WORKDIR /src/loki
 RUN make clean && make loki
 
-FROM alpine:latest
+FROM alpine:latest@sha256:a2d49ea686c2adfe3c992e47dc3b5e7fa6e6b5055609400dc2acaeb241c829f4
 
 COPY --from=build /src/loki/cmd/loki/loki /usr/bin/loki
 
