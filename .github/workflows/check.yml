@@ -228,7 +228,7 @@
       "name": "golangci-lint"
       "uses": "golangci/golangci-lint-action@4afd733a84b1f43292c63897423277bb7f4313a9"
       "with":
-        "args": "-v --timeout 15m --build-tags linux,promtail_journal_enabled"
+        "args": "-v --timeout 15m --build-tags linux"
         "only-new-issues": false
         "version": "${{ inputs.golang_ci_lint_version }}"
   "integration":
