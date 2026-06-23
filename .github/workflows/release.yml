@@ -243,6 +243,7 @@ jobs:
       name: "download and prepare plugins"
       run: |
         echo "downloading plugins to $(pwd)/plugins"
+        mkdir -p plugins
         gcloud artifacts generic download \
           --project="grafanalabs-dev" \
           --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
@@ -286,6 +287,7 @@ jobs:
       name: "download images"
       run: |
         echo "downloading images to $(pwd)/images"
+        mkdir -p images
         gcloud artifacts generic download \
           --project="grafanalabs-dev" \
           --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
