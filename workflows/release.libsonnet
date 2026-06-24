@@ -175,7 +175,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                        --project="grafanalabs-global" \
                        --repository="generic-${{ env.GAR_REPO_SLUG }}-prod" \
                        --location="us" \
-                       --source-directory=${{ env.path }}, \
+                       --source-directory=${{ env.path }} \
                        --package=binaries \
                        --version=${{ github.sha }}
                    |||)
