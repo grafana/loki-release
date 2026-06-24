@@ -118,7 +118,7 @@ jobs:
         gh release upload --clobber $(echo $OUTPUTS_NAME | tr -d '"') dist/*
       working-directory: "release"
     - env:
-        path: "release/dist"
+        path: "dist"
       if: "${{ fromJSON(env.PUBLISH_TO_GCS) }}"
       name: "release artifacts"
       run: |
