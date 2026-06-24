@@ -180,7 +180,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                        --version=${{ github.sha }}
                    |||)
                    + step.withEnv({
-                     path: 'release/dist',
+                     path: 'dist',
                    }),
                  ])
                  + job.withOutputs({
