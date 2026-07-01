@@ -11,7 +11,7 @@ require (
 	github.com/go-kit/log v0.2.1
 	github.com/gogo/protobuf v1.3.2
 	github.com/grafana/dskit v0.0.0-20241007172036-53283a0f6b41
-	github.com/grafana/loki/v3 v3.3.1
+	github.com/grafana/loki/v3 v3.6.4
 	github.com/hashicorp/go-uuid v1.0.3
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.20.5
