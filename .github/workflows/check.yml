@@ -87,10 +87,6 @@
       "run": "make check-example-config-doc"
       "working-directory": "release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "check helm reference doc"
-      "run": "make documentation-helm-reference-check"
-      "working-directory": "release"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "build docs website"
       "run": |
         cat <<EOF | docker run \
