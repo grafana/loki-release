@@ -141,7 +141,7 @@
     - "name": "verify checks passed"
       "run": |
         echo "Some checks have failed!"
-        exit 1,
+        exit 1
   "faillint":
     "container":
       "image": "${{ inputs.build_image }}"
