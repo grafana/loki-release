@@ -258,6 +258,13 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
             --destination=plugins/
           mkdir -p "release/%s"
         ||| % path),
+        step.new('Login to GAR for plugin push')
+        + step.withRun(|||
+          DOCKER_CONFIG="$(mktemp -d)"
+          echo "DOCKER_CONFIG=${DOCKER_CONFIG}" >> "${GITHUB_ENV}"
+          gcloud auth print-access-token \
+            | docker --config "${DOCKER_CONFIG}" login -u oauth2accesstoken --password-stdin us-docker.pkg.dev
+        |||),
         step.new('publish docker driver', './lib/actions/push-images')
         + step.with({
           imageDir: 'plugins',
