@@ -260,12 +260,14 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         ||| % path),
         step.new('start local registry for plugins')
         + step.withRun(|||
+          set -euo pipefail
           docker rm -f plugin-registry >/dev/null 2>&1 || true
           docker run -d --name plugin-registry -p 5000:5000 registry:2.8.3@sha256:a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373
           for _ in $(seq 1 30); do
             curl -sf http://localhost:5000/v2/ >/dev/null && break
             sleep 1
           done
+          curl -sf http://localhost:5000/v2/ >/dev/null || { echo "local registry failed to start" >&2; docker logs plugin-registry || true; exit 1; }
         |||),
         step.new('publish docker driver', './lib/actions/push-images')
         + step.with({
