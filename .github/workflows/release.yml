@@ -253,14 +253,36 @@ jobs:
           --version=$(echo ${SHA} | tr -d '"') \
           --destination=plugins/
         mkdir -p "release/clients/cmd/docker-driver"
+    - name: "start local registry for plugins"
+      run: |
+        docker rm -f plugin-registry >/dev/null 2>&1 || true
+        docker run -d --name plugin-registry -p 5000:5000 registry:2.8.3@sha256:a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373
+        for _ in $(seq 1 30); do
+          curl -sf http://localhost:5000/v2/ >/dev/null && break
+          sleep 1
+        done
     - name: "publish docker driver"
       uses: "./lib/actions/push-images"
       with:
         buildDir: "release/clients/cmd/docker-driver"
         imageDir: "plugins"
-        imagePrefix: "${{ env.PLUGIN_IMAGE_PREFIX }}"
+        imagePrefix: "localhost:5000"
         isLatest: "${{ needs.createRelease.outputs.isLatest }}"
         isPlugin: true
+    - name: "mirror plugins to GAR with crane"
+      run: |
+        set -euo pipefail
+        crane_version="v0.21.6"
+        curl -sSL "https://github.com/google/go-containerregistry/releases/download/${crane_version}/go-containerregistry_Linux_x86_64.tar.gz" \
+          | tar -xz crane
+        for repo in $(./crane catalog localhost:5000 --insecure); do
+          for tag in $(./crane ls "localhost:5000/${repo}" --insecure); do
+            layout="$(mktemp -d)"
+            echo "mirroring ${repo}:${tag} to ${PLUGIN_IMAGE_PREFIX}/${repo}:${tag}"
+            ./crane pull --insecure --format=oci "localhost:5000/${repo}:${tag}" "${layout}"
+            ./crane push "${layout}" "${PLUGIN_IMAGE_PREFIX}/${repo}:${tag}"
+          done
+        done
   publishImages:
     needs:
     - "createRelease"

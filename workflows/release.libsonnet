@@ -258,14 +258,38 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
             --destination=plugins/
           mkdir -p "release/%s"
         ||| % path),
+        step.new('start local registry for plugins')
+        + step.withRun(|||
+          docker rm -f plugin-registry >/dev/null 2>&1 || true
+          docker run -d --name plugin-registry -p 5000:5000 registry:2.8.3@sha256:a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373
+          for _ in $(seq 1 30); do
+            curl -sf http://localhost:5000/v2/ >/dev/null && break
+            sleep 1
+          done
+        |||),
         step.new('publish docker driver', './lib/actions/push-images')
         + step.with({
           imageDir: 'plugins',
-          imagePrefix: '${{ env.PLUGIN_IMAGE_PREFIX }}',
+          imagePrefix: 'localhost:5000',
           isPlugin: true,
           buildDir: 'release/%s' % path,
           isLatest: '${{ needs.createRelease.outputs.isLatest }}',
         }),
+        step.new('mirror plugins to GAR with crane')
+        + step.withRun(|||
+          set -euo pipefail
+          crane_version="v0.21.6"
+          curl -sSL "https://github.com/google/go-containerregistry/releases/download/${crane_version}/go-containerregistry_Linux_x86_64.tar.gz" \
+            | tar -xz crane
+          for repo in $(./crane catalog localhost:5000 --insecure); do
+            for tag in $(./crane ls "localhost:5000/${repo}" --insecure); do
+              layout="$(mktemp -d)"
+              echo "mirroring ${repo}:${tag} to ${PLUGIN_IMAGE_PREFIX}/${repo}:${tag}"
+              ./crane pull --insecure --format=oci "localhost:5000/${repo}:${tag}" "${layout}"
+              ./crane push "${layout}" "${PLUGIN_IMAGE_PREFIX}/${repo}:${tag}"
+            done
+          done
+        |||),
       ]
     ),
 
