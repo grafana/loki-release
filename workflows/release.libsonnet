@@ -261,13 +261,15 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         step.new('start local registry for plugins')
         + step.withRun(|||
           set -euo pipefail
-          docker rm -f plugin-registry >/dev/null 2>&1 || true
-          docker run -d --name plugin-registry -p 5000:5000 registry:2.8.3@sha256:a3d8aaa63ed8681a604f1dea0aa03f100d5895b6a58ace528858a7b332415373
+          crane_version="v0.21.6"
+          curl -sSL "https://github.com/google/go-containerregistry/releases/download/${crane_version}/go-containerregistry_Linux_x86_64.tar.gz" \
+            | tar -xz crane
+          nohup ./crane registry serve --address localhost:5000 >crane-registry.log 2>&1 &
           for _ in $(seq 1 30); do
             curl -sf http://localhost:5000/v2/ >/dev/null && break
             sleep 1
           done
-          curl -sf http://localhost:5000/v2/ >/dev/null || { echo "local registry failed to start" >&2; docker logs plugin-registry || true; exit 1; }
+          curl -sf http://localhost:5000/v2/ >/dev/null || { echo "local registry failed to start" >&2; cat crane-registry.log >&2 || true; exit 1; }
         |||),
         step.new('publish docker driver', './lib/actions/push-images')
         + step.with({
@@ -280,9 +282,6 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         step.new('mirror plugins to GAR with crane')
         + step.withRun(|||
           set -euo pipefail
-          crane_version="v0.21.6"
-          curl -sSL "https://github.com/google/go-containerregistry/releases/download/${crane_version}/go-containerregistry_Linux_x86_64.tar.gz" \
-            | tar -xz crane
           for repo in $(./crane catalog localhost:5000 --insecure); do
             for tag in $(./crane ls "localhost:5000/${repo}" --insecure); do
               layout="$(mktemp -d)"
