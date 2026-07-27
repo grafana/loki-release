@@ -35,7 +35,7 @@ install_dist_dependencies() {
     GO111MODULE=on go install github.com/mitchellh/gox@9f71238
     apt-get install -qy zip
 
-    # Install nfpm for building .deb/.rpm packages (matches loki-build-image)
+    # Install nfpm for building .deb/.rpm packages
     GO111MODULE=on go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.45.2
 }
 
