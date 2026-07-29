@@ -191,9 +191,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                    exists: '${{ steps.check_release.outputs.exists }}',
                  }),
 
-  publishImages: function()
+  publishImages: function(needs=['createRelease'], sha='${{ needs.createRelease.outputs.sha }}', isLatest='${{ needs.createRelease.outputs.isLatest }}')
     job.new()
-    + job.withNeeds(['createRelease'])
+    + job.withNeeds(needs)
     + job.withPermissions({
       'id-token': 'write',
     })
@@ -206,7 +206,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         + step.with({ registry: 'us-docker.pkg.dev' }),
         step.new('download images')
         + step.withEnv({
-          SHA: '${{ needs.createRelease.outputs.sha }}',
+          SHA: sha,
         })
         + step.withRun(|||
           echo "downloading images to $(pwd)/images"
@@ -223,14 +223,14 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         + step.with({
           imageDir: 'images',
           imagePrefix: '${{ env.IMAGE_PREFIX }}',
-          isLatest: '${{ needs.createRelease.outputs.isLatest }}',
+          isLatest: isLatest,
         }),
       ]
     ),
 
-  publishDockerPlugins: function(path)
+  publishDockerPlugins: function(path, needs=['createRelease'], sha='${{ needs.createRelease.outputs.sha }}', isLatest='${{ needs.createRelease.outputs.isLatest }}')
     job.new()
-    + job.withNeeds(['createRelease'])
+    + job.withNeeds(needs)
     + job.withPermissions({
       'id-token': 'write',
     })
@@ -244,7 +244,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
         + step.with({ registry: 'us-docker.pkg.dev' }),
         step.new('download and prepare plugins')
         + step.withEnv({
-          SHA: '${{ needs.createRelease.outputs.sha }}',
+          SHA: sha,
         })
         + step.withRun(|||
           echo "downloading plugins to $(pwd)/plugins"
@@ -277,7 +277,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           imagePrefix: 'localhost:5000',
           isPlugin: true,
           buildDir: 'release/%s' % path,
-          isLatest: '${{ needs.createRelease.outputs.isLatest }}',
+          isLatest: isLatest,
         }),
         step.new('mirror plugins to GAR with crane')
         + step.withRun(|||
