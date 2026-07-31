@@ -4,6 +4,7 @@
   step: $.common.step,
   build: import 'build.libsonnet',
   release: import 'release.libsonnet',
+  testPublish: import 'test-publish.libsonnet',
   validate: import 'validate.libsonnet',
   validateGel: import 'validate-gel.libsonnet',
 
