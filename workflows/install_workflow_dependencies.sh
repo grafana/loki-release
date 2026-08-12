@@ -115,9 +115,10 @@ install_build_image_tools() {
 }
 
 install_loki_release_dependencies() {
-    # Install gotestsum
+    # Install gotestsum via the Go module proxy; downloading the GitHub release
+    # asset flakes when many test matrix jobs fetch it concurrently.
     echo "Installing gotestsum"
-    curl -sSfL https://github.com/gotestyourself/gotestsum/releases/download/v1.9.0/gotestsum_1.9.0_linux_amd64.tar.gz | tar -xz -C /usr/local/bin gotestsum
+    go install gotest.tools/gotestsum@v1.9.0
 
     # Install faillint
     go install github.com/fatih/faillint@latest
