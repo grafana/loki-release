@@ -100,6 +100,7 @@
     releaseBranchTemplate='release-\\${major}.\\${minor}.x',
     dockerPluginPath='clients/cmd/docker-driver',
     publishDockerPlugins=true,
+    createReleaseBranch=true,
                   ) {
     local githubApp = if releaseRepo == 'grafana/enterprise-logs' then 'enterprise-logs-app' else 'loki-gh-app',
     local garRepoSlug = if releaseRepo == 'grafana/enterprise-logs' then 'enterprise-logs' else 'loki',
@@ -153,9 +154,9 @@
            publishRelease: $.release.publishRelease(['createRelease', 'publishImages', 'publishDockerPlugins']),
          } else {
            publishRelease: $.release.publishRelease(['createRelease', 'publishImages']),
-         }) + {
-      createReleaseBranch: $.release.createReleaseBranch(releaseBranchTemplate),
-    },
+         }) + (if createReleaseBranch then {
+                 createReleaseBranch: $.release.createReleaseBranch(releaseBranchTemplate),
+               } else {}),
   },
   check: {
     name: 'check',
