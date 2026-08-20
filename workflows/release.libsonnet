@@ -363,8 +363,7 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
 
         echo "Checking if branch already exists: $BRANCH_NAME"
 
-        # explicitly set the github app token so the ls-remote/fetch/push below all
-        # authenticate; the checkout step used persist-credentials: false
+        # explicitly authenticate with the github app identity
         git remote set-url origin "https://x-access-token:$(echo ${OUTPUTS_TOKEN} | tr -d '"')@github.com/${{ env.RELEASE_REPO }}"
 
         # Check if branch exists
