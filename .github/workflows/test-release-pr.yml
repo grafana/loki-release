@@ -337,10 +337,7 @@ jobs:
         - arch: "linux/arm64"
           runs_on:
           - "ubuntu-arm64"
-  publishDockerPlugins:
-    needs:
-    - "loki"
-    - "loki-docker-driver"
+  publishTestDockerPlugin:
     permissions:
       id-token: "write"
     runs-on: "ubuntu-x64"
@@ -358,28 +355,24 @@ jobs:
         path: "release"
         persist-credentials: false
         repository: "${{ env.RELEASE_REPO }}"
-    - name: "Set up QEMU"
-      uses: "docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2"
     - name: "Login to GAR"
       uses: "grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136"
       with:
         registry: "us-docker.pkg.dev"
-    - env:
-        SHA: "${{ github.sha }}"
-      name: "download and prepare plugins"
+    - name: "build test plugin rootfs"
       run: |
-        echo "downloading plugins to $(pwd)/plugins"
-        mkdir -p plugins
-        gcloud artifacts generic download \
-          --project="grafanalabs-dev" \
-          --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
-          --location="us" \
-          --package=plugins \
-          --version=$(echo ${SHA} | tr -d '"') \
-          --destination=plugins/
-        mkdir -p "release/clients/cmd/docker-driver"
+        set -euo pipefail
+        mkdir -p test-plugins
+        echo "loki-release publish smoke test" >testfile
+        printf 'FROM scratch\nCOPY testfile /testfile\n' >Dockerfile.test
+        docker buildx build \
+          --platform linux/amd64 \
+          --file Dockerfile.test \
+          --output "type=local,dest=test-plugin-rootfs" \
+          .
+        tar -cf "test-plugins/test-plugin-0.0.1-linux-amd64.tar" -C test-plugin-rootfs .
     - name: "start local registry for plugins"
       run: |
         set -euo pipefail
@@ -392,11 +385,11 @@ jobs:
           sleep 1
         done
         curl -sf http://localhost:5000/v2/ >/dev/null || { echo "local registry failed to start" >&2; cat crane-registry.log >&2 || true; exit 1; }
-    - name: "publish docker driver"
+    - name: "publish test plugin"
       uses: "./lib/actions/push-images"
       with:
         buildDir: "release/clients/cmd/docker-driver"
-        imageDir: "plugins"
+        imageDir: "test-plugins"
         imagePrefix: "localhost:5000"
         isLatest: "false"
         isPlugin: true
@@ -411,10 +404,7 @@ jobs:
             ./crane push "${layout}" "${PLUGIN_IMAGE_PREFIX}/${repo}:${tag}"
           done
         done
-  publishImages:
-    needs:
-    - "loki"
-    - "loki-docker-driver"
+  publishTestImage:
     permissions:
       id-token: "write"
     runs-on: "ubuntu-x64"
@@ -426,31 +416,28 @@ jobs:
         persist-credentials: false
         ref: "${{ env.RELEASE_LIB_REF }}"
         repository: "grafana/loki-release"
-    - name: "Set up QEMU"
-      uses: "docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392"
     - name: "set up docker buildx"
       uses: "docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2"
     - name: "Login to GAR"
       uses: "grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136"
       with:
         registry: "us-docker.pkg.dev"
-    - env:
-        SHA: "${{ github.sha }}"
-      name: "download images"
+    - name: "build test image"
       run: |
-        echo "downloading images to $(pwd)/images"
-        mkdir -p images
-        gcloud artifacts generic download \
-          --project="grafanalabs-dev" \
-          --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
-          --location="us" \
-          --package=images \
-          --version=$(echo ${SHA} | tr -d '"') \
-          --destination=images/
-    - name: "publish docker images"
+        set -euo pipefail
+        mkdir -p test-images
+        echo "loki-release publish smoke test" >testfile
+        printf 'FROM scratch\nCOPY testfile /testfile\n' >Dockerfile.test
+        docker buildx build \
+          --platform linux/amd64 \
+          --file Dockerfile.test \
+          --tag "${IMAGE_PREFIX}/test-image:0.0.1-amd64" \
+          --output "type=docker,dest=test-images/test-image-0.0.1-linux-amd64.tar" \
+          .
+    - name: "publish test image"
       uses: "./lib/actions/push-images"
       with:
-        imageDir: "images"
+        imageDir: "test-images"
         imagePrefix: "${{ env.IMAGE_PREFIX }}"
         isLatest: "false"
   version:
