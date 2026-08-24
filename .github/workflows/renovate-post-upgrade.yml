@@ -22,9 +22,11 @@ jobs:
 
       - name: Check whether go.mod's go directive changed
         id: detect
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
           set -euo pipefail
-          diff_output=$(git diff "origin/${{ github.base_ref }}...HEAD" -- go.mod)
+          diff_output=$(git diff "origin/${BASE_REF}...HEAD" -- go.mod)
           if grep -qE '^\+go [0-9]+\.[0-9]+' <<< "$diff_output"; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
