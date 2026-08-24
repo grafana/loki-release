@@ -18,7 +18,7 @@
     "actions:should-release": "ncc build actions/should-release/src/index.ts --license licenses.txt --out actions/should-release/dist",
     "prepare": "husky install",
     "test": "jest",
-    "workflows": "jsonnet -Sm . workflows/workflows.jsonnet"
+    "workflows": "jsonnet -Sm . -V BUILD_IMAGE=$(sh .github/build-image/print-image.sh) workflows/workflows.jsonnet"
   },
   "repository": {
     "type": "git",
