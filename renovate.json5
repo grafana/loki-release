@@ -1,0 +1,15 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  customManagers: [
+    {
+      customType: 'regex',
+      managerFilePatterns: ['/^workflows/(workflows|main)\\.jsonnet$/'],
+      matchStrings: [
+        "buildImage\\s*=\\s*'golang:(?<currentValue>[0-9.]+)'",
+      ],
+      datasourceTemplate: 'docker',
+      depNameTemplate: 'golang',
+      versioningTemplate: 'docker',
+    },
+  ],
+}

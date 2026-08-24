@@ -21,7 +21,7 @@ jobs:
       pull-requests: "write"
     uses: "./.github/workflows/check.yml"
     with:
-      build_image: "golang:1.24"
+      build_image: "golang:1.25"
       golang_ci_lint_version: "v2.3.0"
       release_lib_ref: "main"
       skip_validation: false
@@ -124,9 +124,9 @@ jobs:
           --env SKIP_ARM \
           --volume .:/src/loki \
           --workdir /src/loki \
-          --entrypoint /bin/sh "golang:1.24"
+          --entrypoint /bin/sh "golang:1.25"
           git config --global --add safe.directory /src/loki
-          if echo "golang:1.24" | grep -q "golang"; then
+          if echo "golang:1.25" | grep -q "golang"; then
             /src/loki/.github/vendor/github.com/grafana/loki-release/workflows/install_workflow_dependencies.sh dist
           fi
           make dist packages
@@ -296,7 +296,7 @@ jobs:
         build-args: |
           IMAGE_TAG=${{ needs.version.outputs.version }}
           GOARCH=${{ steps.platform.outputs.platform_short }}
-          BUILD_IMAGE=golang:1.24
+          BUILD_IMAGE=golang:1.25
         context: "release"
         file: "release/clients/cmd/docker-driver/Dockerfile"
         outputs: "type=local,dest=release/plugins/loki-docker-driver-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}"
