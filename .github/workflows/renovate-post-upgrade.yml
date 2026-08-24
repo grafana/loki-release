@@ -1,0 +1,108 @@
+name: Renovate Post-Upgrade Tasks
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  sync-build-image:
+    runs-on: ubuntu-x64
+    if: >-
+      github.event.pull_request.user.login == 'renovate-sh-app[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check whether go.mod's go directive changed
+        id: detect
+        run: |
+          set -euo pipefail
+          diff_output=$(git diff "origin/${{ github.base_ref }}...HEAD" -- go.mod)
+          if grep -qE '^\+go [0-9]+\.[0-9]+' <<< "$diff_output"; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync CI build image to go.mod's go directive
+        if: steps.detect.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          go_version=$(sed -n 's/^go \([0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' go.mod | head -1)
+          if ! [[ "$go_version" =~ ^[0-9]+\.[0-9]+$ ]]; then
+            echo "Could not parse a major.minor go version from go.mod" >&2
+            exit 1
+          fi
+          sed -i "s/buildImage = 'golang:[0-9.]*'/buildImage = 'golang:${go_version}'/" workflows/workflows.jsonnet
+          sed -i "s/buildImage='golang:[0-9.]*'/buildImage='golang:${go_version}'/" workflows/main.jsonnet
+
+      - name: Cache jsonnet binary
+        if: steps.detect.outputs.changed == 'true'
+        id: cache-jsonnet
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/bin/jsonnet
+            /usr/local/bin/jsonnetfmt
+          key: jsonnet-v0.22.0-linux-amd64
+
+      - name: Install jsonnet
+        if: steps.detect.outputs.changed == 'true' && steps.cache-jsonnet.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL -o /tmp/go-jsonnet.tar.gz \
+            https://github.com/google/go-jsonnet/releases/download/v0.22.0/go-jsonnet_0.22.0_linux_amd64.tar.gz
+          echo "e87a93ea44e34da92c15636205c7f2240bf3ac92d00ccb855dbb4e7e03ea6941  /tmp/go-jsonnet.tar.gz" | sha256sum --check
+          tar xzf /tmp/go-jsonnet.tar.gz -C /usr/local/bin jsonnet jsonnetfmt
+          rm /tmp/go-jsonnet.tar.gz
+
+      - name: Regenerate workflow YAML
+        if: steps.detect.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          render_dir="${RUNNER_TEMP}/workflows-render"
+          rm -rf "$render_dir"
+          mkdir -p "$render_dir"
+          jsonnet -Scm "$render_dir" workflows/workflows.jsonnet
+          for f in \
+            .github/workflows/check.yml \
+            .github/workflows/gel-check.yml \
+            .github/workflows/release-pr.yml \
+            .github/workflows/release.yml \
+            .github/workflows/test-release-pr.yml \
+          ; do
+            if [ -f "$render_dir/$f" ]; then
+              cp "$render_dir/$f" "$f"
+            fi
+          done
+          rm -rf "$render_dir"
+
+      - name: Get GitHub App Token
+        if: steps.detect.outputs.changed == 'true'
+        id: get-github-token
+        uses: grafana/shared-workflows/actions/create-github-app-token@46f48da11e78ebdba7a8747ae456b11062fac83e # create-github-app-token/v0.3.1
+        with:
+          github_app: loki-gh-app
+
+      - name: Commit and push
+        if: steps.detect.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.get-github-token.outputs.token }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          git config user.name "loki-gh-app[bot]"
+          git config user.email "loki-gh-app[bot]@users.noreply.github.com"
+          git add workflows/workflows.jsonnet workflows/main.jsonnet .github/workflows/*.yml
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git -c core.hooksPath=/dev/null commit --no-verify -m "fix(ci): Sync CI build image to go.mod go directive"
+            git -c core.hooksPath=/dev/null push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:${HEAD_REF}"
+          fi
