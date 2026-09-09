@@ -51,17 +51,8 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
         PLUGIN_IMAGE_PREFIX: 'us-docker.pkg.dev/grafanalabs-dev/docker-loki-dev/ci/${{ github.run_id }}',
       },
       jobs+: {
-        publishImages: lokiRelease.release.publishImages(
-          needs=['loki', 'loki-docker-driver'],
-          sha='${{ github.sha }}',
-          isLatest='false',
-        ),
-        publishDockerPlugins: lokiRelease.release.publishDockerPlugins(
-          dockerPluginDir,
-          needs=['loki', 'loki-docker-driver'],
-          sha='${{ github.sha }}',
-          isLatest='false',
-        ),
+        publishTestImage: lokiRelease.testPublish.publishTestImage,
+        publishTestDockerPlugin: lokiRelease.testPublish.publishTestDockerPlugin(dockerPluginDir),
       },
     }, false, false
   ),
