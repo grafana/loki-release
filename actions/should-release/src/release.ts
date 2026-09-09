@@ -64,6 +64,10 @@ type ReleaseMeta = {
 const footerPattern =
   /^Merging this PR will release the \[artifacts\]\(.*\) of (?<sha>\S+)$/
 
+// Fallback scan: another bot may append a `---` section after the footer, which PullRequestBody.parse then treats as the footer.
+const bodyFooterPattern =
+  /^Merging this PR will release the \[artifacts\]\(.*\) of (?<sha>\S+)$/m
+
 async function prepareSingleRelease(
   pullRequest: PullRequest,
   pullRequestTitlePattern: string,
@@ -99,8 +103,14 @@ async function prepareSingleRelease(
   }
 
   const footer = pullRequestBody.footer
-  const match = footer?.match(footerPattern)
+  let match = footer?.match(footerPattern)
   if (!match?.groups?.sha) {
+    match = pullRequest.body?.match(bodyFooterPattern)
+  }
+  if (!match?.groups?.sha) {
+    warning(
+      `Could not find release artifacts footer in PR #${pullRequest.number} body`
+    )
     return
   }
 
