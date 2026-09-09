@@ -914,7 +914,7 @@ github.com/prometheus/prometheus/util/testutil
 github.com/prometheus/prometheus/util/treecache
 github.com/prometheus/prometheus/util/zeropool
 github.com/prometheus/prometheus/web/api/v1
-# github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475
+# github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9
 ## explicit
 github.com/rcrowley/go-metrics
 # github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529
