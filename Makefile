@@ -1,5 +1,9 @@
 GO_FLAGS           := -ldflags "-extldflags \"-static\" -s -w $(GO_LDFLAGS)" -tags netgo
 
+# Ensure you run `make release-workflows` after changing this
+GO_VERSION         := 1.26.6
+BUILD_IMAGE        := golang:$(GO_VERSION)
+
 test:
 	echo "testing"
 
@@ -59,4 +63,4 @@ clients/cmd/docker-driver/docker-driver:
 	CGO_ENABLED=0 go build $(GO_FLAGS) -o $@ ./$(@D)
 
 release-workflows:
-	jsonnet -Sm . workflows/workflows.jsonnet 
+	jsonnet -Sm . -V BUILD_IMAGE=$(BUILD_IMAGE) workflows/workflows.jsonnet
