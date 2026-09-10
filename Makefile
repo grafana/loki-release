@@ -4,6 +4,10 @@ GO_FLAGS           := -ldflags "-extldflags \"-static\" -s -w $(GO_LDFLAGS)" -ta
 GO_VERSION         := 1.26.6
 BUILD_IMAGE        := golang:$(GO_VERSION)
 
+# Directory jsonnet renders workflows into. Override to render into an
+# isolated scratch directory instead of writing straight into the tree.
+RENDER_DIR         ?= .
+
 test:
 	echo "testing"
 
@@ -63,4 +67,4 @@ clients/cmd/docker-driver/docker-driver:
 	CGO_ENABLED=0 go build $(GO_FLAGS) -o $@ ./$(@D)
 
 release-workflows:
-	jsonnet -Sm . -V BUILD_IMAGE=$(BUILD_IMAGE) workflows/workflows.jsonnet
+	jsonnet -Scm $(RENDER_DIR) -V BUILD_IMAGE=$(BUILD_IMAGE) workflows/workflows.jsonnet
