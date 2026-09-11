@@ -1,4 +1,4 @@
-// Copyright 2018 The etcd Authors
+// Copyright 2026 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rpctypes
+package mvccpb
 
-var (
-	TokenFieldNameGRPC    = "token"
-	TokenFieldNameSwagger = "authorization"
-)
+// IsCreate returns true if the event tells that the key is newly created.
+func (e *Event) IsCreate() bool {
+	return e.GetType() == PUT && e.GetKv().GetCreateRevision() == e.GetKv().GetModRevision()
+}
 
-// TokenFieldNameGRPCKey is used as a key of context to store token.
-type TokenFieldNameGRPCKey struct{}
+// IsModify returns true if the event tells that a new value is put on existing key.
+func (e *Event) IsModify() bool {
+	return e.GetType() == PUT && e.GetKv().GetCreateRevision() != e.GetKv().GetModRevision()
+}
