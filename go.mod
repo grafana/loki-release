@@ -100,7 +100,7 @@ require (
 	github.com/googleapis/gax-go/v2 v2.17.0 // indirect
 	github.com/gophercloud/gophercloud v1.13.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
-	github.com/grafana/gomemcache v0.0.0-20240229205252-cd6a66d6fb56 // indirect
+	github.com/grafana/gomemcache v0.0.0-20260728143316-9448343bd654 // indirect
 	github.com/grafana/jsonparser v0.0.0-20241004153430-023329977675 // indirect
 	github.com/grafana/loki/pkg/push v0.0.0-20240924133635-758364c7775f // indirect
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.8 // indirect
