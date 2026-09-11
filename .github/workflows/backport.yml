@@ -14,14 +14,14 @@ jobs:
       id-token: write
     steps:
       - name: Checkout Actions
-        uses: actions/checkout@v3
+        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
         with:
           repository: "grafana/grafana-github-actions"
           path: ./actions
           ref: main
           "persist-credentials": false
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
           package-manager-cache: false
