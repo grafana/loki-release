@@ -1,4 +1,4 @@
-// Copyright 2018 The etcd Authors
+// Copyright 2026 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rpctypes
+package mvccpb
 
-var (
-	TokenFieldNameGRPC    = "token"
-	TokenFieldNameSwagger = "authorization"
+const (
+	// PUT is an alias of Event_PUT
+	// Deprecated: use Event_PUT instead. Will be removed in v3.8.
+	PUT = Event_PUT
+	// DELETE is an alias of Permission_WRITE
+	// Deprecated: use Event_DELETE instead. Will be removed in v3.8.
+	DELETE = Event_DELETE
 )
-
-// TokenFieldNameGRPCKey is used as a key of context to store token.
-type TokenFieldNameGRPCKey struct{}

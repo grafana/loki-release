@@ -1,4 +1,4 @@
-// Copyright 2018 The etcd Authors
+// Copyright 2026 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rpctypes
+package etcdserverpb
 
-var (
-	TokenFieldNameGRPC    = "token"
-	TokenFieldNameSwagger = "authorization"
-)
+import "google.golang.org/protobuf/proto"
 
-// TokenFieldNameGRPCKey is used as a key of context to store token.
-type TokenFieldNameGRPCKey struct{}
+// Clone returns a deep copy of h, or an empty ResponseHeader if h is nil.
+func (h *ResponseHeader) Clone() *ResponseHeader {
+	if h == nil {
+		return &ResponseHeader{}
+	}
+	return proto.Clone(h).(*ResponseHeader)
+}

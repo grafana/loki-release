@@ -203,8 +203,8 @@ github.com/containerd/fifo
 # github.com/containerd/log v0.1.0
 ## explicit; go 1.20
 github.com/containerd/log
-# github.com/coreos/go-semver v0.3.0
-## explicit
+# github.com/coreos/go-semver v0.3.1
+## explicit; go 1.8
 github.com/coreos/go-semver/semver
 # github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 ## explicit
@@ -586,6 +586,9 @@ github.com/grafana/tail/ratelimiter
 github.com/grafana/tail/util
 github.com/grafana/tail/watch
 github.com/grafana/tail/winfile
+# github.com/grpc-ecosystem/grpc-gateway/v2 v2.29.0
+## explicit; go 1.25.0
+github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options
 # github.com/hashicorp/consul/api v1.29.4
 ## explicit; go 1.19
 github.com/hashicorp/consul/api
@@ -973,14 +976,15 @@ github.com/uber/jaeger-client-go/utils
 ## explicit
 github.com/uber/jaeger-lib/metrics
 github.com/uber/jaeger-lib/metrics/prometheus
-# go.etcd.io/etcd/api/v3 v3.5.4
-## explicit; go 1.16
+# go.etcd.io/etcd/api/v3 v3.7.1
+## explicit; go 1.26
 go.etcd.io/etcd/api/v3/authpb
 go.etcd.io/etcd/api/v3/etcdserverpb
 go.etcd.io/etcd/api/v3/membershippb
 go.etcd.io/etcd/api/v3/mvccpb
 go.etcd.io/etcd/api/v3/v3rpc/rpctypes
 go.etcd.io/etcd/api/v3/version
+go.etcd.io/etcd/api/v3/versionpb
 # go.etcd.io/etcd/client/pkg/v3 v3.5.33
 ## explicit; go 1.25.0
 go.etcd.io/etcd/client/pkg/v3/fileutil
@@ -1329,6 +1333,7 @@ google.golang.org/protobuf/types/gofeaturespb
 google.golang.org/protobuf/types/known/anypb
 google.golang.org/protobuf/types/known/durationpb
 google.golang.org/protobuf/types/known/emptypb
+google.golang.org/protobuf/types/known/structpb
 google.golang.org/protobuf/types/known/timestamppb
 # gopkg.in/fsnotify/fsnotify.v1 v1.4.7
 ## explicit
