@@ -192,7 +192,7 @@ require (
 	go.uber.org/goleak v1.3.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
-	go4.org/netipx v0.0.0-20230125063823-8449b0a6169f // indirect
+	go4.org/netipx v0.0.0-20260823151212-3075585bcbeb // indirect
 	golang.org/x/crypto v0.56.0 // indirect
 	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 // indirect
 	golang.org/x/mod v0.38.0 // indirect
