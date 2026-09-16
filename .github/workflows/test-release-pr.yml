@@ -9,7 +9,7 @@ env:
   GITHUB_APP: "loki-gh-app"
   IMAGE_PREFIX: "us-docker.pkg.dev/grafanalabs-dev/docker-loki-dev/ci/${{ github.run_id }}"
   PLUGIN_IMAGE_PREFIX: "us-docker.pkg.dev/grafanalabs-dev/docker-loki-dev/ci/${{ github.run_id }}"
-  RELEASE_LIB_REF: "main"
+  RELEASE_LIB_REF: "${{ github.event.pull_request.head.sha || 'main' }}"
   RELEASE_REPO: "grafana/loki-release"
   SKIP_VALIDATION: false
   VERSIONING_STRATEGY: "always-bump-patch"
@@ -23,7 +23,7 @@ jobs:
     with:
       build_image: "golang:1.26.6"
       golang_ci_lint_version: "v2.10.1"
-      release_lib_ref: "main"
+      release_lib_ref: "${{ github.event.pull_request.head.sha || 'main' }}"
       skip_validation: false
   create-release-pr:
     needs:
@@ -37,20 +37,20 @@ jobs:
     runs-on: "ubuntu-x64"
     steps:
     - name: "pull code to release"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "release"
         persist-credentials: false
         repository: "${{ env.RELEASE_REPO }}"
     - name: "pull release library code"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "lib"
         persist-credentials: false
         ref: "${{ env.RELEASE_LIB_REF }}"
         repository: "grafana/loki-release"
     - name: "setup node"
-      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020" # v4
+      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
       with:
         node-version: 24
         package-manager-cache: false
@@ -103,7 +103,7 @@ jobs:
     runs-on: "ubuntu-x64"
     steps:
     - name: "pull code to release"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "release"
         persist-credentials: false
@@ -167,20 +167,20 @@ jobs:
     runs-on: "${{ matrix.runs_on }}"
     steps:
     - name: "pull release library code"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "lib"
         persist-credentials: false
         ref: "${{ env.RELEASE_LIB_REF }}"
         repository: "grafana/loki-release"
     - name: "pull code to release"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "release"
         persist-credentials: false
         repository: "${{ env.RELEASE_REPO }}"
     - name: "setup node"
-      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020" # v4
+      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
       with:
         node-version: 24
         package-manager-cache: false
@@ -248,20 +248,20 @@ jobs:
     runs-on: "${{ matrix.runs_on }}"
     steps:
     - name: "pull release library code"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "lib"
         persist-credentials: false
         ref: "${{ env.RELEASE_LIB_REF }}"
         repository: "grafana/loki-release"
     - name: "pull code to release"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "release"
         persist-credentials: false
         repository: "${{ env.RELEASE_REPO }}"
     - name: "setup node"
-      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020" # v4
+      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
       with:
         node-version: 24
         package-manager-cache: false
@@ -346,14 +346,14 @@ jobs:
     runs-on: "ubuntu-x64"
     steps:
     - name: "pull release library code"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "lib"
         persist-credentials: false
         ref: "${{ env.RELEASE_LIB_REF }}"
         repository: "grafana/loki-release"
     - name: "pull code to release"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "release"
         persist-credentials: false
@@ -420,7 +420,7 @@ jobs:
     runs-on: "ubuntu-x64"
     steps:
     - name: "pull release library code"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "lib"
         persist-credentials: false
@@ -466,20 +466,20 @@ jobs:
     runs-on: "ubuntu-x64"
     steps:
     - name: "pull release library code"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "lib"
         persist-credentials: false
         ref: "${{ env.RELEASE_LIB_REF }}"
         repository: "grafana/loki-release"
     - name: "pull code to release"
-      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262" # v4
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       with:
         path: "release"
         persist-credentials: false
         repository: "${{ env.RELEASE_REPO }}"
     - name: "setup node"
-      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020" # v4
+      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
       with:
         node-version: 24
         package-manager-cache: false

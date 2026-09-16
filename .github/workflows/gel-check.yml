@@ -12,11 +12,11 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "checkout"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "persist-credentials": false
     - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "lib"
         "persist-credentials": false
@@ -78,11 +78,11 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "checkout"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "persist-credentials": false
     - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "lib"
         "persist-credentials": false
@@ -129,11 +129,11 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "checkout"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "persist-credentials": false
     - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "lib"
         "persist-credentials": false

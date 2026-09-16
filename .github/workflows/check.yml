@@ -29,13 +29,13 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "release"
         "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "lib"
         "persist-credentials": false
@@ -109,7 +109,7 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "checkout"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "persist-credentials": false
     - "name": "fix git dubious ownership"
@@ -151,7 +151,7 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "release"
         "persist-credentials": false
@@ -160,7 +160,7 @@
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "lib"
         "persist-credentials": false
@@ -183,13 +183,13 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "release"
         "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "lib"
         "persist-credentials": false
@@ -217,7 +217,7 @@
         "tarball_binary_path": "*/${binary}"
         "version": "0.9.0"
     - "name": "checkout"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "persist-credentials": false
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
@@ -236,7 +236,7 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "release"
         "persist-credentials": false
@@ -258,13 +258,13 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "release"
         "persist-credentials": false
         "repository": "${{ env.RELEASE_REPO }}"
     - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "lib"
         "persist-credentials": false
@@ -313,7 +313,7 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "release"
         "persist-credentials": false
@@ -322,7 +322,7 @@
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "lib"
         "persist-credentials": false
@@ -348,7 +348,7 @@
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "release"
         "persist-credentials": false
@@ -357,7 +357,7 @@
       "run": |
         git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - "name": "pull release library code"
-      "uses": "actions/checkout@v4"
+      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
       "with":
         "path": "lib"
         "persist-credentials": false
