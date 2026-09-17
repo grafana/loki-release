@@ -1,0 +1,13 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  customManagers: [
+    {
+      customType: 'regex',
+      managerFilePatterns: ['/^workflows/common\\.libsonnet$/'],
+      matchStrings: [
+        "local\\s+\\w+\\s*=\\s*'(?<depName>actions/[\\w-]+)@(?<currentDigest>[0-9a-f]{40})';\\s*//\\s*(?<currentValue>\\S+)",
+      ],
+      datasourceTemplate: 'github-tags',
+    },
+  ],
+}
