@@ -1,4 +1,4 @@
-// Copyright 2018 The etcd Authors
+// Copyright 2026 The etcd Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rpctypes
+package authpb
 
-var (
-	TokenFieldNameGRPC    = "token"
-	TokenFieldNameSwagger = "authorization"
+const (
+	// READ is an alias of Permission_READ
+	// Deprecated: use Permission_READ instead. Will be removed in v3.8.
+	READ = Permission_READ
+	// WRITE is an alias of Permission_WRITE
+	// Deprecated: use Permission_WRITE instead. Will be removed in v3.8.
+	WRITE = Permission_WRITE
+	// READWRITE is an alias of Permission_READWRITE
+	// Deprecated: use Permission_READWRITE instead. Will be removed in v3.8.
+	READWRITE = Permission_READWRITE
 )
-
-// TokenFieldNameGRPCKey is used as a key of context to store token.
-type TokenFieldNameGRPCKey struct{}
