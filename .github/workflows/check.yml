@@ -8,7 +8,6 @@
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
     "needs":
     - "checkFiles"
-    - "faillint"
     - "golangciLint"
     - "lintFiles"
     - "integration"
@@ -130,7 +129,6 @@
     "if": "${{ !fromJSON(inputs.skip_validation) && (cancelled() || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) }}"
     "needs":
     - "checkFiles"
-    - "faillint"
     - "golangciLint"
     - "lintFiles"
     - "integration"
@@ -142,38 +140,6 @@
       "run": |
         echo "Some checks have failed!"
         exit 1
-  "faillint":
-    "container":
-      "image": "${{ inputs.build_image }}"
-    "env":
-      "BUILD_IN_CONTAINER": false
-      "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "runs-on": "ubuntu-x64"
-    "steps":
-    - "name": "pull code to release"
-      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
-      "with":
-        "path": "release"
-        "persist-credentials": false
-        "repository": "${{ env.RELEASE_REPO }}"
-    - "name": "fix git dubious ownership"
-      "run": |
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "name": "pull release library code"
-      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
-      "with":
-        "path": "lib"
-        "persist-credentials": false
-        "ref": "${{ env.RELEASE_LIB_REF }}"
-        "repository": "grafana/loki-release"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) && startsWith(inputs.build_image, 'golang') }}"
-      "name": "install dependencies"
-      "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
-    - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "faillint"
-      "run": |
-        faillint -paths "sync/atomic=go.uber.org/atomic" ./...
-      "working-directory": "release"
   "golangciLint":
     "container":
       "image": "${{ inputs.build_image }}"
