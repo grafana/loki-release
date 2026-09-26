@@ -96,7 +96,7 @@ require (
 	github.com/google/renameio/v2 v2.0.2 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/google/uuid v1.6.0 // indirect
-	github.com/googleapis/enterprise-certificate-proxy v0.3.11 // indirect
+	github.com/googleapis/enterprise-certificate-proxy v0.3.22 // indirect
 	github.com/googleapis/gax-go/v2 v2.17.0 // indirect
 	github.com/gophercloud/gophercloud v1.13.0 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
