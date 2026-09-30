@@ -721,8 +721,8 @@ github.com/mailru/easyjson/jwriter
 # github.com/mattn/go-colorable v0.1.15
 ## explicit; go 1.18
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.20
-## explicit; go 1.15
+# github.com/mattn/go-isatty v0.0.24
+## explicit; go 1.20
 github.com/mattn/go-isatty
 # github.com/miekg/dns v1.1.61
 ## explicit; go 1.19
