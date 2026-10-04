@@ -1,0 +1,168 @@
+name: Renovate PR Fixup
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Renovate branch to fix up (e.g. renovate/go-modules)"
+        required: true
+        type: string
+
+jobs:
+  render:
+    # Deliberately no id-token permission here: permissions are scoped to
+    # the whole job, so granting it would let any step below — all of
+    # which run Makefile/jsonnet/yarn straight from the checked-out
+    # Renovate branch — request an OIDC token itself, or otherwise tamper
+    # with the runner (GITHUB_ENV/GITHUB_PATH, a background process) to
+    # intercept a token minted later. This job runs no privileged step at
+    # all and never sees GH_TOKEN, so there's nothing here to steal.
+    runs-on: ubuntu-x64
+    permissions:
+      contents: read
+    outputs:
+      head_sha: ${{ steps.head.outputs.sha }}
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - name: Check out the Renovate branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch }}
+          persist-credentials: false
+
+      - name: Record the commit being fixed up
+        id: head
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache jsonnet binary
+        id: cache-jsonnet
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/bin/jsonnet
+            /usr/local/bin/jsonnetfmt
+          key: jsonnet-v0.22.0-linux-amd64
+
+      - name: Install jsonnet
+        if: steps.cache-jsonnet.outputs.cache-hit != 'true'
+        run: .github/scripts/install-jsonnet.sh
+
+      - name: Render generated workflows
+        env:
+          OUT_DIR: ${{ runner.temp }}/renovate-sync-workflows
+        run: .github/scripts/render-workflows.sh
+
+      - name: Upload rendered workflows
+        uses: actions/upload-artifact@v4
+        with:
+          name: renovate-sync-workflows
+          path: ${{ runner.temp }}/renovate-sync-workflows
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.yarn/berry/cache
+            .yarn/cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: ${{ runner.os }}-yarn-
+
+      - name: Rebuild action bundles
+        env:
+          OUT_DIR: ${{ runner.temp }}/renovate-sync-actions
+        run: .github/scripts/render-actions.sh
+
+      - name: Upload rebuilt action bundles
+        uses: actions/upload-artifact@v4
+        with:
+          name: renovate-sync-actions
+          path: ${{ runner.temp }}/renovate-sync-actions
+          if-no-files-found: error
+          retention-days: 1
+
+  push:
+    needs: render
+    runs-on: ubuntu-x64
+    permissions:
+      contents: read
+      id-token: write
+      actions: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      # This job never checks out the Renovate branch — only the default
+      # branch, so it's always the reviewed copy of push-rendered-files.sh
+      # that runs, and the render job's artifacts are consumed as plain
+      # data, never executed.
+      - name: Check out the default branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Download rendered workflows
+        uses: actions/download-artifact@v4
+        with:
+          name: renovate-sync-workflows
+          path: ${{ runner.temp }}/renovate-sync-workflows
+
+      - name: Download rebuilt action bundles
+        uses: actions/download-artifact@v4
+        with:
+          name: renovate-sync-actions
+          path: ${{ runner.temp }}/renovate-sync-actions
+
+      - name: Get GitHub App Token
+        id: get-github-token
+        uses: grafana/shared-workflows/actions/create-github-app-token@46f48da11e78ebdba7a8747ae456b11062fac83e # create-github-app-token/v0.3.1
+        with:
+          github_app: loki-gh-app
+
+      - name: Push regenerated workflows if changed
+        id: push-workflows
+        env:
+          GH_TOKEN: ${{ steps.get-github-token.outputs.token }}
+          HEAD_REF: ${{ inputs.branch }}
+          HEAD_SHA: ${{ needs.render.outputs.head_sha }}
+          ARTIFACT_DIR: ${{ runner.temp }}/renovate-sync-workflows
+          ALLOWED_PATHS: |
+            .github/workflows/release-pr.yml
+            .github/workflows/test-release-pr.yml
+            .github/workflows/release.yml
+            .github/workflows/check.yml
+            .github/workflows/gel-check.yml
+          COMMIT_MESSAGE: "fix(ci): Regenerate release workflows"
+        run: .github/scripts/push-rendered-files.sh
+
+      # HEAD_SHA here is push-workflows' own resulting `sha` output, not
+      # needs.render.outputs.head_sha — otherwise this step would see the
+      # branch as having moved because of the push above and skip,
+      # mistaking our own prior update in this same job for someone else's.
+      - name: Push rebuilt action bundles if changed
+        env:
+          GH_TOKEN: ${{ steps.get-github-token.outputs.token }}
+          HEAD_REF: ${{ inputs.branch }}
+          HEAD_SHA: ${{ steps.push-workflows.outputs.sha }}
+          ARTIFACT_DIR: ${{ runner.temp }}/renovate-sync-actions
+          ALLOWED_PATHS: |
+            actions/*/dist/*
+          COMMIT_MESSAGE: "chore(ci): Rebuild action bundles"
+        run: .github/scripts/push-rendered-files.sh
