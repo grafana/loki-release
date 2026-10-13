@@ -103385,6 +103385,8 @@ async function shouldRelease(baseBranch, pullRequestTitlePattern) {
     return candidateReleases[0];
 }
 const footerPattern = /^Merging this PR will release the \[artifacts\]\(.*\) of (?<sha>\S+)$/;
+// Fallback scan: another bot may append a `---` section after the footer, which PullRequestBody.parse then treats as the footer.
+const bodyFooterPattern = /^Merging this PR will release the \[artifacts\]\(.*\) of (?<sha>\S+)$/m;
 async function prepareSingleRelease(pullRequest, pullRequestTitlePattern, tags) {
     if (!pullRequest.sha) {
         (0, core_1.error)('Pull request should have been merged');
@@ -103404,8 +103406,12 @@ async function prepareSingleRelease(pullRequest, pullRequestTitlePattern, tags) 
         return;
     }
     const footer = pullRequestBody.footer;
-    const match = footer?.match(footerPattern);
+    let match = footer?.match(footerPattern);
     if (!match?.groups?.sha) {
+        match = pullRequest.body?.match(bodyFooterPattern);
+    }
+    if (!match?.groups?.sha) {
+        (0, core_1.warning)(`Could not find release artifacts footer in PR #${pullRequest.number} body`);
         return;
     }
     const isLatest = isLatestVersion(version, tags);
