@@ -1,4 +1,4 @@
-ARG BUILD_IMAGE=golang:1.27.1@sha256:3680233e3204827fbdc66088528ae6d4b3d034f51d03a99d454f6de034888244
+ARG BUILD_IMAGE=golang:1.27.3@sha256:f24164268fc1e741bbdc0066dbadcf1c8426c5a8489f0729c02c3905a53032fd
 ARG GOARCH=amd64
 # Directories in this file are referenced from the root of the project not this folder
 # This file is intended to be called from the root like so:
