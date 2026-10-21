@@ -13,7 +13,7 @@
     - "integration"
     - "testPackages"
     - "testPushPackage"
-    "runs-on": "ubuntu-x64"
+    "runs-on": "ubuntu-x64-small"
     "steps":
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
       "name": "checks passed"
@@ -105,7 +105,7 @@
   "collectPackages":
     "outputs":
       "packages": "${{ steps.gather-tests.outputs.packages }}"
-    "runs-on": "ubuntu-x64"
+    "runs-on": "ubuntu-x64-small"
     "steps":
     - "name": "checkout"
       "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
@@ -134,7 +134,7 @@
     - "integration"
     - "testPackages"
     - "testPushPackage"
-    "runs-on": "ubuntu-x64"
+    "runs-on": "ubuntu-x64-small"
     "steps":
     - "name": "verify checks passed"
       "run": |

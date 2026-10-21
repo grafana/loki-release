@@ -369,7 +369,7 @@ jobs:
       contents: "write"
       id-token: "write"
       pull-requests: "write"
-    runs-on: "ubuntu-x64"
+    runs-on: "ubuntu-x64-small"
     steps:
     - name: "pull code to release"
       uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
