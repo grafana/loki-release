@@ -102,27 +102,6 @@
           cd /hugo && make prod
         EOF
       "working-directory": "release"
-  "collectPackages":
-    "outputs":
-      "packages": "${{ steps.gather-tests.outputs.packages }}"
-    "runs-on": "ubuntu-x64-small"
-    "steps":
-    - "name": "checkout"
-      "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
-      "with":
-        "persist-credentials": false
-    - "name": "fix git dubious ownership"
-      "run": |
-        git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    - "id": "gather-tests"
-      "name": "gather packages"
-      "run": |
-        echo "packages=$(find . -path '*_test.go' -printf '%h\n' \
-          | grep -e "pkg/push" -e "integration" -e "operator" -e "helm" -v \
-          | cut  -d / -f 2,3 \
-          | uniq \
-          | sort \
-          | jq --raw-input --slurp --compact-output 'split("\n")[:-1]')" >> ${GITHUB_OUTPUT}
   "failCheck":
     "env":
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
@@ -272,10 +251,9 @@
       "image": "${{ inputs.build_image }}"
     "env":
       "BUILD_IN_CONTAINER": false
-      "MATRIX_PACKAGE": "${{ matrix.package }}"
       "SKIP_VALIDATION": "${{ inputs.skip_validation }}"
-    "needs":
-    - "collectPackages"
+      "TEST_SHARD": "${{ matrix.shard }}"
+      "TEST_SHARDS": 12
     "runs-on": "ubuntu-x64"
     "steps":
     - "name": "pull code to release"
@@ -298,13 +276,36 @@
       "name": "install dependencies"
       "run": "lib/workflows/install_workflow_dependencies.sh loki-release"
     - "if": "${{ !fromJSON(env.SKIP_VALIDATION) }}"
-      "name": "test ${{ matrix.package }}"
+      "name": "test shard ${{ matrix.shard }}"
       "run": |
-        gotestsum -- -tags=assert -covermode=atomic -coverprofile=coverage.txt -p=4 ./${MATRIX_PACKAGE}/...
+        packages=$(find . -path '*_test.go' -printf '%h\n' \
+          | grep -e "pkg/push" -e "integration" -e "operator" -e "helm" -v \
+          | cut -d / -f 2,3 \
+          | LC_ALL=C sort -u \
+          | awk -v shard="${TEST_SHARD}" -v shards="${TEST_SHARDS}" '(NR - 1) % shards == shard - 1 { printf "./%s/... ", $0 }')
+        if [ -z "${packages}" ]; then
+          echo "No packages assigned to shard ${TEST_SHARD}"
+          exit 0
+        fi
+        echo "Testing ${packages}"
+        # shellcheck disable=SC2086 # packages is a space separated list
+        gotestsum -- -tags=assert -covermode=atomic -coverprofile=coverage.txt -p=4 ${packages}
       "working-directory": "release"
     "strategy":
       "matrix":
-        "package": "${{fromJson(needs.collectPackages.outputs.packages)}}"
+        "shard":
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
   "testPushPackage":
     "container":
       "image": "${{ inputs.build_image }}"
