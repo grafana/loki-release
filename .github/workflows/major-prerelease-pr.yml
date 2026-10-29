@@ -1,0 +1,280 @@
+concurrency:
+  group: "create-release-pr-${{ github.sha }}"
+env:
+  BUILD_ARTIFACTS_BUCKET: "loki-build-artifacts"
+  BUILD_TIMEOUT: 25
+  CHANGELOG_PATH: "CHANGELOG.md"
+  DRY_RUN: false
+  GAR_REPO_SLUG: "loki"
+  GITHUB_APP: "loki-gh-app"
+  IMAGE_PREFIX: "grafana"
+  PRERELEASE: true
+  RELEASE_AS: "4.0.0"
+  RELEASE_LIB_REF: "main"
+  RELEASE_REPO: "grafana/loki-release"
+  SKIP_VALIDATION: false
+  VERSIONING_STRATEGY: "always-bump-patch"
+jobs:
+  check:
+    permissions:
+      contents: "write"
+      id-token: "write"
+      pull-requests: "write"
+    uses: "./.github/workflows/check.yml"
+    with:
+      build_image: "golang:1.27.3"
+      golang_ci_lint_version: "v2.14.0"
+      release_lib_ref: "main"
+      skip_validation: false
+  create-release-pr:
+    needs:
+    - "dist"
+    permissions:
+      contents: "write"
+      id-token: "write"
+      pull-requests: "write"
+    runs-on: "ubuntu-x64"
+    steps:
+    - name: "pull code to release"
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
+      with:
+        path: "release"
+        persist-credentials: false
+        repository: "${{ env.RELEASE_REPO }}"
+    - name: "pull release library code"
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
+      with:
+        path: "lib"
+        persist-credentials: false
+        ref: "${{ env.RELEASE_LIB_REF }}"
+        repository: "grafana/loki-release"
+    - name: "setup node"
+      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+      with:
+        node-version: "24.22.1"
+        package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+    - id: "get_github_app_token"
+      name: "get github app token"
+      uses: "grafana/shared-workflows/actions/create-github-app-token@46f48da11e78ebdba7a8747ae456b11062fac83e"
+      with:
+        github_app: "${{ env.GITHUB_APP }}"
+    - env:
+        OUTPUTS_BRANCH: "${{ steps.extract_branch.outputs.branch }}"
+        OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"
+        OUTPUTS_VERSION: "${{ needs.dist.outputs.version }}"
+        SHA: "${{ github.sha }}"
+      id: "release"
+      name: "release please"
+      run: |
+        yarn install
+        yarn exec -- release-please release-pr \
+          --changelog-path "${CHANGELOG_PATH}" \
+          --consider-all-branches \
+          --group-pull-request-title-pattern "chore\${scope}: Release\${component} \${version}" \
+          --label "backport main,autorelease: pending,product-approved" \
+          --manifest-file .release-please-manifest.json \
+          --pull-request-footer "Merging this PR will release the [artifacts](https://console.cloud.google.com/storage/browser/${BUILD_ARTIFACTS_BUCKET}/${SHA}) of ${SHA}" \
+          --pull-request-title-pattern "chore\${scope}: Release\${component} \${version}" \
+          --release-as "$(echo $OUTPUTS_VERSION | tr -d '"')" \
+          --release-type simple \
+          --repo-url "${{ env.RELEASE_REPO }}" \
+          --separate-pull-requests false \
+          --target-branch "$(echo $OUTPUTS_BRANCH | tr -d '"')" \
+          --token "$(echo $OUTPUTS_TOKEN | tr -d '"')" \
+          --dry-run ${{ fromJSON(env.DRY_RUN) }} \
+          --prerelease "${{ env.PRERELEASE }}" \
+          --prerelease-type "rc"
+      working-directory: "lib"
+  dist:
+    needs:
+    - "version"
+    outputs:
+      version: "${{ needs.version.outputs.version }}"
+    permissions:
+      contents: "write"
+      id-token: "write"
+      pull-requests: "write"
+    runs-on: "ubuntu-x64"
+    steps:
+    - name: "pull code to release"
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
+      with:
+        path: "release"
+        persist-credentials: false
+        repository: "${{ env.RELEASE_REPO }}"
+    - env:
+        BUILD_IN_CONTAINER: false
+        DRONE_TAG: "${{ needs.version.outputs.version }}"
+        IMAGE_TAG: "${{ needs.version.outputs.version }}"
+        SKIP_ARM: false
+      if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
+      name: "build artifacts"
+      run: |
+        cat <<EOF | docker run \
+          --interactive \
+          --env BUILD_IN_CONTAINER \
+          --env DRONE_TAG \
+          --env IMAGE_TAG \
+          --env SKIP_ARM \
+          --volume .:/src/loki \
+          --workdir /src/loki \
+          --entrypoint /bin/sh "golang:1.27.3"
+          git config --global --add safe.directory /src/loki
+          if echo "golang:1.27.3" | grep -q "golang"; then
+            /src/loki/.github/vendor/github.com/grafana/loki-release/workflows/install_workflow_dependencies.sh dist
+          fi
+          make dist packages
+        EOF
+      working-directory: "release"
+    - continue-on-error: true
+      env:
+        BUILD_IN_CONTAINER: false
+        DRONE_TAG: "${{ needs.version.outputs.version }}"
+        IMAGE_TAG: "${{ needs.version.outputs.version }}"
+      if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
+      name: "build optional artifacts"
+      run: |
+        cat <<EOF | docker run \
+          --interactive \
+          --env BUILD_IN_CONTAINER \
+          --env DRONE_TAG \
+          --env IMAGE_TAG \
+          --volume .:/src/loki \
+          --workdir /src/loki \
+          --entrypoint /bin/sh "golang:1.27.3"
+          git config --global --add safe.directory /src/loki
+          if echo "golang:1.27.3" | grep -q "golang"; then
+            /src/loki/.github/vendor/github.com/grafana/loki-release/workflows/install_workflow_dependencies.sh dist
+          fi
+          make dist/loki-linux-riscv64
+        EOF
+      working-directory: "release"
+    - name: "Login to GAR"
+      uses: "grafana/shared-workflows/actions/login-to-gar@12c87e5aa323694c820c1ff3d8e47e8237e05136"
+    - env:
+        path: "dist/"
+      if: "${{ fromJSON(needs.version.outputs.pr_created) }}"
+      name: "upload artifacts"
+      run: |
+        gcloud artifacts generic upload \
+          --project="grafanalabs-dev" \
+          --repository="generic-${{ env.GAR_REPO_SLUG }}-dev" \
+          --location="us" \
+          --source-directory=${{env.path}} \
+          --package=binaries \
+          --version=${{ github.sha }}
+      working-directory: "release"
+  version:
+    needs:
+    - "check"
+    outputs:
+      pr_created: "${{ steps.version.outputs.pr_created }}"
+      version: "${{ steps.version.outputs.version }}"
+    permissions:
+      contents: "write"
+      id-token: "write"
+      pull-requests: "write"
+    runs-on: "ubuntu-x64"
+    steps:
+    - name: "pull release library code"
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
+      with:
+        path: "lib"
+        persist-credentials: false
+        ref: "${{ env.RELEASE_LIB_REF }}"
+        repository: "grafana/loki-release"
+    - name: "pull code to release"
+      uses: "actions/checkout@11d5960a326750d5838078e36cf38b85af677262"
+      with:
+        path: "release"
+        persist-credentials: false
+        repository: "${{ env.RELEASE_REPO }}"
+    - name: "setup node"
+      uses: "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020"
+      with:
+        node-version: "24.22.1"
+        package-manager-cache: false
+    - name: "enable corepack"
+      run: "corepack enable"
+    - id: "extract_branch"
+      name: "extract branch name"
+      run: |
+        echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+    - id: "get_github_app_token"
+      name: "get github app token"
+      uses: "grafana/shared-workflows/actions/create-github-app-token@46f48da11e78ebdba7a8747ae456b11062fac83e"
+      with:
+        github_app: "${{ env.GITHUB_APP }}"
+    - env:
+        OUTPUTS_BRANCH: "${{ steps.extract_branch.outputs.branch }}"
+        OUTPUTS_TOKEN: "${{ steps.get_github_app_token.outputs.token }}"
+      id: "version"
+      name: "get release version"
+      run: |
+        yarn install
+        
+        if [[ -z "${{ env.RELEASE_AS }}" ]]; then
+          yarn exec -- release-please release-pr \
+            --consider-all-branches \
+            --dry-run \
+            --dry-run-output release.json \
+            --group-pull-request-title-pattern "chore\${scope}: Release\${component} \${version}" \
+            --manifest-file .release-please-manifest.json \
+            --pull-request-title-pattern "chore\${scope}: Release\${component} \${version}" \
+            --release-type simple \
+            --repo-url "${{ env.RELEASE_REPO }}" \
+            --separate-pull-requests false \
+            --target-branch "$OUTPUTS_BRANCH" \
+            --token "$OUTPUTS_TOKEN" \
+            --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
+            --prerelease "${{ env.PRERELEASE }}" \
+            --prerelease-type "rc"
+        else
+          yarn exec -- release-please release-pr \
+            --consider-all-branches \
+            --dry-run \
+            --dry-run-output release.json \
+            --group-pull-request-title-pattern "chore\${scope}: Release\${component} \${version}" \
+            --manifest-file .release-please-manifest.json \
+            --pull-request-title-pattern "chore\${scope}: Release\${component} \${version}" \
+            --release-type simple \
+            --repo-url "${{ env.RELEASE_REPO }}" \
+            --separate-pull-requests false \
+            --target-branch "$OUTPUTS_BRANCH" \
+            --token "$OUTPUTS_TOKEN" \
+            --release-as "${{ env.RELEASE_AS }}" \
+            --prerelease "${{ env.PRERELEASE }}" \
+            --prerelease-type "rc"
+        fi
+        
+        cat release.json
+        
+        if [[ `jq length release.json` -gt 1 ]]; then 
+          echo 'release-please would create more than 1 PR, so cannot determine correct version'
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        if [[ `jq length release.json` -eq 0 ]]; then 
+          echo "pr_created=false" >> $GITHUB_OUTPUT
+        else
+          version="$(yarn run --silent get-version)"
+          echo "Parsed version: ${version}"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+        fi
+      working-directory: "lib"
+name: "Prepare Major Release PR"
+"on":
+  push:
+    branches:
+    - "release-4.0.0"
+permissions:
+  contents: "read"
+  pull-requests: "read"

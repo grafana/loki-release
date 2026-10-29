@@ -79,7 +79,7 @@ local runner = import 'runner.libsonnet',
           --package=images \
           --version=${{ github.sha }}
       |||),
-      ]),
+    ]),
 
   weeklyImage: function(
     name,
@@ -293,7 +293,9 @@ local runner = import 'runner.libsonnet',
             --separate-pull-requests false \
             --target-branch "$OUTPUTS_BRANCH" \
             --token "$OUTPUTS_TOKEN" \
-            --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
+            --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
+            --prerelease "${{ env.PRERELEASE }}" \
+            --prerelease-type "rc"
         else
           yarn exec -- release-please release-pr \
             --consider-all-branches \
@@ -307,7 +309,9 @@ local runner = import 'runner.libsonnet',
             --separate-pull-requests false \
             --target-branch "$OUTPUTS_BRANCH" \
             --token "$OUTPUTS_TOKEN" \
-            --release-as "${{ env.RELEASE_AS }}"
+            --release-as "${{ env.RELEASE_AS }}" \
+            --prerelease "${{ env.PRERELEASE }}" \
+            --prerelease-type "rc"
         fi
 
         cat release.json

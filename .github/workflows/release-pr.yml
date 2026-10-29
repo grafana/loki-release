@@ -8,6 +8,7 @@ env:
   GAR_REPO_SLUG: "loki"
   GITHUB_APP: "loki-gh-app"
   IMAGE_PREFIX: "us-docker.pkg.dev/grafanalabs-dev/docker-loki-dev"
+  PRERELEASE: false
   RELEASE_LIB_REF: "main"
   RELEASE_REPO: "grafana/loki-release"
   SKIP_VALIDATION: false
@@ -87,8 +88,9 @@ jobs:
           --separate-pull-requests false \
           --target-branch "$(echo $OUTPUTS_BRANCH | tr -d '"')" \
           --token "$(echo $OUTPUTS_TOKEN | tr -d '"')" \
-          --dry-run ${{ fromJSON(env.DRY_RUN) }}
-        
+          --dry-run ${{ fromJSON(env.DRY_RUN) }} \
+          --prerelease "${{ env.PRERELEASE }}" \
+          --prerelease-type "rc"
       working-directory: "lib"
   dist:
     needs:
@@ -411,7 +413,9 @@ jobs:
             --separate-pull-requests false \
             --target-branch "$OUTPUTS_BRANCH" \
             --token "$OUTPUTS_TOKEN" \
-            --versioning-strategy "${{ env.VERSIONING_STRATEGY }}"
+            --versioning-strategy "${{ env.VERSIONING_STRATEGY }}" \
+            --prerelease "${{ env.PRERELEASE }}" \
+            --prerelease-type "rc"
         else
           yarn exec -- release-please release-pr \
             --consider-all-branches \
@@ -425,7 +429,9 @@ jobs:
             --separate-pull-requests false \
             --target-branch "$OUTPUTS_BRANCH" \
             --token "$OUTPUTS_TOKEN" \
-            --release-as "${{ env.RELEASE_AS }}"
+            --release-as "${{ env.RELEASE_AS }}" \
+            --prerelease "${{ env.PRERELEASE }}" \
+            --prerelease-type "rc"
         fi
         
         cat release.json

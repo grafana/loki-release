@@ -65,6 +65,22 @@ local dockerPluginDir = 'clients/cmd/docker-driver';
       },
     }, false, false
   ),
+  '.github/workflows/major-prerelease-pr.yml': std.manifestYamlDoc(
+    lokiRelease.releasePRWorkflow(
+      branches=['release-4.0.0'],
+      buildImage=buildImage,
+      buildArtifactsBucket='loki-build-artifacts',
+      distRunsOn='ubuntu-x64',
+      distOptionalTargets=['dist/loki-linux-riscv64'],
+      releaseLibRef='main',
+      releaseRepo='grafana/loki-release',
+      skipArm=false,
+      releaseAs='4.0.0',
+      preRelease=true,
+    ) + {
+      name: 'Prepare Major Release PR',
+    }, false, false
+  ),
   '.github/workflows/release.yml': std.manifestYamlDoc(
     lokiRelease.releaseWorkflow(
       branches=['release-[0-9]+.[0-9]+.x'],

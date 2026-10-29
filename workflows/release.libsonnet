@@ -54,8 +54,9 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
           --separate-pull-requests false \
           --target-branch "$(echo $OUTPUTS_BRANCH | tr -d '"')" \
           --token "$(echo $OUTPUTS_TOKEN | tr -d '"')" \
-          --dry-run ${{ fromJSON(env.DRY_RUN) }}
-
+          --dry-run ${{ fromJSON(env.DRY_RUN) }} \
+          --prerelease "${{ env.PRERELEASE }}" \
+          --prerelease-type "rc"
       ||| % pullRequestFooter),
     ]),
 

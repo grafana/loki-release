@@ -27,6 +27,7 @@
     skipArm=false,
     skipValidation=false,
     versioningStrategy='always-bump-patch',
+    preRelease=false,
                     ) {
     local githubApp = if releaseRepo == 'grafana/enterprise-logs' then 'enterprise-logs-app' else 'loki-gh-app',
     local garRepoSlug = if releaseRepo == 'grafana/enterprise-logs' then 'enterprise-logs' else 'loki',
@@ -56,6 +57,7 @@
       SKIP_VALIDATION: skipValidation,
       VERSIONING_STRATEGY: versioningStrategy,
       GITHUB_APP: githubApp,
+      PRERELEASE: preRelease,
     } + if releaseAs != null then {
       RELEASE_AS: releaseAs,
     } else {},
