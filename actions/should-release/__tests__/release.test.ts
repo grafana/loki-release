@@ -102,8 +102,22 @@ describe('release', () => {
           name: 'v1.3.1',
           sha: 'abs123'
         } as GitHubTag
-      }
+      },
+      bodySuffix = ''
     ): void => {
+      const body =
+        new PullRequestBody(
+          [
+            {
+              version: defaultNextVersion,
+              notes: defaultPRNotes
+            }
+          ],
+          {
+            footer
+          }
+        ).toString() + bodySuffix
+
       findMergedReleasePullRequests.resolves([
         {
           headBranchName: `release-please--branches--release-1.3.x`,
@@ -111,17 +125,7 @@ describe('release', () => {
           sha: 'abc123',
           number: 42,
           title: defaultPRTitle,
-          body: new PullRequestBody(
-            [
-              {
-                version: defaultNextVersion,
-                notes: defaultPRNotes
-              }
-            ],
-            {
-              footer
-            }
-          ).toString(),
+          body,
           labels: [],
           files: []
         }
@@ -151,6 +155,25 @@ describe('release', () => {
 
       const release = await shouldRelease('main', prTitlePattern)
       expect(release).not.toBeDefined()
+    })
+
+    it('falls back to scanning the body when the footer is displaced by appended content', async () => {
+      const appended =
+        '\n\n---\n\n> [!NOTE]\n> **Low Risk**\n> Automated review note.\n'
+      setup(
+        defaultFooter,
+        {
+          'v1.3.1': {
+            name: 'v1.3.1',
+            sha: 'abs123'
+          } as GitHubTag
+        },
+        appended
+      )
+
+      const release = await shouldRelease('main', prTitlePattern)
+      expect(release).toBeDefined()
+      expect(release?.sha).toEqual('def456')
     })
 
     it('determines if the release is the latest version', async () => {
