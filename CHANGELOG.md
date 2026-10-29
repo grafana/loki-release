@@ -1,5 +1,58 @@
 # Changelog
 
+## [4.0.0-rc1](https://github.com/grafana/loki-release/compare/v1.21.0...v4.0.0-rc1) (2026-10-29)
+
+
+### Features
+
+* Add linux/riscv64 to platform map ([#298](https://github.com/grafana/loki-release/issues/298)) ([c28bbdc](https://github.com/grafana/loki-release/commit/c28bbdc35b7e8e781f18920d3a861ebd9d3ffa80))
+* Add optional dist targets to release workflow ([#300](https://github.com/grafana/loki-release/issues/300)) ([27ed4db](https://github.com/grafana/loki-release/commit/27ed4db1e9382bd115b2c57370fa459b48087d56))
+* customize dist runner ([#280](https://github.com/grafana/loki-release/issues/280)) ([dfe7537](https://github.com/grafana/loki-release/commit/dfe753760ce6ec2f4549fc11d2df24a2aa584e3f))
+
+
+### Bug Fixes
+
+* add missing permission ([#256](https://github.com/grafana/loki-release/issues/256)) ([0fdc60e](https://github.com/grafana/loki-release/commit/0fdc60e79248fab7c53257b59ac3d692f49327dd))
+* bump go to 1.27.3 for CVE-2026-111943 ([#445](https://github.com/grafana/loki-release/issues/445)) ([7f23c3d](https://github.com/grafana/loki-release/commit/7f23c3dd417732de070b6201c78dcc5bab7783cf))
+* **ci:** Add support for publishing docker plugins to GAR ([#382](https://github.com/grafana/loki-release/issues/382)) ([7ab4492](https://github.com/grafana/loki-release/commit/7ab449296de23c4e7ef562d1988135d28c71bce9))
+* **ci:** Log into dockerhub ([#376](https://github.com/grafana/loki-release/issues/376)) ([5f9df7b](https://github.com/grafana/loki-release/commit/5f9df7bc2982ed2faa63925979af611e9443120d))
+* **ci:** Publish docker plugin to GAR via crane ([#389](https://github.com/grafana/loki-release/issues/389)) ([0b88c65](https://github.com/grafana/loki-release/commit/0b88c65fb2524882620a1b1960eced4a405a301a))
+* **CI:** Remove spurious comma on failCheck ([#320](https://github.com/grafana/loki-release/issues/320)) ([fe5d3f6](https://github.com/grafana/loki-release/commit/fe5d3f6d92b12474be13daeb3d0aae72d205e143))
+* **ci:** Track CI build image via Makefile ([#401](https://github.com/grafana/loki-release/issues/401)) ([9f8978d](https://github.com/grafana/loki-release/commit/9f8978d5387d867c8b595bb35214b4bdb010e9f9))
+* **ci:** Use new uppercase pattern for PR titles and release-please ([#375](https://github.com/grafana/loki-release/issues/375)) ([ab3eb3e](https://github.com/grafana/loki-release/commit/ab3eb3e72e185daa72c9a70c589bde074faaf0dc))
+* **creds:** Fix repo permissions on loki stage ([#263](https://github.com/grafana/loki-release/issues/263)) ([d0273ef](https://github.com/grafana/loki-release/commit/d0273efcf240f2abec5818b4fed0c0dbcaccecf8))
+* Don't assume that this working directory has an origin or a main branch ([#304](https://github.com/grafana/loki-release/issues/304)) ([333e70c](https://github.com/grafana/loki-release/commit/333e70c68ee7f3f2413da58e6f559e4d301f6002))
+* escape env vars we're using in shell commands ([#254](https://github.com/grafana/loki-release/issues/254)) ([c81bbf8](https://github.com/grafana/loki-release/commit/c81bbf8aae70c6899796068184e3406caaddf27c))
+* github app value depends of repo ([#258](https://github.com/grafana/loki-release/issues/258)) ([2f0d1b5](https://github.com/grafana/loki-release/commit/2f0d1b5a369b95e005903d8034cd26b4129fc001))
+* give createReleaseBranch contents: write permission ([4d88544](https://github.com/grafana/loki-release/commit/4d8854445092dc2900fb865cde82e51075a54cc3))
+* Install nfpm in dist dependencies ([#390](https://github.com/grafana/loki-release/issues/390)) ([79fc5ea](https://github.com/grafana/loki-release/commit/79fc5eab3e11751a7c18b9255202d81aaf031c86))
+* pin node to 24.22.1 for CVE-2026-111497 ([#447](https://github.com/grafana/loki-release/issues/447)) ([ba2e119](https://github.com/grafana/loki-release/commit/ba2e119ef225396a0eb8425811f44914dc446963))
+* publish images release step needs id-token write ([0e98d83](https://github.com/grafana/loki-release/commit/0e98d831e81f82592a4323e567450e4417d55331))
+* publishing docker plugins needs the GHA token ([#261](https://github.com/grafana/loki-release/issues/261)) ([59c102c](https://github.com/grafana/loki-release/commit/59c102cfc18130fb4cf57e084a123788aa6bc80e))
+* **release:** Create dist/ before downloading release binaries ([#370](https://github.com/grafana/loki-release/issues/370)) ([961a0da](https://github.com/grafana/loki-release/commit/961a0dadb24cc4102187fc700dc3242152a17c21))
+* **release:** Create images and plugins dirs before gcloud download ([#378](https://github.com/grafana/loki-release/issues/378)) ([660b018](https://github.com/grafana/loki-release/commit/660b018d3a8df2fa14d778f7566a39a6db240957))
+* **release:** Download artifacts by release sha instead of trigger sha ([#371](https://github.com/grafana/loki-release/issues/371)) ([1e32d81](https://github.com/grafana/loki-release/commit/1e32d81ad6fbbd8c271e0bf79ce84c3e65efb0d3))
+* **release:** Drop trailing comma in release artifacts upload ([#380](https://github.com/grafana/loki-release/issues/380)) ([6825789](https://github.com/grafana/loki-release/commit/6825789fbdf19b7de7e3ec4656e55b1d62afece5))
+* **release:** Fix createReleaseBranch auth ordering and add an opt-out toggle ([#395](https://github.com/grafana/loki-release/issues/395)) ([51128df](https://github.com/grafana/loki-release/commit/51128dfe4883cc1de098f9951a148e096ced764e))
+* **release:** Fix github-release tagging of capitalized release PR titles ([#377](https://github.com/grafana/loki-release/issues/377)) ([8834ccf](https://github.com/grafana/loki-release/commit/8834ccf472ac60f2a1b426bf741a368873b3440f))
+* **release:** Log publishImages into the GAR registry ([#379](https://github.com/grafana/loki-release/issues/379)) ([00f0ddb](https://github.com/grafana/loki-release/commit/00f0ddb8d0d0b5e53ee1bf87a6d8a2e007e6e501))
+* **release:** Upload release artifacts from dist, not release/dist ([#381](https://github.com/grafana/loki-release/issues/381)) ([071d8c8](https://github.com/grafana/loki-release/commit/071d8c8a82ce2e45b9425529ba0692f2eefeb000))
+* **security/high/:** update module google.golang.org/grpc to v1.83.2 [security] ([#409](https://github.com/grafana/loki-release/issues/409)) ([41e31f4](https://github.com/grafana/loki-release/commit/41e31f47263b8a11fa503eef70d8afae52f5969f))
+* **security/unknown/pkg/push:** update go toolchain directive to v1.25.13 [security] ([#361](https://github.com/grafana/loki-release/issues/361)) ([afd7d9b](https://github.com/grafana/loki-release/commit/afd7d9b8ad0f86ce299d01ed8842b36d873581ac))
+* **security/unknown/:** update module github.com/klauspost/compress to v1.18.7 [security] ([#391](https://github.com/grafana/loki-release/issues/391)) ([6038c7f](https://github.com/grafana/loki-release/commit/6038c7f154dade1ec75637fd3c25bad86f7752ce))
+* **security/unknown/:** update module go.etcd.io/etcd/client/pkg/v3 to v3.5.33 [security] ([#397](https://github.com/grafana/loki-release/issues/397)) ([66add8d](https://github.com/grafana/loki-release/commit/66add8df63d2bc5c9c87212391b9bb6d257d8a0f))
+* **security/unknown/:** update module go.mongodb.org/mongo-driver to v1.17.7 [security] ([#373](https://github.com/grafana/loki-release/issues/373)) ([a683aa2](https://github.com/grafana/loki-release/commit/a683aa2a731536bc7a38683623bdc1fa17ba6a46))
+* **security/unknown/:** update module golang.org/x/crypto to v0.56.0 [security] ([#358](https://github.com/grafana/loki-release/issues/358)) ([7311690](https://github.com/grafana/loki-release/commit/731169062b2eda81910afa064d63a3ebd00e36d9))
+* **security/unknown/:** update module golang.org/x/mod to v0.40.0 [security] ([#396](https://github.com/grafana/loki-release/issues/396)) ([1d103b0](https://github.com/grafana/loki-release/commit/1d103b0f1d53e9514ce2bbc64e2a107ea47afc73))
+* **security/unknown/:** update module google.golang.org/grpc to v1.83.1 [security] ([#385](https://github.com/grafana/loki-release/issues/385)) ([e7312b0](https://github.com/grafana/loki-release/commit/e7312b087d4a4fc78ae9b2d958bd050d630d06df))
+* **should-release:** Parse capitalized release PR titles ([#369](https://github.com/grafana/loki-release/issues/369)) ([22c2fa7](https://github.com/grafana/loki-release/commit/22c2fa76d6384771cfd9e5b2e36df46a0d644118))
+* **workflows:** Pin actions/checkout and actions/setup-node SHAs in jsonnet source ([#421](https://github.com/grafana/loki-release/issues/421)) ([d39dec3](https://github.com/grafana/loki-release/commit/d39dec3276d9b5eb7e84f5b8b13057dd01fa18ef))
+
+
+### Miscellaneous Chores
+
+* Prepare release 4.0.0 ([fc106ca](https://github.com/grafana/loki-release/commit/fc106cac442b8008e10a8bf44f23bdd06dbe9d8e))
+
 ## [1.21.0](https://github.com/grafana/loki-release/compare/v1.20.3...v1.21.0) (2025-04-29)
 
 
