@@ -7,6 +7,7 @@ env:
   DRY_RUN: true
   GAR_REPO_SLUG: "loki"
   GITHUB_APP: "loki-gh-app"
+  GO_VERSION: "1.27.3"
   IMAGE_PREFIX: "us-docker.pkg.dev/grafanalabs-dev/docker-loki-dev/ci/${{ github.run_id }}"
   PLUGIN_IMAGE_PREFIX: "us-docker.pkg.dev/grafanalabs-dev/docker-loki-dev/ci/${{ github.run_id }}"
   RELEASE_LIB_REF: "main"
@@ -206,7 +207,9 @@ jobs:
       timeout-minutes: "${{ fromJSON(env.BUILD_TIMEOUT) }}"
       uses: "docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1"
       with:
-        build-args: "IMAGE_TAG=${{ needs.version.outputs.version }}"
+        build-args: |
+          IMAGE_TAG=${{ needs.version.outputs.version }}
+          GO_VERSION=${{ env.GO_VERSION }}
         context: "release"
         file: "release/cmd/loki/Dockerfile"
         outputs: "type=docker,dest=release/images/fake-loki-${{ needs.version.outputs.version}}-${{ steps.platform.outputs.platform }}.tar"

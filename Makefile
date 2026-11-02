@@ -63,4 +63,4 @@ clients/cmd/docker-driver/docker-driver:
 	CGO_ENABLED=0 go build $(GO_FLAGS) -o $@ ./$(@D)
 
 release-workflows:
-	jsonnet -Sm . -V BUILD_IMAGE=$(BUILD_IMAGE) workflows/workflows.jsonnet
+	jsonnet -Sm . -V BUILD_IMAGE=$(BUILD_IMAGE) -V GO_VERSION=1.27.3 workflows/workflows.jsonnet
