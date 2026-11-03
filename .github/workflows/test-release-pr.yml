@@ -156,7 +156,8 @@ jobs:
           --location="us" \
           --source-directory=${{env.path}} \
           --package=binaries \
-          --version=${{ github.sha }}
+          --version=${{ github.sha }} \
+          --skip-existing
       working-directory: "release"
   loki:
     needs:
@@ -228,7 +229,8 @@ jobs:
           --location="us" \
           --source=${{ env.path }} \
           --package=images \
-          --version=${{ github.sha }}
+          --version=${{ github.sha }} \
+          --skip-existing
       working-directory: "release"
     strategy:
       fail-fast: true
@@ -328,7 +330,8 @@ jobs:
           --location="us" \
           --source=${{env.path}} \
           --package=plugins \
-          --version=${{ github.sha }}
+          --version=${{ github.sha }} \
+          --skip-existing
       working-directory: "release"
     strategy:
       fail-fast: true

@@ -177,7 +177,8 @@ local pullRequestFooter = 'Merging this PR will release the [artifacts](https://
                        --location="us" \
                        --source-directory=${{ env.path }} \
                        --package=binaries \
-                       --version=${{ github.sha }}
+                       --version=${{ github.sha }} \
+                       --skip-existing
                    |||)
                    + step.withEnv({
                      path: 'dist',

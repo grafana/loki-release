@@ -80,7 +80,8 @@ local runner = import 'runner.libsonnet',
           --location="us" \
           --source=${{ env.path }} \
           --package=images \
-          --version=${{ github.sha }}
+          --version=${{ github.sha }} \
+          --skip-existing
       |||),
     ]),
 
@@ -256,7 +257,8 @@ local runner = import 'runner.libsonnet',
           --location="us" \
           --source=${{env.path}} \
           --package=plugins \
-          --version=${{ github.sha }}
+          --version=${{ github.sha }} \
+          --skip-existing
       |||),
     ]),
 
@@ -420,7 +422,8 @@ local runner = import 'runner.libsonnet',
           --location="us" \
           --source-directory=${{env.path}} \
           --package=binaries \
-          --version=${{ github.sha }}
+          --version=${{ github.sha }} \
+          --skip-existing
       |||),
     ])
     + job.withOutputs({
