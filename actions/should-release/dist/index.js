@@ -103418,6 +103418,10 @@ async function prepareSingleRelease(pullRequest, pullRequestTitlePattern, tags) 
     };
 }
 function isLatestVersion(version, tags, versionPattern = /^v\d+\.\d+\.\d+$/) {
+    if (version.preRelease) {
+        (0, core_1.info)(`${version.toString()} is a pre-release, marking as not latest`);
+        return false;
+    }
     (0, core_1.info)(`Checking if version ${version.toString()} is latest against ${Object.keys(tags).length} tags`);
     const filteredTags = Object.entries(tags)
         .filter(([tagName]) => versionPattern.test(tagName))
