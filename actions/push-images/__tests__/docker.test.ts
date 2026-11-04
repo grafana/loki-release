@@ -292,7 +292,7 @@ describe('buildCommands with a version suffix', () => {
       [
         'fluent-bit-plugin-loki-4.0.0-rc.1-linux-amd64.tar',
         'loki-4.0.0-rc.1-linux-amd64.tar',
-        'loki-4.0.0-rc.1-linux-arm64.tar',
+        'loki-4.0.0-rc.1-linux-arm64.tar'
       ],
       false
     )
@@ -307,7 +307,7 @@ describe('buildCommands with a version suffix', () => {
       'docker load -i /images/loki-4.0.0-rc.1-linux-arm64.tar',
       'docker push -a grafana/loki',
       'docker manifest create grafana/loki:4.0.0-rc.1 grafana/loki:4.0.0-rc.1-amd64 grafana/loki:4.0.0-rc.1-arm64',
-      'docker manifest push grafana/loki:4.0.0-rc.1',
+      'docker manifest push grafana/loki:4.0.0-rc.1'
     ])
   })
 })
