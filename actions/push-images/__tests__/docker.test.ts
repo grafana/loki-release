@@ -284,6 +284,34 @@ describe('buildCommands', () => {
   })
 })
 
+describe('buildCommands with a version suffix', () => {
+  it('uses the full version, including the suffix, for tags and manifests', () => {
+    const commands = buildCommands(
+      'grafana',
+      '/images',
+      [
+        'fluent-bit-plugin-loki-4.0.0-rc.1-linux-amd64.tar',
+        'loki-4.0.0-rc.1-linux-amd64.tar',
+        'loki-4.0.0-rc.1-linux-arm64.tar'
+      ],
+      false
+    )
+
+    expect(commands).toEqual([
+      'cd /images',
+      'docker load -i /images/fluent-bit-plugin-loki-4.0.0-rc.1-linux-amd64.tar',
+      'docker push -a grafana/fluent-bit-plugin-loki',
+      'docker manifest create grafana/fluent-bit-plugin-loki:4.0.0-rc.1 grafana/fluent-bit-plugin-loki:4.0.0-rc.1-amd64',
+      'docker manifest push grafana/fluent-bit-plugin-loki:4.0.0-rc.1',
+      'docker load -i /images/loki-4.0.0-rc.1-linux-amd64.tar',
+      'docker load -i /images/loki-4.0.0-rc.1-linux-arm64.tar',
+      'docker push -a grafana/loki',
+      'docker manifest create grafana/loki:4.0.0-rc.1 grafana/loki:4.0.0-rc.1-amd64 grafana/loki:4.0.0-rc.1-arm64',
+      'docker manifest push grafana/loki:4.0.0-rc.1'
+    ])
+  })
+})
+
 describe('parseImage', () => {
   it('parse the image file name', () => {
     const twoNineFour = '2.9.4'
@@ -471,6 +499,78 @@ describe('parseImage', () => {
           version: '1.14.0.alpha.1',
           platform: 'linux/amd64'
         }
+      },
+      {
+        file: 'loki-4.0.0-rc.1-linux-amd64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc.1',
+          platform: 'linux/amd64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc.1-linux-arm64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc.1',
+          platform: 'linux/arm64'
+        }
+      },
+      {
+        file: 'fluent-bit-plugin-loki-4.0.0-rc.1-linux-amd64.tar',
+        expected: {
+          image: 'fluent-bit-plugin-loki',
+          version: '4.0.0-rc.1',
+          platform: 'linux/amd64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc-1-linux-arm.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc-1',
+          platform: 'linux/arm'
+        }
+      },
+      {
+        file: 'loki-4.0.0-windows-amd64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0',
+          platform: 'windows/amd64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc.1-windows-amd64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc.1',
+          platform: 'windows/amd64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-darwin-arm64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0',
+          platform: 'darwin/arm64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc.1-darwin-arm64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc.1',
+          platform: 'darwin/arm64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc.1-linux-arm-v7.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc.1',
+          platform: 'linux/arm-v7'
+        }
       }
     ]) {
       const image = parseImageMeta(img.file)
@@ -478,5 +578,11 @@ describe('parseImage', () => {
       expect(image?.version.toString()).toEqual(img.expected.version)
       expect(image?.platform).toEqual(img.expected.platform)
     }
+  })
+
+  it('returns null for file names without a known platform', () => {
+    expect(parseImageMeta('loki-4.0.0-rc.1.tar')).toBeNull()
+    expect(parseImageMeta('loki-4.0.0-rc.1-amd64.tar')).toBeNull()
+    expect(parseImageMeta('loki-4.0.0-unknown-amd64.tar')).toBeNull()
   })
 })

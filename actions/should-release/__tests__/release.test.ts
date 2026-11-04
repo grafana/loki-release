@@ -18,7 +18,6 @@ let findMergedReleasePullRequests: sinon.SinonStub
 let tagIterator: sinon.SinonStub
 let fakeGitHub: GitHub
 let defaultPRNotes: string
-let defaultPRTitle: string
 
 const defaultNextVersion = Version.parse('1.3.2')
 
@@ -86,8 +85,6 @@ describe('release', () => {
       currentTag: '1.3.2',
       commits
     })
-
-    defaultPRTitle = PullRequestTitle.ofVersion(defaultNextVersion).toString()
   })
 
   afterEach(() => {
@@ -102,7 +99,8 @@ describe('release', () => {
           name: 'v1.3.1',
           sha: 'abs123'
         } as GitHubTag
-      }
+      },
+      version = defaultNextVersion
     ): void => {
       findMergedReleasePullRequests.resolves([
         {
@@ -110,11 +108,11 @@ describe('release', () => {
           baseBranchName: 'release-1.3.x',
           sha: 'abc123',
           number: 42,
-          title: defaultPRTitle,
+          title: PullRequestTitle.ofVersion(version).toString(),
           body: new PullRequestBody(
             [
               {
-                version: defaultNextVersion,
+                version,
                 notes: defaultPRNotes
               }
             ],
@@ -164,6 +162,20 @@ describe('release', () => {
 
       const release = await shouldRelease('main', prTitlePattern)
       expect(release?.isLatest).toEqual(true)
+    })
+
+    it('determines that a pre-release is not the latest version', async () => {
+      const tags = {
+        'v1.3.1': {
+          name: 'v1.3.1',
+          sha: 'abs123'
+        } as GitHubTag
+      }
+      setup(defaultFooter, tags, Version.parse('1.4.0-rc.1'))
+
+      const release = await shouldRelease('main', prTitlePattern)
+      expect(release?.name).toEqual('v1.4.0-rc.1')
+      expect(release?.isLatest).toEqual(false)
     })
 
     it('determines if the release is not the latest version', async () => {
@@ -255,6 +267,23 @@ describe('release', () => {
       // This should be true because it's higher than any existing version
       ver = Version.parse('3.3.4')
       expect(isLatestVersion(ver, tagsWithEqual)).toBe(true)
+    })
+
+    it('returns false for a pre-release version', () => {
+      expect(isLatestVersion(Version.parse('1.3.3-rc.1'), defaultTags)).toBe(
+        false
+      )
+      expect(isLatestVersion(Version.parse('2.0.0-rc.1'), defaultTags)).toBe(
+        false
+      )
+      expect(isLatestVersion(Version.parse('1.0.0-rc.1'), defaultTags)).toBe(
+        false
+      )
+    })
+
+    it('ignores pre-release tags when checking for newer versions', () => {
+      const tags = createTags(['v1.3.2', 'v1.4.0-rc.1'])
+      expect(isLatestVersion(Version.parse('1.3.3'), tags)).toBe(true)
     })
 
     it('handles mixed version formats', () => {

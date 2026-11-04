@@ -25746,20 +25746,45 @@ function buildCommands(repo, imageDir, files, isLatest) {
     }
     return commands;
 }
-const imagePattern = /^(?<image>[^0-9]*)-(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(\.(?<preRelease>[a-zA-Z0-9.]*))?-(?<platform>.*).tar$/;
+// Operating systems known to Go (see `go tool dist list`). The platform has to
+// start with one of them, otherwise a version suffix such as "-rc.1" cannot be
+// told apart from the platform in a file name.
+const operatingSystems = [
+    'aix',
+    'android',
+    'darwin',
+    'dragonfly',
+    'freebsd',
+    'illumos',
+    'ios',
+    'js',
+    'linux',
+    'netbsd',
+    'openbsd',
+    'plan9',
+    'solaris',
+    'wasip1',
+    'windows'
+];
+const imagePattern = new RegExp('^(?<image>[^0-9]*)-' +
+    '(?<major>0|[1-9]\\d*)\\.(?<minor>0|[1-9]\\d*)\\.(?<patch>0|[1-9]\\d*)' +
+    '(?<suffix>[.-][a-zA-Z0-9.-]+)?' +
+    `-(?<platform>(?:${operatingSystems.join('|')})-.+)\\.tar$`);
 function parseImageMeta(file) {
     const match = file?.match(imagePattern);
     if (match && match.groups) {
-        const { image, major, minor, preRelease, patch, platform } = match.groups;
+        const { image, major, minor, patch, suffix, platform } = match.groups;
         return {
             image,
-            version: parseVersion(major, minor, patch, preRelease),
+            version: parseVersion(major, minor, patch, suffix),
             platform: platform.replace('-', '/')
         };
     }
     return null;
 }
-function parseVersion(maj, min, pat, preRelease) {
+// The suffix is kept as it appears in the file name, including its separator
+// (e.g. "-rc.1"), so that the version matches the tag of the loaded image.
+function parseVersion(maj, min, pat, suffix = '') {
     const major = parseInt(maj);
     const minor = parseInt(min);
     const patch = parseInt(pat);
@@ -25767,12 +25792,7 @@ function parseVersion(maj, min, pat, preRelease) {
         major,
         minor,
         patch,
-        toString: () => {
-            if (preRelease) {
-                return `${major}.${minor}.${patch}.${preRelease}`;
-            }
-            return `${major}.${minor}.${patch}`;
-        }
+        toString: () => `${major}.${minor}.${patch}${suffix}`
     };
 }
 

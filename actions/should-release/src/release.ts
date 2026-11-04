@@ -120,6 +120,11 @@ export function isLatestVersion(
   tags: Record<string, GitHubTag>,
   versionPattern = /^v\d+\.\d+\.\d+$/
 ): boolean {
+  if (version.preRelease) {
+    info(`${version.toString()} is a pre-release, marking as not latest`)
+    return false
+  }
+
   info(
     `Checking if version ${version.toString()} is latest against ${
       Object.keys(tags).length
