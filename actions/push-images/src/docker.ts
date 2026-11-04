@@ -161,8 +161,34 @@ type Version = {
   toString: () => string
 }
 
-const imagePattern =
-  /^(?<image>[^0-9]*)-(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?<suffix>[.-][a-zA-Z0-9.-]+)?-(?<platform>linux-.*).tar$/
+// Operating systems known to Go (see `go tool dist list`). The platform has to
+// start with one of them, otherwise a version suffix such as "-rc.1" cannot be
+// told apart from the platform in a file name.
+const operatingSystems = [
+  'aix',
+  'android',
+  'darwin',
+  'dragonfly',
+  'freebsd',
+  'illumos',
+  'ios',
+  'js',
+  'linux',
+  'netbsd',
+  'openbsd',
+  'plan9',
+  'solaris',
+  'wasip1',
+  'windows'
+]
+
+const imagePattern = new RegExp(
+  '^(?<image>[^0-9]*)-' +
+    '(?<major>0|[1-9]\\d*)\\.(?<minor>0|[1-9]\\d*)\\.(?<patch>0|[1-9]\\d*)' +
+    '(?<suffix>[.-][a-zA-Z0-9.-]+)?' +
+    `-(?<platform>(?:${operatingSystems.join('|')})-.+)\\.tar$`
+)
+
 export function parseImageMeta(file: string): {
   image: string
   version: Version

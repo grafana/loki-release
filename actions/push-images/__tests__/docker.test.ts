@@ -561,6 +561,46 @@ describe('parseImage', () => {
           version: '4.0.0-rc-1',
           platform: 'linux/arm'
         }
+      },
+      {
+        file: 'loki-4.0.0-windows-amd64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0',
+          platform: 'windows/amd64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc.1-windows-amd64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc.1',
+          platform: 'windows/amd64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-darwin-arm64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0',
+          platform: 'darwin/arm64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc.1-darwin-arm64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc.1',
+          platform: 'darwin/arm64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc.1-linux-arm-v7.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc.1',
+          platform: 'linux/arm-v7'
+        }
       }
     ]) {
       const image = parseImageMeta(img.file)
@@ -568,5 +608,11 @@ describe('parseImage', () => {
       expect(image?.version.toString()).toEqual(img.expected.version)
       expect(image?.platform).toEqual(img.expected.platform)
     }
+  })
+
+  it('returns null for file names without a known platform', () => {
+    expect(parseImageMeta('loki-4.0.0-rc.1.tar')).toBeNull()
+    expect(parseImageMeta('loki-4.0.0-rc.1-amd64.tar')).toBeNull()
+    expect(parseImageMeta('loki-4.0.0-unknown-amd64.tar')).toBeNull()
   })
 })
