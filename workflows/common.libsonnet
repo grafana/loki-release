@@ -1,4 +1,4 @@
-local checkoutAction = 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262';  // v4
+local checkoutAction = 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262';  // v4.4.0
 local setupNodeAction = 'actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020';  // v4
 
 {
