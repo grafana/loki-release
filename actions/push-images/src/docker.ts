@@ -162,7 +162,7 @@ type Version = {
 }
 
 const imagePattern =
-  /^(?<image>[^0-9]*)-(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(\.(?<preRelease>[a-zA-Z0-9.]*))?-(?<platform>.*).tar$/
+  /^(?<image>[^0-9]*)-(?<major>0|[1-9]\d*)\.(?<minor>0|[1-9]\d*)\.(?<patch>0|[1-9]\d*)(?<suffix>[.-][a-zA-Z0-9.-]+)?-(?<platform>linux-.*).tar$/
 export function parseImageMeta(file: string): {
   image: string
   version: Version
@@ -171,10 +171,10 @@ export function parseImageMeta(file: string): {
   const match = file?.match(imagePattern)
 
   if (match && match.groups) {
-    const { image, major, minor, preRelease, patch, platform } = match.groups
+    const { image, major, minor, patch, suffix, platform } = match.groups
     return {
       image,
-      version: parseVersion(major, minor, patch, preRelease),
+      version: parseVersion(major, minor, patch, suffix),
       platform: platform.replace('-', '/')
     }
   }
@@ -182,11 +182,13 @@ export function parseImageMeta(file: string): {
   return null
 }
 
+// The suffix is kept as it appears in the file name, including its separator
+// (e.g. "-rc.1"), so that the version matches the tag of the loaded image.
 function parseVersion(
   maj: string,
   min: string,
   pat: string,
-  preRelease?: string
+  suffix = ''
 ): Version {
   const major = parseInt(maj)
   const minor = parseInt(min)
@@ -196,12 +198,6 @@ function parseVersion(
     major,
     minor,
     patch,
-    toString: () => {
-      if (preRelease) {
-        return `${major}.${minor}.${patch}.${preRelease}`
-      }
-
-      return `${major}.${minor}.${patch}`
-    }
+    toString: () => `${major}.${minor}.${patch}${suffix}`
   }
 }

@@ -284,6 +284,64 @@ describe('buildCommands', () => {
   })
 })
 
+describe('buildCommands with a version suffix', () => {
+  it('uses the full version, including the suffix, for tags and manifests', () => {
+    const commands = buildCommands(
+      'grafana',
+      '/images',
+      [
+        'fluent-bit-plugin-loki-4.0.0-rc.1-linux-amd64.tar',
+        'loki-4.0.0-rc.1-linux-amd64.tar',
+        'loki-4.0.0-rc.1-linux-arm64.tar'
+      ],
+      true
+    )
+
+    expect(commands).toEqual([
+      'cd /images',
+      'docker load -i /images/fluent-bit-plugin-loki-4.0.0-rc.1-linux-amd64.tar',
+      'docker tag grafana/fluent-bit-plugin-loki:4.0.0-rc.1-amd64 grafana/fluent-bit-plugin-loki:latest-amd64',
+      'docker push grafana/fluent-bit-plugin-loki:latest-amd64',
+      'docker tag grafana/fluent-bit-plugin-loki:4.0.0-rc.1-amd64 grafana/fluent-bit-plugin-loki:4-amd64',
+      'docker push grafana/fluent-bit-plugin-loki:4-amd64',
+      'docker tag grafana/fluent-bit-plugin-loki:4.0.0-rc.1-amd64 grafana/fluent-bit-plugin-loki:4.0-amd64',
+      'docker push grafana/fluent-bit-plugin-loki:4.0-amd64',
+      'docker push -a grafana/fluent-bit-plugin-loki',
+      'docker manifest create grafana/fluent-bit-plugin-loki:4.0.0-rc.1 grafana/fluent-bit-plugin-loki:4.0.0-rc.1-amd64',
+      'docker manifest push grafana/fluent-bit-plugin-loki:4.0.0-rc.1',
+      'docker manifest create grafana/fluent-bit-plugin-loki:latest grafana/fluent-bit-plugin-loki:latest-amd64',
+      'docker manifest push grafana/fluent-bit-plugin-loki:latest',
+      'docker manifest create grafana/fluent-bit-plugin-loki:4 grafana/fluent-bit-plugin-loki:4-amd64',
+      'docker manifest push grafana/fluent-bit-plugin-loki:4',
+      'docker manifest create grafana/fluent-bit-plugin-loki:4.0 grafana/fluent-bit-plugin-loki:4.0-amd64',
+      'docker manifest push grafana/fluent-bit-plugin-loki:4.0',
+      'docker load -i /images/loki-4.0.0-rc.1-linux-amd64.tar',
+      'docker tag grafana/loki:4.0.0-rc.1-amd64 grafana/loki:latest-amd64',
+      'docker push grafana/loki:latest-amd64',
+      'docker tag grafana/loki:4.0.0-rc.1-amd64 grafana/loki:4-amd64',
+      'docker push grafana/loki:4-amd64',
+      'docker tag grafana/loki:4.0.0-rc.1-amd64 grafana/loki:4.0-amd64',
+      'docker push grafana/loki:4.0-amd64',
+      'docker load -i /images/loki-4.0.0-rc.1-linux-arm64.tar',
+      'docker tag grafana/loki:4.0.0-rc.1-arm64 grafana/loki:latest-arm64',
+      'docker push grafana/loki:latest-arm64',
+      'docker tag grafana/loki:4.0.0-rc.1-arm64 grafana/loki:4-arm64',
+      'docker push grafana/loki:4-arm64',
+      'docker tag grafana/loki:4.0.0-rc.1-arm64 grafana/loki:4.0-arm64',
+      'docker push grafana/loki:4.0-arm64',
+      'docker push -a grafana/loki',
+      'docker manifest create grafana/loki:4.0.0-rc.1 grafana/loki:4.0.0-rc.1-amd64 grafana/loki:4.0.0-rc.1-arm64',
+      'docker manifest push grafana/loki:4.0.0-rc.1',
+      'docker manifest create grafana/loki:latest grafana/loki:latest-amd64 grafana/loki:latest-arm64',
+      'docker manifest push grafana/loki:latest',
+      'docker manifest create grafana/loki:4 grafana/loki:4-amd64 grafana/loki:4-arm64',
+      'docker manifest push grafana/loki:4',
+      'docker manifest create grafana/loki:4.0 grafana/loki:4.0-amd64 grafana/loki:4.0-arm64',
+      'docker manifest push grafana/loki:4.0'
+    ])
+  })
+})
+
 describe('parseImage', () => {
   it('parse the image file name', () => {
     const twoNineFour = '2.9.4'
@@ -470,6 +528,38 @@ describe('parseImage', () => {
           image: 'loki-docker-driver',
           version: '1.14.0.alpha.1',
           platform: 'linux/amd64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc.1-linux-amd64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc.1',
+          platform: 'linux/amd64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc.1-linux-arm64.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc.1',
+          platform: 'linux/arm64'
+        }
+      },
+      {
+        file: 'fluent-bit-plugin-loki-4.0.0-rc.1-linux-amd64.tar',
+        expected: {
+          image: 'fluent-bit-plugin-loki',
+          version: '4.0.0-rc.1',
+          platform: 'linux/amd64'
+        }
+      },
+      {
+        file: 'loki-4.0.0-rc-1-linux-arm.tar',
+        expected: {
+          image: 'loki',
+          version: '4.0.0-rc-1',
+          platform: 'linux/arm'
         }
       }
     ]) {
