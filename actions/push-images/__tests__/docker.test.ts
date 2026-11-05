@@ -25,7 +25,6 @@ describe('buildCommands', () => {
         'loki-canary-boringcrypto-2.9.4-linux-amd64.tar',
         'loki-canary-boringcrypto-2.9.4-linux-arm.tar',
         'loki-canary-boringcrypto-2.9.4-linux-arm64.tar',
-        'loki-operator-2.9.4-linux-amd64.tar',
         'promtail-2.9.4-linux-amd64.tar',
         'promtail-2.9.4-linux-arm.tar',
         'promtail-2.9.4-linux-arm64.tar',
@@ -79,11 +78,6 @@ describe('buildCommands', () => {
       `docker push -a grafana/loki-canary-boringcrypto`,
       `docker manifest create grafana/loki-canary-boringcrypto:2.9.4 grafana/loki-canary-boringcrypto:2.9.4-amd64 grafana/loki-canary-boringcrypto:2.9.4-arm grafana/loki-canary-boringcrypto:2.9.4-arm64`,
       `docker manifest push grafana/loki-canary-boringcrypto:2.9.4`,
-
-      `docker load -i /images/loki-operator-2.9.4-linux-amd64.tar`,
-      `docker push -a grafana/loki-operator`,
-      `docker manifest create grafana/loki-operator:2.9.4 grafana/loki-operator:2.9.4-amd64`,
-      `docker manifest push grafana/loki-operator:2.9.4`,
 
       `docker load -i /images/promtail-2.9.4-linux-amd64.tar`,
       `docker load -i /images/promtail-2.9.4-linux-arm.tar`,
@@ -434,14 +428,6 @@ describe('parseImage', () => {
           image: 'loki-canary-boringcrypto',
           version: twoNineFour,
           platform: 'linux/arm64'
-        }
-      },
-      {
-        file: 'loki-operator-2.9.4-linux-amd64.tar',
-        expected: {
-          image: 'loki-operator',
-          version: twoNineFour,
-          platform: 'linux/amd64'
         }
       },
       {

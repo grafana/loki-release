@@ -77,7 +77,7 @@ local testShards = 12;
                   + step.withIf('${{ !fromJSON(env.SKIP_VALIDATION) }}')
                   + step.withRun(|||
                     packages=$(find . -path '*_test.go' -printf '%h\n' \
-                      | grep -e "pkg/push" -e "integration" -e "operator" -e "helm" -v \
+                      | grep -e "pkg/push" -e "integration" -e "helm" -v \
                       | cut -d / -f 2,3 \
                       | LC_ALL=C sort -u \
                       | awk -v shard="${TEST_SHARD}" -v shards="${TEST_SHARDS}" '(NR - 1) % shards == shard - 1 { printf "./%s/... ", $0 }')
