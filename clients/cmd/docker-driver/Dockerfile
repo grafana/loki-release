@@ -1,4 +1,4 @@
-ARG BUILD_IMAGE=golang:1.27.3@sha256:c292963ad0e5f51e843c726edc204a4e4c26a859ba1e4d736d91028aa3633048
+ARG BUILD_IMAGE=golang:1.27.4@sha256:5e8afd493a7124a8586e134d9b532731161d4b9becf9dee5a5956b107426f93d
 ARG GOARCH=amd64
 # Directories in this file are referenced from the root of the project not this folder
 # This file is intended to be called from the root like so:
@@ -11,13 +11,13 @@ WORKDIR /src/loki
 ARG GOARCH
 RUN make clean && make BUILD_IN_CONTAINER=false GOARCH=${GOARCH} clients/cmd/docker-driver/docker-driver
 
-FROM alpine:latest@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a AS temp
+FROM alpine:latest@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf AS temp
 
 ARG GOARCH
 
 RUN apk add --update --no-cache --arch=${GOARCH} ca-certificates tzdata
 
-FROM --platform=linux/${GOARCH} alpine:latest@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a
+FROM --platform=linux/${GOARCH} alpine:latest@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
 
 COPY --from=temp /etc/ca-certificates.conf /etc/ca-certificates.conf
 COPY --from=temp /usr/share/ca-certificates /usr/share/ca-certificates
