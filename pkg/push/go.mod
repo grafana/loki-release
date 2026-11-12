@@ -1,11 +1,11 @@
 module github.com/grafana/loki-release/pkg/push
 
-go 1.21
+go 1.25.13
 
 toolchain go1.26.11
 
 require (
-	github.com/hashicorp/go-uuid v1.0.3
+	github.com/hashicorp/go-uuid v1.0.4
 	github.com/stretchr/testify v1.9.0
 )
 
