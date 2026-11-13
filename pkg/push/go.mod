@@ -2,7 +2,7 @@ module github.com/grafana/loki-release/pkg/push
 
 go 1.21
 
-toolchain go1.26.11
+toolchain go1.27.4
 
 require (
 	github.com/hashicorp/go-uuid v1.0.3
