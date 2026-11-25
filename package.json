@@ -70,7 +70,7 @@
   "dependencies": {
     "@actions/core": "1.11.1",
     "@actions/exec": "1.1.1",
-    "@actions/tool-cache": "2.0.2",
+    "@actions/tool-cache": "4.0.0",
     "chalk": "4.1.2",
     "figures": "3.2.0",
     "release-please": "grafana/release-please#7d1d0e77d695d53317d2a01696836ce02449da46"
