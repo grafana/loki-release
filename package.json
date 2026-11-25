@@ -83,7 +83,7 @@
     "@typescript-eslint/parser": "6.21.0",
     "@vercel/ncc": "0.38.4",
     "eslint": "8.57.1",
-    "eslint-plugin-github": "4.10.2",
+    "eslint-plugin-github": "6.1.2",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jest": "27.9.0",
     "eslint-plugin-jsonc": "2.21.1",
